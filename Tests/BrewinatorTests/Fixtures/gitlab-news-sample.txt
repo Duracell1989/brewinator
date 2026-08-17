@@ -1,0 +1,22 @@
+Overview of changes in 1.58.2, 05-08-2026
+==========================================
+
+* No functional changes since 1.58.1.
+
+Overview of changes in 1.58.1, 29-07-2026
+==========================================
+
+* Fix a crash when shaping empty runs
+* Fix memory leak in PangoLayout
+* Various fixes to the HarfBuzz backend
+
+Overview of changes in 1.58.0, 12-07-2026
+==========================================
+
+* New PangoLineBreaker API
+* Deprecate PangoLayout line-breaking helpers
+
+Overview of changes in 1.57.0, 03-06-2026
+==========================================
+
+* Initial work on the new line-breaking API

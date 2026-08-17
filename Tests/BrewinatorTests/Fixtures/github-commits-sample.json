@@ -1,0 +1,27 @@
+[
+  {
+    "commit": {
+      "message": "Merge pull request #3440 from sharkdp/prepare_release\n\nPrepare to release v0.26.0"
+    }
+  },
+  {
+    "commit": {
+      "message": "Prepare to release v0.26.0"
+    }
+  },
+  {
+    "commit": {
+      "message": "Merge pull request #3438 from lmmx/pipe-style\n\nfeat: make output pipeable with `-n`, non-auto styles"
+    }
+  },
+  {
+    "commit": {
+      "message": "docs: amend man page (style modifies cat-like piping)"
+    }
+  },
+  {
+    "commit": {
+      "message": "feat(pipe-style): make output pipeable (any style)"
+    }
+  }
+]

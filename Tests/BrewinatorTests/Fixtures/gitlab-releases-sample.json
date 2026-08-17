@@ -1,0 +1,38 @@
+[
+  {
+    "tag_name": "v19.2.2",
+    "description": "See [the changelog](https://gitlab.com/gitlab-org/gitlab-runner/blob/v19.2.2/CHANGELOG.md) :rocket:\n\nGitLab Runner documentation can be found at https://docs.gitlab.com/runner/.\n",
+    "_links": {
+      "closed_issues_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/issues?release_tag=v19.2.2&scope=all&state=closed",
+      "closed_merge_requests_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests?release_tag=v19.2.2&scope=all&state=closed",
+      "merged_merge_requests_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests?release_tag=v19.2.2&scope=all&state=merged",
+      "opened_issues_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/issues?release_tag=v19.2.2&scope=all&state=opened",
+      "opened_merge_requests_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests?release_tag=v19.2.2&scope=all&state=opened",
+      "self": "https://gitlab.com/gitlab-org/gitlab-runner/-/releases/v19.2.2"
+    }
+  },
+  {
+    "tag_name": "v19.0.3",
+    "description": "See [the changelog](https://gitlab.com/gitlab-org/gitlab-runner/blob/v19.0.3/CHANGELOG.md) :rocket:\n\nGitLab Runner documentation can be found at https://docs.gitlab.com/runner/.\n",
+    "_links": {
+      "closed_issues_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/issues?release_tag=v19.0.3&scope=all&state=closed",
+      "closed_merge_requests_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests?release_tag=v19.0.3&scope=all&state=closed",
+      "merged_merge_requests_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests?release_tag=v19.0.3&scope=all&state=merged",
+      "opened_issues_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/issues?release_tag=v19.0.3&scope=all&state=opened",
+      "opened_merge_requests_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests?release_tag=v19.0.3&scope=all&state=opened",
+      "self": "https://gitlab.com/gitlab-org/gitlab-runner/-/releases/v19.0.3"
+    }
+  },
+  {
+    "tag_name": "v19.2.1",
+    "description": "See [the changelog](https://gitlab.com/gitlab-org/gitlab-runner/blob/v19.2.1/CHANGELOG.md) :rocket:\n\nGitLab Runner documentation can be found at https://docs.gitlab.com/runner/.\n",
+    "_links": {
+      "closed_issues_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/issues?release_tag=v19.2.1&scope=all&state=closed",
+      "closed_merge_requests_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests?release_tag=v19.2.1&scope=all&state=closed",
+      "merged_merge_requests_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests?release_tag=v19.2.1&scope=all&state=merged",
+      "opened_issues_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/issues?release_tag=v19.2.1&scope=all&state=opened",
+      "opened_merge_requests_url": "https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests?release_tag=v19.2.1&scope=all&state=opened",
+      "self": "https://gitlab.com/gitlab-org/gitlab-runner/-/releases/v19.2.1"
+    }
+  }
+]

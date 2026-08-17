@@ -1,0 +1,23 @@
+{
+  "formulae": [
+    {
+      "name": "node",
+      "homepage": "https://nodejs.org/",
+      "urls": {
+        "stable": {
+          "url": "https://nodejs.org/dist/v26.7.0/node-v26.7.0.tar.xz"
+        }
+      }
+    },
+    {
+      "name": "jq",
+      "homepage": "https://jqlang.github.io/jq/",
+      "urls": {
+        "stable": {
+          "url": "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-1.8.2.tar.gz"
+        }
+      }
+    }
+  ],
+  "casks": []
+}

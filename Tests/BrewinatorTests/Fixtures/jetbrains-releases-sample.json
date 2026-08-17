@@ -1,0 +1,104 @@
+{
+  "TBA": [
+    {
+      "date": "2026-08-04",
+      "type": "release",
+      "downloads": {
+        "linuxARM64": {
+          "link": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.4.86641-arm64.tar.gz",
+          "size": 166584039,
+          "checksumLink": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.4.86641-arm64.tar.gz.sha256"
+        },
+        "linux": {
+          "link": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.4.86641.tar.gz",
+          "size": 170380638,
+          "checksumLink": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.4.86641.tar.gz.sha256"
+        },
+        "thirdPartyLibrariesJson": {
+          "link": "https://resources.jetbrains.com/storage/third-party-libraries/toolbox/toolbox-3.6.4.86641.third-party-libraries.json",
+          "size": 33272,
+          "checksumLink": "https://resources.jetbrains.com/storage/third-party-libraries/toolbox/toolbox-3.6.4.86641.third-party-libraries.json.sha256"
+        },
+        "windows": {
+          "link": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.4.86641.exe",
+          "size": 167432080,
+          "checksumLink": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.4.86641.exe.sha256"
+        },
+        "windowsARM64": {
+          "link": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.4.86641-arm64.exe",
+          "size": 197619104,
+          "checksumLink": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.4.86641-arm64.exe.sha256"
+        },
+        "mac": {
+          "link": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.4.86641.dmg",
+          "size": 208859383,
+          "checksumLink": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.4.86641.dmg.sha256"
+        },
+        "macM1": {
+          "link": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.4.86641-arm64.dmg",
+          "size": 171214298,
+          "checksumLink": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.4.86641-arm64.dmg.sha256"
+        }
+      },
+      "patches": {},
+      "notesLink": "https://youtrack.jetbrains.com/releaseNotes?title=Toolbox%20App%203.6%20Release%20Notes&q=in:%20TBX%20Fix%20versions:%203.6,%203.6.1,%203.6.2,%203.6.3%20%23Resolved%20-Duplicate%20-Answered",
+      "licenseRequired": null,
+      "version": "3.6.4",
+      "majorVersion": "3.6",
+      "build": "3.6.4.86641",
+      "whatsnew": "<h4>Toolbox App 3.6.4 Update</h4>\n<ul>\n <li>Improved telemetry and diagnostics.</li>\n</ul>\n<h4>Toolbox App 3.6.3 Update</h4>\n<ul>\n <li>The Toolbox App now starts moving Remote Development SSH connections to jetbrainsd. If you experience problems during the rollout, you can turn off Enable jetbrainsd SSH client in Toolbox Settings | Advanced. <a href=\"https://youtrack.jetbrains.com/issue/TBX-16713/\">TBX-16713</a> <a href=\"https://youtrack.jetbrains.com/issue/TBX-19021/\">TBX-19021</a></li>\n <li>Username/password SSH connections are now more reliable and no longer repeatedly ask for credentials in common reconnect scenarios. <a href=\"https://youtrack.jetbrains.com/issue/TBX-18510/\">TBX-18510</a></li>\n</ul>\n<h4>Toolbox App 3.6.2 Bugfix Update</h4>\n<ul>\n <li>Improved telemetry and diagnostics.</li>\n</ul>\n<h4>Toolbox App 3.6.1 Bugfix Update</h4>\n<ul>\n <li>Improved cache cleanup process on maсOS</li>\n</ul>\n<h3>What's New in Toolbox App 3.6</h3>\n<h4>Storage cleanup</h4>\n<p>The Toolbox App now shows removable data in Settings, including the download cache, previous versions, temporary leftovers, and leftover tool directories. You can clean up this data safely without opening cache folders manually. <a href=\"https://youtrack.jetbrains.com/issue/TBX-18085/\">TBX-18085</a></p>\n<h4>Windows installer diagnostics</h4>\n<p>The Windows installer now shows what prevents installation, including locked files, blocking processes, and read-only file states. You can also collect logs directly from the installer error screen. <a href=\"https://youtrack.jetbrains.com/issue/TBX-18624/\">TBX-18624</a></p>\n<h4>CodeCanvas goes away</h4>\n<p>CodeCanvas has been sunset, and no longer appears in the Toolbox App. <a href=\"https://youtrack.jetbrains.com/issue/TBX-18717/\">TBX-18717</a></p>\n<p>See the full list of release notes <a href=\"https://youtrack.jetbrains.com/releaseNotes?title=Toolbox%20App%203.6%20Release%20Notes&amp;q=in:%20TBX%20Fix%20versions:%203.6,%203.6.1%20%23Resolved%20-Duplicate%20-Answered\">here</a>.</p>",
+      "uninstallFeedbackLinks": null,
+      "printableReleaseType": null
+    },
+    {
+      "date": "2026-07-29",
+      "type": "release",
+      "downloads": {
+        "linuxARM64": {
+          "link": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.3.86383-arm64.tar.gz",
+          "size": 166516086,
+          "checksumLink": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.3.86383-arm64.tar.gz.sha256"
+        },
+        "linux": {
+          "link": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.3.86383.tar.gz",
+          "size": 170290717,
+          "checksumLink": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.3.86383.tar.gz.sha256"
+        },
+        "thirdPartyLibrariesJson": {
+          "link": "https://resources.jetbrains.com/storage/third-party-libraries/toolbox/toolbox-3.6.3.86383.third-party-libraries.json",
+          "size": 33272,
+          "checksumLink": "https://resources.jetbrains.com/storage/third-party-libraries/toolbox/toolbox-3.6.3.86383.third-party-libraries.json.sha256"
+        },
+        "windows": {
+          "link": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.3.86383.exe",
+          "size": 167346576,
+          "checksumLink": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.3.86383.exe.sha256"
+        },
+        "windowsARM64": {
+          "link": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.3.86383-arm64.exe",
+          "size": 197534112,
+          "checksumLink": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.3.86383-arm64.exe.sha256"
+        },
+        "mac": {
+          "link": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.3.86383.dmg",
+          "size": 208780077,
+          "checksumLink": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.3.86383.dmg.sha256"
+        },
+        "macM1": {
+          "link": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.3.86383-arm64.dmg",
+          "size": 171133343,
+          "checksumLink": "https://download.jetbrains.com/toolbox/jetbrains-toolbox-3.6.3.86383-arm64.dmg.sha256"
+        }
+      },
+      "patches": {},
+      "notesLink": "https://youtrack.jetbrains.com/releaseNotes?title=Toolbox%20App%203.6%20Release%20Notes&q=in:%20TBX%20Fix%20versions:%203.6,%203.6.1,%203.6.2,%203.6.3%20%23Resolved%20-Duplicate%20-Answered",
+      "licenseRequired": null,
+      "version": "3.6.3",
+      "majorVersion": "3.6",
+      "build": "3.6.3.86383",
+      "whatsnew": "<h4>Toolbox App 3.6.3 Update</h4>\n<ul>\n <li>The Toolbox App now starts moving Remote Development SSH connections to jetbrainsd. If you experience problems during the rollout, you can turn off Enable jetbrainsd SSH client in Toolbox Settings | Advanced. <a href=\"https://youtrack.jetbrains.com/issue/TBX-16713/\">TBX-16713</a> <a href=\"https://youtrack.jetbrains.com/issue/TBX-19021/\">TBX-19021</a></li>\n <li>Username/password SSH connections are now more reliable and no longer repeatedly ask for credentials in common reconnect scenarios. <a href=\"https://youtrack.jetbrains.com/issue/TBX-18510/\">TBX-18510</a></li>\n</ul>\n<h4>Toolbox App 3.6.2 Bugfix Update</h4>\n<ul>\n <li>Improved telemetry and diagnostics.</li>\n</ul>\n<h4>Toolbox App 3.6.1 Bugfix Update</h4>\n<ul>\n <li>Improved cache cleanup process on maсOS</li>\n</ul>\n<h3>What's New in Toolbox App 3.6</h3>\n<h4>Storage cleanup</h4>\n<p>The Toolbox App now shows removable data in Settings, including the download cache, previous versions, temporary leftovers, and leftover tool directories. You can clean up this data safely without opening cache folders manually. <a href=\"https://youtrack.jetbrains.com/issue/TBX-18085/\">TBX-18085</a></p>\n<h4>Windows installer diagnostics</h4>\n<p>The Windows installer now shows what prevents installation, including locked files, blocking processes, and read-only file states. You can also collect logs directly from the installer error screen. <a href=\"https://youtrack.jetbrains.com/issue/TBX-18624/\">TBX-18624</a></p>\n<h4>CodeCanvas goes away</h4>\n<p>CodeCanvas has been sunset, and no longer appears in the Toolbox App. <a href=\"https://youtrack.jetbrains.com/issue/TBX-18717/\">TBX-18717</a></p>\n<p>See the full list of release notes <a href=\"https://youtrack.jetbrains.com/releaseNotes?title=Toolbox%20App%203.6%20Release%20Notes&amp;q=in:%20TBX%20Fix%20versions:%203.6,%203.6.1%20%23Resolved%20-Duplicate%20-Answered\">here</a>.</p>",
+      "uninstallFeedbackLinks": null,
+      "printableReleaseType": null
+    }
+  ]
+}

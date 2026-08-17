@@ -1,0 +1,32 @@
+{
+  "formulae": [
+    {
+      "name": "node",
+      "installed_versions": ["22.0.0"],
+      "current_version": "23.0.0",
+      "pinned": false,
+      "pinned_version": null
+    },
+    {
+      "name": "ffmpeg",
+      "installed_versions": ["8.1.0"],
+      "current_version": "8.1.2",
+      "pinned": false,
+      "pinned_version": null
+    },
+    {
+      "name": "discord",
+      "installed_versions": ["1.0.0"],
+      "current_version": "1.1.0",
+      "pinned": false,
+      "pinned_version": null
+    }
+  ],
+  "casks": [
+    {
+      "name": "obsidian",
+      "installed_versions": ["1.0.0"],
+      "current_version": "1.1.0"
+    }
+  ]
+}

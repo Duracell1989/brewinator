@@ -1,0 +1,105 @@
+# Brewinator
+
+Fetches and archives release notes for outdated Homebrew packages, so you never install an update blind.
+
+[![CI](https://github.com/Duracell1989/brewinator/actions/workflows/ci.yml/badge.svg)](https://github.com/Duracell1989/brewinator/actions/workflows/ci.yml)
+
+Brewinator checks `brew outdated` against a curated, in-repo database of where release notes actually live for popular Homebrew formulae and casks — GitHub/GitLab/Gitea releases, Sparkle appcasts, JetBrains, and a handful of bespoke vendor sources (Firefox, ffmpeg, .NET SDK, Claude Desktop, Obsidian, Windows App, Android Studio) — then archives each package's notes as one Markdown file. Designed to run unattended once a day via `launchd`.
+
+---
+
+## Features
+
+- Fetches release notes for outdated packages from GitHub, GitLab, Gitea, Sparkle appcasts, JetBrains, and several vendor-specific sources
+- Archives one Markdown file per package (e.g. `node (formula) - 23.0.0.md`)
+- Prunes archives for packages that have since been upgraded or added to the skip list — always to Trash, never deleted outright
+- Skip list supports exact names and `*` globs
+- Existing archive files act as the state store — no separate tracking file, so a package's notes are only fetched once per version
+- Built to run unattended once a day via `launchd`; safe to re-run manually too
+
+---
+
+## Installation
+
+```
+brew install duracell1989/tap/brewinator
+```
+
+---
+
+## Configuration
+
+Brewinator reads `~/.config/brewinator/config.json` on every run. This file is not created for you — running it without one prints a friendly error plus an example, then exits:
+
+```json
+{
+  "archiveDirectory": "/path/to/your/notes/archive",
+  "skipList": [],
+  "notify": false
+}
+```
+
+- `archiveDirectory` — where release-note Markdown files are written; created automatically if it doesn't exist.
+- `skipList` — package names to skip; exact match or `*` glob (e.g. `"proton-*"`).
+- `notify` — reserved for a future desktop-notification feature; currently has no effect.
+
+---
+
+## Usage
+
+Run with no arguments:
+
+```
+brewinator
+```
+
+It checks `brew outdated`, fetches release notes for anything new, archives them, and prunes stale entries. Output is a short summary — either:
+
+```
+No new release notes.
+```
+
+or:
+
+```
+New release notes (2):
+  - node 23.0.0
+  - ffmpeg 8.0
+See: /path/to/your/notes/archive
+```
+
+Intended to run unattended (a daily `launchd` job); there are currently no CLI flags.
+
+---
+
+## Development
+
+Build and test:
+
+```
+swift build
+swift test
+```
+
+Open `Package.swift` directly in Xcode (`File → Open`, no `.xcodeproj` needed), or use any editor plus the CLI above.
+
+First clone only — wire up the pre-commit hook (git doesn't track `core.hooksPath` automatically):
+
+```
+git config core.hooksPath .githooks
+```
+
+Quality gate:
+
+```
+swiftlint lint --strict
+swift format lint --recursive Sources Tests
+```
+
+This is the author's first Swift project, built primarily with [Claude Code](https://claude.com/claude-code) as a learning exercise.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).

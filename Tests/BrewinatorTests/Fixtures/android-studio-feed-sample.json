@@ -1,0 +1,174 @@
+{
+  "feed": {
+    "entry": [
+      {
+        "id": {
+          "$t": "tag:blogger.com,1999:blog-3325683420543787015.post-1875024058290341958"
+        },
+        "published": {
+          "$t": "2026-08-10T09:40:07.316-07:00"
+        },
+        "updated": {
+          "$t": "2026-08-10T09:40:07.316-07:00"
+        },
+        "title": {
+          "type": "text",
+          "$t": "Android Studio Quail 3 Patch 1 now available"
+        },
+        "content": {
+          "type": "html",
+          "$t": "\n<p>Android Studio Quail 3 Patch 1 is now available in the Stable channel.</p>\n\n<p>If you already have an Android Studio build on the&nbsp;<a href=\"https://developer.android.com/studio/intro/update.html#channels\">Stable channel</a>,\nyou can get the update by clicking <b>Help</b>&nbsp;&gt;&nbsp;<b>Check for Updates</b> (or <b>Android Studio</b>&nbsp;&gt;&nbsp;<b>Check\nfor Updates</b> on macOS). Otherwise, you can <a href=\"https://developer.android.com/studio\">download it here</a>.</p>\n\n<p>For information on new features and changes in Android Studio Quail 3, see the&nbsp;<a\nhref=\"https://developer.android.com/studio/releases\"\n>Android Studio release notes</a>.\n\nFor details of bugs fixed in each previous release of Android Studio Quail 3, see\n<a href=\"https://developer.android.com/studio/releases/fixed-bugs/studio/2026.1.3.html\">closed issues</a>.</p>\n\n"
+        },
+        "link": [
+          {
+            "rel": "edit",
+            "type": "application/atom+xml",
+            "href": "https://www.blogger.com/feeds/3325683420543787015/posts/default/1875024058290341958"
+          },
+          {
+            "rel": "self",
+            "type": "application/atom+xml",
+            "href": "https://www.blogger.com/feeds/3325683420543787015/posts/default/1875024058290341958"
+          },
+          {
+            "rel": "alternate",
+            "type": "text/html",
+            "href": "https://androidstudio.googleblog.com/2026/08/android-studio-quail-3-patch-1-now.html",
+            "title": "Android Studio Quail 3 Patch 1 now available"
+          }
+        ],
+        "author": [
+          {
+            "name": {
+              "$t": "Android Studio Releaser"
+            },
+            "uri": {
+              "$t": "http://www.blogger.com/profile/03254692685280017507"
+            },
+            "email": {
+              "$t": "noreply@blogger.com"
+            },
+            "gd$image": {
+              "rel": "http://schemas.google.com/g/2005#thumbnail",
+              "width": "16",
+              "height": "16",
+              "src": "https://img1.blogblog.com/img/b16-rounded.gif"
+            }
+          }
+        ]
+      },
+      {
+        "id": {
+          "$t": "tag:blogger.com,1999:blog-3325683420543787015.post-4940795156819321725"
+        },
+        "published": {
+          "$t": "2026-08-06T07:55:00.830-07:00"
+        },
+        "updated": {
+          "$t": "2026-08-06T07:55:00.830-07:00"
+        },
+        "title": {
+          "type": "text",
+          "$t": "Android Studio Quail 4 Canary 4 now available"
+        },
+        "content": {
+          "type": "html",
+          "$t": "\n<p>Android Studio Quail 4 Canary 4 is now available in the Canary channel.</p>\n\n<p>If you already have an Android Studio build on the&nbsp;<a href=\"https://developer.android.com/studio/intro/update.html#channels\">Canary channel</a>,\nyou can get the update by clicking <b>Help</b>&nbsp;&gt;&nbsp;<b>Check for Updates</b> (or <b>Android Studio</b>&nbsp;&gt;&nbsp;<b>Check\nfor Updates</b> on macOS). Otherwise, you can <a href=\"https://developer.android.com/studio/preview\">download it here</a>.</p>\n\n<p>For information on new features and changes in Android Studio Quail 4, see the&nbsp;<a\nhref=\"https://developer.android.com/studio/preview/features\"\n>Android Studio Preview release notes</a>.\n\nFor details of bugs fixed in each previous release of Android Studio Quail 4, see\n<a href=\"https://developer.android.com/studio/releases/fixed-bugs/studio/2026.1.4.html\">closed issues</a>.</p>\n\n<h2>General fixes and features</h2>\n\n<p>Below is a list of general fixes in Android Studio Quail 4 Canary 4 and Android Gradle Plugin 9.4.0-alpha08. These are a result of your bug\nreports, which help us to make Android Studio better. If you encounter a problem, let us know by <a\nhref=\"https://developer.android.com/studio/report-bugs\">reporting a bug</a>. You can also <a\nhref=\"https://developers.google.com/issue-tracker/guides/subscribe#starring_an_issue\">vote for an existing issue</a> to indicate that it also affects\nyou.</p>\n\n<div class=\"devsite-table-wrapper\"><table class=\"responsive\">\n  <thead>\n    <tr>\n      <th colspan=\"2\">Fixed Issues</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td><b>CPU</b></td>\n      <td>\n        <div class=\"devsite-table-wrapper\"><table class=\"nested responsive\">\n          <tbody>\n            <tr><td>\n              <div><a href=\"https://issuetracker.google.com/issues/157084391\" target=\"_blank\"\n    rel=\"noopener noreferrer\">Issue #157084391</a></div>\n              <div>tools/base/common/.../SparseArray.java has memory leak</div>\n            </td></tr>\n          </tbody>\n        </table></div>\n      </td>\n    </tr>\n    <tr>\n      <td><b>Gemini</b></td>\n      <td>\n        <div class=\"devsite-table-wrapper\"><table class=\"nested responsive\">\n          <tbody>\n            <tr><td>\n              <div><a href=\"https://issuetracker.google.com/issues/538645014\" target=\"_blank\"\n    rel=\"noopener noreferrer\">Issue #538645014</a></div>\n              <div>Android Studio AI grep toolCall keeps failing to execute.</div>\n            </td></tr>\n            <tr><td>\n              <div><a href=\"https://issuetracker.google.com/issues/500338962\" target=\"_blank\"\n    rel=\"noopener noreferrer\">Issue #500338962</a></div>\n              <div>Shell command is not available in Sandbox of GIAS</div>\n            </td></tr>\n            <tr><td>\n              <div><a href=\"https://issuetracker.google.com/issues/540709807\" target=\"_blank\"\n    rel=\"noopener noreferrer\">Issue #540709807</a></div>\n              <div>S0 CRITICAL: Data Loss - AI Agent executed malformed shell command deleting drive contents</div>\n            </td></tr>\n          </tbody>\n        </table></div>\n      </td>\n    </tr>\n    <tr>\n      <td><b>Hangouts</b></td>\n      <td>\n        <div class=\"devsite-table-wrapper\"><table class=\"nested responsive\">\n          <tbody>\n            <tr><td>\n              <div><a href=\"https://issuetracker.google.com/issues/41325047\" target=\"_blank\"\n    rel=\"noopener noreferrer\">Issue #41325047</a></div>\n              <div>Regression: Chrome crashes on screen sharing through hangouts</div>\n            </td></tr>\n          </tbody>\n        </table></div>\n      </td>\n    </tr>\n    <tr>\n      <td><b>Profilers</b></td>\n      <td>\n        <div class=\"devsite-table-wrapper\"><table class=\"nested responsive\">\n          <tbody>\n            <tr><td>\n              <div><a href=\"https://issuetracker.google.com/issues/183419293\" target=\"_blank\"\n    rel=\"noopener noreferrer\">Issue #183419293</a></div>\n              <div>Tiny fonts in the Profiler (CPU and native memory charts)</div>\n            </td></tr>\n          </tbody>\n        </table></div>\n      </td>\n    </tr>\n  </tbody>\n</table></div>\n"
+        },
+        "link": [
+          {
+            "rel": "edit",
+            "type": "application/atom+xml",
+            "href": "https://www.blogger.com/feeds/3325683420543787015/posts/default/4940795156819321725"
+          },
+          {
+            "rel": "self",
+            "type": "application/atom+xml",
+            "href": "https://www.blogger.com/feeds/3325683420543787015/posts/default/4940795156819321725"
+          },
+          {
+            "rel": "alternate",
+            "type": "text/html",
+            "href": "https://androidstudio.googleblog.com/2026/08/android-studio-quail-4-canary-4-now.html",
+            "title": "Android Studio Quail 4 Canary 4 now available"
+          }
+        ],
+        "author": [
+          {
+            "name": {
+              "$t": "Android Studio Releaser"
+            },
+            "uri": {
+              "$t": "http://www.blogger.com/profile/03254692685280017507"
+            },
+            "email": {
+              "$t": "noreply@blogger.com"
+            },
+            "gd$image": {
+              "rel": "http://schemas.google.com/g/2005#thumbnail",
+              "width": "16",
+              "height": "16",
+              "src": "https://img1.blogblog.com/img/b16-rounded.gif"
+            }
+          }
+        ]
+      },
+      {
+        "id": {
+          "$t": "tag:blogger.com,1999:blog-3325683420543787015.post-6313894182969576629"
+        },
+        "published": {
+          "$t": "2026-07-30T07:05:44.976-07:00"
+        },
+        "updated": {
+          "$t": "2026-07-30T07:05:44.976-07:00"
+        },
+        "title": {
+          "type": "text",
+          "$t": "Android Studio Quail 3 now available"
+        },
+        "content": {
+          "type": "html",
+          "$t": "\n<p>Android Studio Quail 3 is now available in the Stable channel.</p>\n\n<p>If you already have an Android Studio build on the&nbsp;<a href=\"https://developer.android.com/studio/intro/update.html#channels\">Stable channel</a>,\nyou can get the update by clicking <b>Help</b>&nbsp;&gt;&nbsp;<b>Check for Updates</b> (or <b>Android Studio</b>&nbsp;&gt;&nbsp;<b>Check\nfor Updates</b> on macOS). Otherwise, you can <a href=\"https://developer.android.com/studio\">download it here</a>.</p>\n\n<p>For information on new features and changes in Android Studio Quail 3, see the&nbsp;<a\nhref=\"https://developer.android.com/studio/releases\"\n>Android Studio release notes</a>.\n\nFor details of bugs fixed in each previous release of Android Studio Quail 3, see\n<a href=\"https://developer.android.com/studio/releases/fixed-bugs/studio/2026.1.3.html\">closed issues</a>.</p>\n\n"
+        },
+        "link": [
+          {
+            "rel": "edit",
+            "type": "application/atom+xml",
+            "href": "https://www.blogger.com/feeds/3325683420543787015/posts/default/6313894182969576629"
+          },
+          {
+            "rel": "self",
+            "type": "application/atom+xml",
+            "href": "https://www.blogger.com/feeds/3325683420543787015/posts/default/6313894182969576629"
+          },
+          {
+            "rel": "alternate",
+            "type": "text/html",
+            "href": "https://androidstudio.googleblog.com/2026/07/android-studio-quail-3-now-available.html",
+            "title": "Android Studio Quail 3 now available"
+          }
+        ],
+        "author": [
+          {
+            "name": {
+              "$t": "Android Studio Releaser"
+            },
+            "uri": {
+              "$t": "http://www.blogger.com/profile/03254692685280017507"
+            },
+            "email": {
+              "$t": "noreply@blogger.com"
+            },
+            "gd$image": {
+              "rel": "http://schemas.google.com/g/2005#thumbnail",
+              "width": "16",
+              "height": "16",
+              "src": "https://img1.blogblog.com/img/b16-rounded.gif"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

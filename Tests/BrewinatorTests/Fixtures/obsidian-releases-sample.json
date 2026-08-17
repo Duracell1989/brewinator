@@ -1,0 +1,22 @@
+[
+  {
+    "tag_name": "v1.13.7",
+    "body": "https://obsidian.md/changelog/2026-08-12-desktop-v1.13.7/"
+  },
+  {
+    "tag_name": "v1.13.6",
+    "body": "https://obsidian.md/changelog/2026-08-10-desktop-v1.13.6/"
+  },
+  {
+    "tag_name": "v1.13.4",
+    "body": "https://obsidian.md/changelog/2026-07-30-desktop-v1.13.4/"
+  },
+  {
+    "tag_name": "v1.12.7",
+    "body": "https://obsidian.md/changelog/2026-03-23-desktop-v1.12.7/"
+  },
+  {
+    "tag_name": "v1.12.4",
+    "body": "https://obsidian.md/changelog/2026-02-27-desktop-v1.12.4/\r\n\r\nThe windows installer has been updated with a signed version of Obsidian.com to reduce chances of false positive from antivirus software.\r\n\r\nThe windows installer has been updated again to roll back Electron to 39.6.0 due to a bug with 39.7.0 causing a window closure to close all other windows."
+  }
+]

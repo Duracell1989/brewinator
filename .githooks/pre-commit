@@ -1,0 +1,9 @@
+#!/bin/sh
+# swift-format on staged .swift files; ACMR so renamed-and-edited files still get formatted.
+swift_files=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.swift$' || true)
+if [ -n "$swift_files" ]; then
+  if swift format --version >/dev/null 2>&1; then
+    printf '%s' "$swift_files" | tr '\n' '\0' | xargs -0 swift format format --in-place --parallel
+    printf '%s' "$swift_files" | tr '\n' '\0' | xargs -0 git add
+  fi
+fi

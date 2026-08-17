@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Build
+        run: swift build
+
+      - name: Test with coverage
+        run: swift test --enable-code-coverage
+
+      - name: Export coverage (lcov)
+        run: |
+          xcrun llvm-cov export \
+            .build/debug/brewinatorPackageTests.xctest/Contents/MacOS/brewinatorPackageTests \
+            -instr-profile .build/debug/codecov/default.profdata \
+            -format lcov > coverage.lcov
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Lint (strict)
+        run: swiftlint lint --strict
+
+      # SonarQube Cloud: needs an org created at sonarcloud.io and a SONAR_TOKEN
+      # repo secret before this can run. Uncomment once that's set up (see plan
+      # doc: Codex/Claude/Plans/brew-notes-swift-rewrite.md, Quality stack section).
+      # - name: SonarQube Cloud scan
+      #   uses: SonarSource/sonarqube-scan-action@<pinned-sha> # vX (vX.Y.Z)
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #   with:
+      #     args: >
+      #       -Dsonar.organization=<org>
+      #       -Dsonar.projectKey=Duracell1989_brewinator
+      #       -Dsonar.sources=Sources
+      #       -Dsonar.tests=Tests
+      #       -Dsonar.coverageReportPaths=coverage.lcov

@@ -1,0 +1,230 @@
+{
+  "total_commits": 325,
+  "commits": [
+    {
+      "commit": {
+        "message": "updated changelog for pr number"
+      }
+    },
+    {
+      "commit": {
+        "message": "Add abbreviations for fish to Readme"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge pull request #3242 from simono/patch-1\n\nAdd abbreviations for fish to Readme"
+      }
+    },
+    {
+      "commit": {
+        "message": "Use built-in detection for OS theme in Readme"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge pull request #3243 from simono/patch-2\n\nUse built-in detection for OS theme in Readme"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge branch 'master' into add-odin-syntax"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge branch 'master' into add-gdscript-support"
+      }
+    },
+    {
+      "commit": {
+        "message": "Update CHANGELOG.md\n\nCo-authored-by: Keith Hall <keith-hall@users.noreply.github.com>"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge pull request #3241 from chetanjangir0/add-odin-syntax\n\nAdd Odin Language Syntax Support"
+      }
+    },
+    {
+      "commit": {
+        "message": "Bump assets/syntaxes/02_Extra/Zig from `1a4a384` to `8a4a3fe` (#3220)\n\nBumps [assets/syntaxes/02_Extra/Zig](https://github.com/ziglang/sublime-zig-language) from `1a4a384` to `8a4a3fe`.\n- [Release notes](https://github.com/ziglang/sublime-zig-language/releases)\n- [Commits](https://github.com/ziglang/sublime-zig-language/compare/1a4a38445fec495817625bafbeb01e79c44abcba...8a4a3fe4a051f85c4752b82f586d395cab843c06)\n\n---\nupdated-dependencies:\n- dependency-name: assets/syntaxes/02_Extra/Zig\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>"
+      }
+    },
+    {
+      "commit": {
+        "message": "Bump assets/syntaxes/02_Extra/Org_mode from `4976d8f` to `bb6e5d8` (#3221)\n\nBumps [assets/syntaxes/02_Extra/Org_mode](https://github.com/jezcope/Org.tmbundle) from `4976d8f` to `bb6e5d8`.\n- [Release notes](https://github.com/jezcope/Org.tmbundle/releases)\n- [Commits](https://github.com/jezcope/Org.tmbundle/compare/4976d8f84eeecd94df7da872bf404c125df04c73...bb6e5d848151135ab8f87bdcb997437b2308718a)\n\n---\nupdated-dependencies:\n- dependency-name: assets/syntaxes/02_Extra/Org_mode\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>"
+      }
+    },
+    {
+      "commit": {
+        "message": "Fix for multibyte characters in file path"
+      }
+    },
+    {
+      "commit": {
+        "message": "Add PR to CHANGELOG"
+      }
+    },
+    {
+      "commit": {
+        "message": "Bump anyhow from 1.0.95 to 1.0.97 (#3246)\n\nBumps [anyhow](https://github.com/dtolnay/anyhow) from 1.0.95 to 1.0.97.\n- [Release notes](https://github.com/dtolnay/anyhow/releases)\n- [Commits](https://github.com/dtolnay/anyhow/compare/1.0.95...1.0.97)\n\n---\nupdated-dependencies:\n- dependency-name: anyhow\n  dependency-version: 1.0.97\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>"
+      }
+    },
+    {
+      "commit": {
+        "message": "Bump etcetera from 0.8.0 to 0.10.0 (#3247)\n\nBumps [etcetera](https://github.com/lunacookies/etcetera) from 0.8.0 to 0.10.0.\n- [Release notes](https://github.com/lunacookies/etcetera/releases)\n- [Commits](https://github.com/lunacookies/etcetera/compare/v0.8.0...v0.10.0)\n\n---\nupdated-dependencies:\n- dependency-name: etcetera\n  dependency-version: 0.10.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>"
+      }
+    },
+    {
+      "commit": {
+        "message": "Bump indexmap from 2.7.0 to 2.8.0 (#3248)\n\nBumps [indexmap](https://github.com/indexmap-rs/indexmap) from 2.7.0 to 2.8.0.\n- [Changelog](https://github.com/indexmap-rs/indexmap/blob/main/RELEASES.md)\n- [Commits](https://github.com/indexmap-rs/indexmap/compare/2.7.0...2.8.0)\n\n---\nupdated-dependencies:\n- dependency-name: indexmap\n  dependency-version: 2.8.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>"
+      }
+    },
+    {
+      "commit": {
+        "message": "Make highlight tests fail when new syntaxes don't have fixtures"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge pull request #3255 from dan-hipschman/fix-syntax-test-compare-script\n\nMake highlight tests fail when new syntaxes don't have fixtures"
+      }
+    },
+    {
+      "commit": {
+        "message": "Add paging to `--list-themes`"
+      }
+    },
+    {
+      "commit": {
+        "message": "Update CHANGELOG"
+      }
+    },
+    {
+      "commit": {
+        "message": "Do not split into graphemes if not necessary"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge branch 'master' into fix/multibyte-chars"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge pull request #3239 from einfachIrgendwer0815/feature/page_list_themes\n\nAdd paging to `--list-themes`"
+      }
+    },
+    {
+      "commit": {
+        "message": "CICD: Stop building for x86_64-pc-windows-gnu which fails\n\nLet's not build for platforms that are broken. If someone fixes the\nbuild we can of course add it back."
+      }
+    },
+    {
+      "commit": {
+        "message": "Make mention (@ in front of name) in CHANGELOG entry optional"
+      }
+    },
+    {
+      "commit": {
+        "message": "Fix syntax highlighting for bash/zsh"
+      }
+    },
+    {
+      "commit": {
+        "message": "Update CHANGELOG.md"
+      }
+    },
+    {
+      "commit": {
+        "message": "Cargo.toml: Document that MSRV can be bumped if there is a reason for it\n\nTo the best of my knowledge our current MSRV rule is that we can bump\nMSRV whenever there is a reason for it. Let's document it."
+      }
+    },
+    {
+      "commit": {
+        "message": "Fix copy-paste mistake in bat.1.in\n\nThe `--theme-light` documentation says “dark” in two places where it should say “light” (presumably copy-pasted from the `--theme-dark` documentation)"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge branch 'master' into fix/multibyte-chars"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge pull request #3245 from HSM95/fix/multibyte-chars\n\nFix for multibyte characters in file path"
+      }
+    },
+    {
+      "commit": {
+        "message": "fixed merge conflicts"
+      }
+    },
+    {
+      "commit": {
+        "message": "genereated highlighted syntax test file"
+      }
+    },
+    {
+      "commit": {
+        "message": "regenerated the highlighted file"
+      }
+    },
+    {
+      "commit": {
+        "message": "Update CHANGELOG.md\n\nCo-authored-by: Keith Hall <keith-hall@users.noreply.github.com>"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge branch 'master' into bash-zsh"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge pull request #3262 from AdamGaskins/bash-zsh\n\nFix syntax highlighting for bash/zsh"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge branch 'master' into add-gdscript-support"
+      }
+    },
+    {
+      "commit": {
+        "message": "Update CHANGELOG.md\n\nCo-authored-by: Keith Hall <keith-hall@users.noreply.github.com>"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge pull request #3236 from chetanjangir0/add-gdscript-support\n\nAdd GDScript Syntax Support (#3233)"
+      }
+    },
+    {
+      "commit": {
+        "message": "Bump assets/syntaxes/02_Extra/Apache from `163bc03` to `cf6cefc` (#3253)\n\nBumps [assets/syntaxes/02_Extra/Apache](https://github.com/colinta/ApacheConf.tmLanguage) from `163bc03` to `cf6cefc`.\n- [Commits](https://github.com/colinta/ApacheConf.tmLanguage/compare/163bc03ae8998a237dfb4be353d0aea198ea17f5...cf6cefc51ebb46b1b54906433edbae0fe9c71cad)\n\n---\nupdated-dependencies:\n- dependency-name: assets/syntaxes/02_Extra/Apache\n  dependency-version: cf6cefc51ebb46b1b54906433edbae0fe9c71cad\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>"
+      }
+    },
+    {
+      "commit": {
+        "message": "Bump assets/syntaxes/02_Extra/PowerShell from `c0372a1` to `a08b55b` (#3252)\n\nBumps [assets/syntaxes/02_Extra/PowerShell](https://github.com/PowerShell/EditorSyntax) from `c0372a1` to `a08b55b`.\n- [Commits](https://github.com/PowerShell/EditorSyntax/compare/c0372a1d2df136ca6b3d1a9f7b85031dedf117f9...a08b55bf1146c210f58e844be53c2aa78fd5e610)\n\n---\nupdated-dependencies:\n- dependency-name: assets/syntaxes/02_Extra/PowerShell\n  dependency-version: a08b55bf1146c210f58e844be53c2aa78fd5e610\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>"
+      }
+    },
+    {
+      "commit": {
+        "message": "Bump assets/themes/zenburn from `86d4ee7` to `9c588eb` (#3251)\n\nBumps [assets/themes/zenburn](https://github.com/colinta/zenburn) from `86d4ee7` to `9c588eb`.\n- [Commits](https://github.com/colinta/zenburn/compare/86d4ee7a1f884851a1d21d66249687f527fced32...9c588ebc11c3e6487b081bd54528af08baa8a09a)\n\n---\nupdated-dependencies:\n- dependency-name: assets/themes/zenburn\n  dependency-version: 9c588ebc11c3e6487b081bd54528af08baa8a09a\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge branch 'master' into patch-1"
+      }
+    },
+    {
+      "commit": {
+        "message": "Merge branch 'master' into read-from-tail"
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "formulae": [],
+  "casks": [
+    {
+      "token": "rectangle",
+      "url": "https://github.com/rxhanson/Rectangle/releases/download/v0.98/Rectangle0.98.dmg",
+      "homepage": "https://rectangleapp.com/"
+    },
+    {
+      "token": "obsidian",
+      "url": "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.13.7/Obsidian-1.13.7.dmg",
+      "homepage": "https://obsidian.md/"
+    }
+  ]
+}

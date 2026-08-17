@@ -1,0 +1,36 @@
+strict: true
+
+included:
+  - Sources
+  - Tests
+
+# swift-format's TrailingComma rule *adds* a trailing comma to multiline
+# collection literals; SwiftLint's default trailing_comma rule *removes* it.
+# The formatter is the one that actually rewrites the file, so it wins —
+# disabled here rather than fighting it file by file. First hit: Phase 3's
+# ResolutionDatabase / Resolver source-list literals (2026-08-14).
+disabled_rules:
+  - trailing_comma
+
+opt_in_rules:
+  - closure_spacing
+  - contains_over_first_not_nil
+  - empty_count
+  - explicit_init
+  - fatal_error_message
+  - first_where
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - overridden_super_call
+  - redundant_nil_coalescing
+  - sorted_imports
+  - unneeded_parentheses_in_closure_argument
+
+line_length:
+  warning: 160
+  error: 200
+
+identifier_name:
+  min_length: 2
+  excluded:
+    - id

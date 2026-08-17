@@ -1,0 +1,18 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>Vivaldi</title>
+        <item>
+            <title>8.1.4087.64</title>
+            <pubDate>Wed, 12 Aug 2026 04:29:38 +0200</pubDate>
+            <sparkle:releaseNotesLink>https://update.vivaldi.com/update/1.0/relnotes/8.1.4087.64.html</sparkle:releaseNotesLink>
+            <sparkle:version>8.1.4087.64</sparkle:version>
+            <sparkle:shortVersionString>8.1.4087.64</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://downloads.vivaldi.com/stable-auto/Vivaldi.8.1.4087.64.universal.tar.xz" length="220073832" type="application/octet-stream" sparkle:edSignature="E9CVMdVYE2K8UZy9hz1B10QAT+co+mOMXU90JuvgJZx+Rn7tly7JSuv3HpXip5JoG0CCVN9E7mWWMQjCGtE8CA=="/>
+            <sparkle:deltas>
+                <enclosure url="https://downloads.vivaldi.com/stable-auto/Vivaldi-8.1.4087.64-8.1.4087.62.universal.delta" sparkle:deltaFrom="8.1.4087.62" length="21451674" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="980432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="fhVUleumW5C1jE+6ulv6C1QIvNV1AhBEF7rIwYKxLFr/L/Ax8mZid/pyJQTcXIZIL5gdGRNLLfJhfOoUYN4DBw=="/>
+            </sparkle:deltas>
+        </item>
+    </channel>
+</rss>
