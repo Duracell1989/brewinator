@@ -62,6 +62,12 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
             "pango": "gitlab.gnome.org/GNOME/pango",
         ],
         tagCompareSpecs: [
+            // Do not "fix" this back to Proton's own feed
+            // (proton.me/download/mail/macos/version.json): its `ReleaseNotes`
+            // field is an empty array on every release ever published, and
+            // `ProtonMail/inbox-desktop` was archived 2025-03 with its source
+            // removed. The app builds from the WebClients monorepo now, so the
+            // commit log between tags is the only real source.
             "proton-mail": TagCompareSpec(
                 repo: "ProtonMail/WebClients",
                 tagTemplate: "proton-inbox-desktop@%s",
