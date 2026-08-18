@@ -21,9 +21,20 @@ Brewinator checks `brew outdated` against a curated, in-repo database of where r
 
 ## Installation
 
+Brewinator lives in its own tap, so the plain `brew install brewinator` won't find it. Either install it by its full tap-qualified name:
+
 ```
 brew install duracell1989/tap/brewinator
 ```
+
+or add the tap once and use the short name from then on:
+
+```
+brew tap duracell1989/tap
+brew install brewinator
+```
+
+Upgrades follow the usual `brew upgrade` / `brew upgrade brewinator`.
 
 ---
 
