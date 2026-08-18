@@ -65,8 +65,16 @@ extension ConfigCommand {
             subcommands: [AddCommand.self, RemoveCommand.self]
         )
 
+        /// Rendered through the *root* command, not `helpMessage()` on this
+        /// type: the latter renders `skip` as if it were the root, printing
+        /// `USAGE: skip <subcommand>` and pointing at `skip help` - neither of
+        /// which the user can type. Going through the root walks the real tree.
+        static var usageText: String {
+            BrewinatorCommand.helpMessage(for: ConfigCommand.SkipCommand.self)
+        }
+
         func run() throws {
-            print(ConfigCommand.SkipCommand.helpMessage())
+            print(Self.usageText)
         }
     }
 }

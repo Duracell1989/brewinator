@@ -7,6 +7,11 @@
 /// Entries only belong here when there is genuinely nothing to fetch. A
 /// package a user finds merely noisy goes in their own `skipList`.
 enum BuiltInSkipList {
+    /// Where a wrong entry gets corrected. Printed by `brewinator config` and
+    /// by `config skip remove <built-in>`, because the user cannot override
+    /// this list locally - a fix has to ship in a release.
+    static let issuesURL = "https://github.com/Duracell1989/brewinator/issues"
+
     /// - `spotify`: desktop release notes stopped in 2015.
     /// - `discord`: no structured per-version changelog exists (checked 2026-08-04).
     /// - `whatsapp`: vendor publishes nothing per version.

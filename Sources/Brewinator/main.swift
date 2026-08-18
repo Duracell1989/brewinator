@@ -13,6 +13,11 @@ do {
         // `--help`/`help`: running it throws the help request, which
         // `exit(withError:)` renders and exits 0 on. Discarding it instead
         // is what made v0.1.0's `--help` run a full sync.
+        //
+        // `validate()` first, because that is the order `ParsableCommand.main()`
+        // uses and this dispatch replaces it - skipping it would silently drop
+        // the hook any future validation lands in.
+        try auxiliary.validate()
         try auxiliary.run()
         BrewinatorCommand.exit()
     }
@@ -33,25 +38,28 @@ do {
         print("  brewinator config set archiveDirectory <path>")
         print("")
     }
-} catch let error as ConfigStoreError {
-    // Only a *malformed* config lands here now: a missing one is created
-    // above. Deliberately never overwritten — the user's skip list is worth
-    // more than the convenience of a self-healing file.
-    switch error {
-    case .notFound(let path):
-        print("Could not create a config at \(path).")
-    case .invalid(let path, let reason):
-        print("Config at \(path) is invalid (\(reason)) — expected JSON like:")
+} catch {
+    // A missing config is created above, so only a malformed or unwritable one
+    // lands here. Deliberately never overwritten - the user's skip list is
+    // worth more than the convenience of a self-healing file.
+    //
+    // The catch is untyped on purpose: `save` failures arrive as raw
+    // `CocoaError`s, and an unmatched error at top level traps the process
+    // instead of printing anything.
+    print(error)
+    if let configError = error as? ConfigStoreError, case .invalid = configError {
+        print("")
+        print("Expected JSON like:")
+        print(
+            """
+            {
+              "archiveDirectory": "/path/to/your/notes/archive",
+              "skipList": [],
+              "notify": false
+            }
+            """
+        )
     }
-    print(
-        """
-        {
-          "archiveDirectory": "/path/to/your/notes/archive",
-          "skipList": [],
-          "notify": false
-        }
-        """
-    )
     BrewinatorCommand.exit(withError: ExitCode.failure)
 }
 
