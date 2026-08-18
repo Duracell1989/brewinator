@@ -28,7 +28,12 @@ struct BrewNotesSync: Sendable {
     // tests could never override it with a `RecordingLogger`.
     var logger: SyncLogger = StderrLogger()
 
-    func run() async throws -> SyncResult {
+    /// `onOutdated` fires as soon as the set is known, before prune and before
+    /// the first network fetch. The CLI prints the outdated listing from it:
+    /// waiting for `run()` to return would put that listing *after* every fetch,
+    /// making it strictly slower to appear than the `brew outdated --verbose`
+    /// call it replaced.
+    func run(onOutdated: ([OutdatedPackageInfo]) -> Void = { _ in }) async throws -> SyncResult {
         let outdated = try await brewClient.outdated()
 
         // `brew info` failing/being empty must not abort the sync the way a
@@ -42,11 +47,13 @@ struct BrewNotesSync: Sendable {
             outdated.formulae.map { Self.enrich($0, with: formulaInfo) }
             + outdated.casks.map { Self.enrich($0, with: caskInfo) }
 
+        onOutdated(allPackages)
+
         // Deliberately the *unfiltered* outdated set — a still-outdated but
         // newly-skip-listed package still gets trashed, since this is
         // computed before skip filtering.
         let outdatedIdentities = Set(allPackages.map(\.archiveIdentity))
-        let trashed = try archiveStore.prune(keeping: outdatedIdentities, skipList: config.effectiveSkipList)
+        let trashed = try archiveStore.prune(keeping: outdatedIdentities, skippedBy: config.skipMatcher)
 
         var newItems: [SyncResult.NewItem] = []
         for package in allPackages {

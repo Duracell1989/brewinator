@@ -1,4 +1,3 @@
-import Darwin
 import Foundation
 
 /// User-owned settings. The shipped default deliberately points at a visible
@@ -23,13 +22,19 @@ struct UserConfig: Codable, Sendable, Equatable {
     }
 
     /// The user's own entries plus the shipped ones. `skipList` stays purely
-    /// theirs — `brewinator config skip add/remove` never touches built-ins.
+    /// theirs - `brewinator config skip add/remove` never touches built-ins.
     var effectiveSkipList: [String] {
         skipList + BuiltInSkipList.patterns
     }
 
+    /// The single matcher every skip decision goes through, so no caller has to
+    /// pick between `skipList` and `effectiveSkipList` by hand.
+    var skipMatcher: SkipMatcher {
+        SkipMatcher(effectiveSkipList)
+    }
+
     /// Exact-name or `*`-glob match against the effective skip list.
     func isSkipped(_ name: String) -> Bool {
-        effectiveSkipList.contains { fnmatch($0, name, 0) == 0 }
+        skipMatcher.matches(name)
     }
 }
