@@ -53,22 +53,36 @@ Run with no arguments:
 brewinator
 ```
 
-It checks `brew outdated`, fetches release notes for anything new, archives them, and prunes stale entries. Output is a short summary — either:
+It checks `brew outdated`, lists what's outdated, fetches release notes for anything new, archives them, and prunes stale entries:
 
 ```
-No new release notes.
-```
+Outdated (2):
+  node (formula)     22.0.0 -> 23.0.0
+  obsidian (cask)    1.1.0 -> 1.2.0
 
-or:
-
-```
 New release notes (2):
   - node 23.0.0
-  - ffmpeg 8.0
+  - obsidian 1.2.0
 See: /path/to/your/notes/archive
 ```
 
-Intended to run unattended (a daily `launchd` job); there are currently no CLI flags.
+When nothing is outdated it prints `Nothing outdated.` and does nothing else.
+
+### Options
+
+| Flag | Effect |
+|---|---|
+| `--update` | Run `brew update` first, so the outdated set reflects fresh package metadata. Off by default — a bare run only reads Homebrew state. |
+| `--version` | Print the version and exit. |
+| `--help` | Print usage and exit. |
+
+Homebrew's metadata is only as fresh as the last `brew update`, so an unattended daily job wants `--update`:
+
+```
+brewinator --update
+```
+
+That makes the whole workflow one command — no shell wrapper needed around `brew update` and `brew outdated`.
 
 ---
 

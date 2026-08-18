@@ -11,6 +11,7 @@ struct OutdatedResult: Sendable, Equatable {
 }
 
 protocol BrewClient: Sendable {
+    func update() async throws
     func outdated() async throws -> OutdatedResult
     func formulaInfo(names: [String]) async throws -> [String: PackageURLInfo]
     func caskInfo(names: [String]) async throws -> [String: PackageURLInfo]
@@ -23,6 +24,13 @@ final class ProcessBrewClient: BrewClient {
     /// Injectable for Intel (`/usr/local/bin/brew`) and for tests.
     init(brewPath: String = "/opt/homebrew/bin/brew") {
         self.brewPath = brewPath
+    }
+
+    /// Refreshes Homebrew's package metadata. Everything else here only
+    /// *reads* Homebrew state — this is the one mutating call, which is why
+    /// it's opt-in behind `--update` and never runs on a bare invocation.
+    func update() async throws {
+        _ = try run(arguments: ["update", "--quiet"])
     }
 
     func outdated() async throws -> OutdatedResult {

@@ -124,3 +124,31 @@ struct BrewClientParseCaskInfoTests {
         #expect(info["obsidian"]?.stableURL == "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.13.7/Obsidian-1.13.7.dmg")
     }
 }
+
+@Suite("ProcessBrewClient.update")
+struct BrewClientUpdateTests {
+    @Test("invokes `brew update --quiet` — the daily launchd run has no shell wrapper to do it first")
+    func invokesBrewUpdate() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let record = directory.appendingPathComponent("arguments")
+        let stub = directory.appendingPathComponent("brew")
+        try "#!/bin/sh\nprintf '%s' \"$*\" > '\(record.path)'\n".write(to: stub, atomically: true, encoding: .utf8)
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: stub.path)
+
+        try await ProcessBrewClient(brewPath: stub.path).update()
+
+        #expect(try String(contentsOf: record, encoding: .utf8) == "update --quiet")
+    }
+
+    @Test("a failing `brew update` throws, so the caller can say so instead of silently syncing against stale metadata")
+    func failureThrows() async {
+        let client = ProcessBrewClient(brewPath: "/usr/bin/false")
+
+        await #expect(throws: BrewClientError.processFailed(exitCode: 1)) {
+            try await client.update()
+        }
+    }
+}

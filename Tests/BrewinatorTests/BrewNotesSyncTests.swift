@@ -8,6 +8,7 @@ private struct FakeBrewClient: BrewClient {
     var formulaURLInfo: [String: PackageURLInfo] = [:]
     var caskURLInfo: [String: PackageURLInfo] = [:]
 
+    func update() async throws {}
     func outdated() async throws -> OutdatedResult { result }
     func formulaInfo(names: [String]) async throws -> [String: PackageURLInfo] { formulaURLInfo }
     func caskInfo(names: [String]) async throws -> [String: PackageURLInfo] { caskURLInfo }
@@ -25,6 +26,7 @@ private struct EchoingNoteSource: NoteSource {
 }
 
 private struct FailingBrewClient: BrewClient {
+    func update() async throws {}
     func outdated() async throws -> OutdatedResult { throw BrewClientError.invalidOutdatedOutput }
     func formulaInfo(names: [String]) async throws -> [String: PackageURLInfo] { [:] }
     func caskInfo(names: [String]) async throws -> [String: PackageURLInfo] { [:] }
@@ -102,6 +104,26 @@ struct BrewNotesSyncTests {
 
         let remaining = Set(try FileManager.default.contentsOfDirectory(atPath: directory.path))
         #expect(remaining == ["ffmpeg (formula) - 8.1.2.md", "node (formula) - 23.0.0.md", "obsidian (cask) - 1.1.0.md"])
+    }
+
+    @Test(
+        "reports every outdated package, skip-listed ones included — the printed listing replaces `brew outdated --verbose`, which ignored the skip list too"
+    )
+    func reportsUnfilteredOutdatedSet() async throws {
+        let directory = tempDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let config = UserConfig(archiveDirectory: directory.path, skipList: ["discord"], notify: false)
+        let sync = BrewNotesSync(
+            brewClient: FakeBrewClient(result: try loadFixture()),
+            archiveStore: FileArchiveStore(directory: directory),
+            resolver: Resolver(sources: []),
+            config: config
+        )
+
+        let result = try await sync.run()
+
+        #expect(Set(result.outdated.map(\.name)) == ["discord", "ffmpeg", "node", "obsidian"])
     }
 
     @Test("a failed brew outdated call aborts the sync entirely — no prune, no fetch")
@@ -248,6 +270,7 @@ struct BrewNotesSyncTests {
     func failingBrewInfoDoesNotAbortSync() async throws {
         struct InfoFailingBrewClient: BrewClient {
             let result: OutdatedResult
+            func update() async throws {}
             func outdated() async throws -> OutdatedResult { result }
             func formulaInfo(names: [String]) async throws -> [String: PackageURLInfo] { throw BrewClientError.invalidOutdatedOutput }
             func caskInfo(names: [String]) async throws -> [String: PackageURLInfo] { [:] }

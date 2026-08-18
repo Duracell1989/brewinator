@@ -6,6 +6,10 @@ struct SyncResult: Sendable, Equatable {
         let version: String
     }
 
+    /// The *unfiltered* outdated set, skip-listed packages included — the CLI
+    /// prints it in place of `brew outdated --verbose`, which never knew about
+    /// the skip list either.
+    let outdated: [OutdatedPackageInfo]
     let newItems: [NewItem]
     let trashedFiles: [URL]
 }
@@ -70,7 +74,7 @@ struct BrewNotesSync: Sendable {
             }
         }
 
-        return SyncResult(newItems: newItems, trashedFiles: trashed)
+        return SyncResult(outdated: allPackages, newItems: newItems, trashedFiles: trashed)
     }
 
     /// Cask lookups are keyed by `package.name`, which for casks is safe to
