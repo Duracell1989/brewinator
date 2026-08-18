@@ -33,8 +33,8 @@ do {
     let loaded = try configStore.loadOrCreate(default: UserConfig.default)
     config = loaded.config
     if loaded.created {
-        print("First run — wrote a default config to \(configStore.path)")
-        print("Archiving to \(config.archiveDirectory) — change it with:")
+        print("First run - wrote a default config to \(configStore.path)")
+        print("Archiving to \(config.archiveDirectory) - change it with:")
         print("  brewinator config set archiveDirectory <path>")
         print("")
     }
@@ -74,7 +74,7 @@ if command.update {
         // Degrade to the pre-flag behaviour — sync against whatever metadata
         // Homebrew already had — rather than losing the whole run to a
         // transient network failure at 09:00.
-        logger.warn("brew update failed (\(error)) — continuing with existing metadata")
+        logger.warn("brew update failed (\(error)) - continuing with existing metadata")
     }
     print("")
 }

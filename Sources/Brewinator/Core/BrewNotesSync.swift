@@ -71,7 +71,7 @@ struct BrewNotesSync: Sendable {
                     // must only cost this one package, not the rest of the
                     // batch — `newItems`/`trashedFiles` already computed for
                     // other packages must still make it back to the caller.
-                    logger.warn("\(package.name): failed to write release notes — \(error)")
+                    logger.warn("\(package.name): failed to write release notes - \(error)")
                 }
             case .failure(let error):
                 // Otherwise silent: nothing else in the CLI surfaces a fetch
