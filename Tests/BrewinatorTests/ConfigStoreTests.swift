@@ -111,3 +111,21 @@ struct ConfigStoreLoadOrCreateTests {
         #expect(!UserConfig.default.notify)
     }
 }
+
+@Suite("ConfigStore.save formatting")
+struct ConfigStoreSaveFormattingTests {
+    @Test("paths are written unescaped — the config is meant to be hand-edited, and JSONEncoder escapes every slash by default")
+    func writesUnescapedSlashes() throws {
+        let fileURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathComponent("config.json")
+        defer { try? FileManager.default.removeItem(at: fileURL.deletingLastPathComponent()) }
+        let store = FileConfigStore(fileURL: fileURL)
+
+        try store.save(UserConfig(archiveDirectory: "/Users/someone/Brew Release Notes", skipList: [], notify: false))
+
+        let written = try String(contentsOf: fileURL, encoding: .utf8)
+        #expect(written.contains("/Users/someone/Brew Release Notes"))
+        #expect(!written.contains("\\/"))
+    }
+}
