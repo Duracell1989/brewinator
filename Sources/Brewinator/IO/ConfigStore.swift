@@ -68,7 +68,10 @@ final class FileConfigStore: ConfigStore {
         let directory = fileURL.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        // `withoutEscapingSlashes` matters here: this file is meant to be
+        // hand-edited, and the default encoder turns every path into
+        // "\/Volumes\/...".
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
         let data = try encoder.encode(config)
         try data.write(to: fileURL, options: .atomic)
     }
