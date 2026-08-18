@@ -6,7 +6,13 @@ struct BrewinatorCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "brewinator",
         abstract: "Fetch and archive release notes for outdated Homebrew packages.",
-        version: "0.2.0"
+        discussion: """
+            Run with no subcommand to list what's outdated and archive release notes for \
+            anything new. The config file is created on first run; `brewinator config` \
+            shows where it lives and what's in it.
+            """,
+        version: "0.3.0",
+        subcommands: [ConfigCommand.self]
     )
 
     @Flag(

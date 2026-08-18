@@ -46,7 +46,7 @@ struct BrewNotesSync: Sendable {
         // newly-skip-listed package still gets trashed, since this is
         // computed before skip filtering.
         let outdatedIdentities = Set(allPackages.map(\.archiveIdentity))
-        let trashed = try archiveStore.prune(keeping: outdatedIdentities, skipList: config.skipList)
+        let trashed = try archiveStore.prune(keeping: outdatedIdentities, skipList: config.effectiveSkipList)
 
         var newItems: [SyncResult.NewItem] = []
         for package in allPackages {

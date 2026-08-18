@@ -36,3 +36,20 @@ struct OutdatedListingTests {
         #expect(rendered.contains("3.126.1 -> 3.127"))
     }
 }
+
+@Suite("OutdatedListing raw-version fallback")
+struct OutdatedListingRawFallbackTests {
+    @Test("falls back to raw versions when the cleaned ones are equal — a build-id-only bump must not render as 'X -> X'")
+    func fallsBackToRawVersionsWhenCleanedMatch() {
+        let package = OutdatedPackageInfo(
+            name: "android-studio",
+            installedVersion: "2026.1.3.8,quail3-patch1,AI-261.26222.65",
+            currentVersion: "2026.1.3.8,quail3-patch1",
+            kind: .cask
+        )
+
+        let rendered = OutdatedListing.render([package])
+
+        #expect(rendered.contains("2026.1.3.8,quail3-patch1,AI-261.26222.65 -> 2026.1.3.8,quail3-patch1"))
+    }
+}
