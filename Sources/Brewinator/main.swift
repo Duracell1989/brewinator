@@ -1,22 +1,25 @@
 import ArgumentParser
 import Foundation
 
-struct Brewinator: ParsableCommand {
-    static let configuration = CommandConfiguration(
-        commandName: "brewinator",
-        abstract: "Fetch and archive release notes for outdated Homebrew packages."
-    )
-}
-
 // Argument parsing stays synchronous (ArgumentParser's own machinery); the
 // actual sync work runs via top-level `await` below rather than through
 // AsyncParsableCommand.main() — its runtime async-bridging check is broken
 // on the current beta Swift 6.4/Xcode 27 toolchain (always reports "needs
 // availability annotation" even with the exact annotation it suggests).
+let command: BrewinatorCommand
 do {
-    _ = try Brewinator.parseAsRoot()
+    let parsed = try BrewinatorCommand.parseAsRoot()
+    if var auxiliary = CommandDispatch.auxiliaryCommand(for: parsed) {
+        // `--help`/`help`: running it throws the help request, which
+        // `exit(withError:)` renders and exits 0 on. Discarding it instead
+        // is what made v0.1.0's `--help` run a full sync.
+        try auxiliary.run()
+        BrewinatorCommand.exit()
+    }
+    // Non-auxiliary is the root command by construction — see CommandDispatch.
+    command = parsed as? BrewinatorCommand ?? BrewinatorCommand()
 } catch {
-    Brewinator.exit(withError: error)
+    BrewinatorCommand.exit(withError: error)
 }
 
 let configStore = FileConfigStore()
@@ -39,7 +42,23 @@ do {
         }
         """
     )
-    Brewinator.exit(withError: ExitCode.failure)
+    BrewinatorCommand.exit(withError: ExitCode.failure)
+}
+
+let brewClient = ProcessBrewClient()
+let logger = StderrLogger()
+
+if command.update {
+    print("Updating Homebrew...")
+    do {
+        try await brewClient.update()
+    } catch {
+        // Degrade to the pre-flag behaviour — sync against whatever metadata
+        // Homebrew already had — rather than losing the whole run to a
+        // transient network failure at 09:00.
+        logger.warn("brew update failed (\(error)) — continuing with existing metadata")
+    }
+    print("")
 }
 
 let httpFetcher = URLSessionHTTPFetcher()
@@ -51,7 +70,7 @@ let database = ResolutionDatabase.live
 // exact, mutually exclusive name match), and neither does order between the
 // two forge sources (mutually exclusive by dialect).
 let sync = BrewNotesSync(
-    brewClient: ProcessBrewClient(),
+    brewClient: brewClient,
     archiveStore: FileArchiveStore(directory: URL(fileURLWithPath: config.archiveDirectory)),
     resolver: Resolver(sources: [
         JetBrainsProducts(httpFetcher: httpFetcher, database: database),
@@ -68,20 +87,25 @@ let sync = BrewNotesSync(
         ForgeReleases(httpFetcher: httpFetcher, database: database),
         GitLabReleases(httpFetcher: httpFetcher, database: database),
     ]),
-    config: config
+    config: config,
+    logger: logger
 )
 
 do {
     let result = try await sync.run()
-    if result.newItems.isEmpty {
-        print("No new release notes.")
-    } else {
+    print(OutdatedListing.render(result.outdated))
+
+    if !result.newItems.isEmpty {
+        print("")
         print("New release notes (\(result.newItems.count)):")
         for item in result.newItems {
             print("  - \(item.name) \(item.version)")
         }
         print("See: \(config.archiveDirectory)")
+    } else if !result.outdated.isEmpty {
+        print("")
+        print("No new release notes.")
     }
 } catch {
-    Brewinator.exit(withError: error)
+    BrewinatorCommand.exit(withError: error)
 }
