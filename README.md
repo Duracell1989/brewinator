@@ -29,7 +29,7 @@ brew install duracell1989/tap/brewinator
 
 ## Configuration
 
-Brewinator reads `~/.config/brewinator/config.json` on every run. This file is not created for you — running it without one prints a friendly error plus an example, then exits:
+Brewinator reads `~/.config/brewinator/config.json` on every run, and writes a default one on first run — archiving to `~/Brew Release Notes` until you point it somewhere else:
 
 ```json
 {
@@ -42,6 +42,21 @@ Brewinator reads `~/.config/brewinator/config.json` on every run. This file is n
 - `archiveDirectory` — where release-note Markdown files are written; created automatically if it doesn't exist.
 - `skipList` — package names to skip; exact match or `*` glob (e.g. `"proton-*"`).
 - `notify` — reserved for a future desktop-notification feature; currently has no effect.
+
+Edit the JSON directly, or use the CLI:
+
+```
+brewinator config                                     # where it lives, what's in it
+brewinator config set archiveDirectory ~/Notes/Brew
+brewinator config skip add spotify
+brewinator config skip remove spotify
+```
+
+### Built-in skips
+
+Some packages publish no per-version release notes anywhere, so brewinator skips them without you configuring anything — `spotify`, `discord`, `whatsapp`, and the Microsoft Office casks. That list ships in the code rather than in your config file, so it can be corrected in a release instead of being frozen on the day you installed. `brewinator config` prints it.
+
+If one of them does publish notes somewhere, or a package you care about isn't resolving, please [open an issue or a pull request](https://github.com/Duracell1989/brewinator/issues) — that's the way the curated database grows.
 
 ---
 

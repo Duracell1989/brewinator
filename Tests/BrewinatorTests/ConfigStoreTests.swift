@@ -52,3 +52,62 @@ struct ConfigStoreTests {
         #expect(try store.load() == config)
     }
 }
+
+@Suite("ConfigStore.loadOrCreate")
+struct ConfigStoreLoadOrCreateTests {
+    private func tempFileURL() -> URL {
+        FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathComponent("config.json")
+    }
+
+    @Test("a missing config is created from the default instead of failing the first run")
+    func missingFileIsCreated() throws {
+        let fileURL = tempFileURL()
+        defer { try? FileManager.default.removeItem(at: fileURL.deletingLastPathComponent()) }
+        let store = FileConfigStore(fileURL: fileURL)
+
+        let loaded = try store.loadOrCreate(default: UserConfig.default)
+
+        #expect(loaded.created)
+        #expect(loaded.config == UserConfig.default)
+        #expect(try store.load() == UserConfig.default)
+    }
+
+    @Test("an existing config is returned untouched — never overwritten by the default")
+    func existingFileIsKept() throws {
+        let fileURL = tempFileURL()
+        defer { try? FileManager.default.removeItem(at: fileURL.deletingLastPathComponent()) }
+        let store = FileConfigStore(fileURL: fileURL)
+        let existing = UserConfig(archiveDirectory: "/mine", skipList: ["spotify"], notify: true)
+        try store.save(existing)
+
+        let loaded = try store.loadOrCreate(default: UserConfig.default)
+
+        #expect(!loaded.created)
+        #expect(loaded.config == existing)
+    }
+
+    @Test("a malformed config throws instead of being silently replaced — a typo must never cost the user their skip list")
+    func malformedFileIsNotClobbered() throws {
+        let fileURL = tempFileURL()
+        defer { try? FileManager.default.removeItem(at: fileURL.deletingLastPathComponent()) }
+        try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try Data("{ oops".utf8).write(to: fileURL)
+        let store = FileConfigStore(fileURL: fileURL)
+
+        #expect(throws: (any Error).self) {
+            _ = try store.loadOrCreate(default: UserConfig.default)
+        }
+        #expect(try String(contentsOf: fileURL, encoding: .utf8) == "{ oops")
+    }
+
+    @Test("the shipped default archives to a visible folder in the user's home, not a hidden support directory")
+    func defaultArchivesUnderHome() {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+
+        #expect(UserConfig.default.archiveDirectory == "\(home)/Brew Release Notes")
+        #expect(UserConfig.default.skipList.isEmpty)
+        #expect(!UserConfig.default.notify)
+    }
+}

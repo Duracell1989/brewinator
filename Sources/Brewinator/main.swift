@@ -25,11 +25,21 @@ do {
 let configStore = FileConfigStore()
 let config: UserConfig
 do {
-    config = try configStore.load()
+    let loaded = try configStore.loadOrCreate(default: UserConfig.default)
+    config = loaded.config
+    if loaded.created {
+        print("First run — wrote a default config to \(configStore.path)")
+        print("Archiving to \(config.archiveDirectory) — change it with:")
+        print("  brewinator config set archiveDirectory <path>")
+        print("")
+    }
 } catch let error as ConfigStoreError {
+    // Only a *malformed* config lands here now: a missing one is created
+    // above. Deliberately never overwritten — the user's skip list is worth
+    // more than the convenience of a self-healing file.
     switch error {
-    case .notFound:
-        print("No config found at \(FileConfigStore.defaultURL.path) — create one first, e.g.:")
+    case .notFound(let path):
+        print("Could not create a config at \(path).")
     case .invalid(let path, let reason):
         print("Config at \(path) is invalid (\(reason)) — expected JSON like:")
     }

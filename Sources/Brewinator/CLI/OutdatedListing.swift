@@ -10,7 +10,13 @@ enum OutdatedListing {
 
         let rows = zip(labels, packages).map { label, package in
             let padding = String(repeating: " ", count: width - label.count)
-            return "  \(label)\(padding)  \(package.cleanInstalledVersion) -> \(package.cleanCurrentVersion)"
+            // Cleaned versions read better, but they collapse build-id-only
+            // bumps (android-studio ships those) into a nonsense "X -> X"
+            // row — fall back to the raw pair when that happens.
+            let sameWhenCleaned = package.cleanInstalledVersion == package.cleanCurrentVersion
+            let installed = sameWhenCleaned ? package.installedVersion : package.cleanInstalledVersion
+            let current = sameWhenCleaned ? package.currentVersion : package.cleanCurrentVersion
+            return "  \(label)\(padding)  \(installed) -> \(current)"
         }
 
         return (["Outdated (\(packages.count)):"] + rows).joined(separator: "\n")

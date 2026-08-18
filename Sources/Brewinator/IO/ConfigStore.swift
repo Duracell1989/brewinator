@@ -6,8 +6,27 @@ enum ConfigStoreError: Error, Sendable, Equatable {
 }
 
 protocol ConfigStore: Sendable {
+    /// Where the config lives — shown by `brewinator config` and in first-run
+    /// messages, so the user knows which file to edit by hand.
+    var path: String { get }
+
     func load() throws -> UserConfig
     func save(_ config: UserConfig) throws
+}
+
+extension ConfigStore {
+    /// First run writes the default rather than dead-ending on a missing
+    /// file. Deliberately scoped to `.notFound`: a config that exists but
+    /// doesn't parse still throws, because overwriting it would silently
+    /// destroy a skip list the user spent time building.
+    func loadOrCreate(default defaultConfig: UserConfig) throws -> (config: UserConfig, created: Bool) {
+        do {
+            return (try load(), false)
+        } catch ConfigStoreError.notFound {
+            try save(defaultConfig)
+            return (defaultConfig, true)
+        }
+    }
 }
 
 final class FileConfigStore: ConfigStore {
@@ -17,6 +36,8 @@ final class FileConfigStore: ConfigStore {
     }
 
     private let fileURL: URL
+
+    var path: String { fileURL.path }
 
     init(fileURL: URL = FileConfigStore.defaultURL) {
         self.fileURL = fileURL
