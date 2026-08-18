@@ -1,10 +1,9 @@
-import Darwin
 import Foundation
 
 protocol ArchiveStore: Sendable {
     func existingFile(for package: OutdatedPackageInfo) -> Bool
     func write(_ notes: ReleaseNotes, for package: OutdatedPackageInfo) throws
-    func prune(keeping outdatedIdentities: Set<ArchivePackageIdentity>, skipList: [String]) throws -> [URL]
+    func prune(keeping outdatedIdentities: Set<ArchivePackageIdentity>, skippedBy skipped: SkipMatcher) throws -> [URL]
 }
 
 final class FileArchiveStore: ArchiveStore {
@@ -34,13 +33,15 @@ final class FileArchiveStore: ArchiveStore {
     }
 
     /// Trashes any archived file whose package is no longer outdated (i.e.
-    /// upgraded) or is now skip-listed. `outdatedIdentities` is deliberately
+    /// upgraded) or is now skip-listed. Returns the archived paths it moved,
+    /// which `main.swift` prints - a run that empties the archive must not do
+    /// so silently. `outdatedIdentities` is deliberately
     /// the *unfiltered* outdated set: a still-outdated but newly-skip-listed
     /// package is trashed anyway, since it's computed before skip filtering.
     /// Keyed by `(name, kind)`, not bare name — a same-named formula and
     /// cask must not be conflated (see `packageIdentity(fromArchiveFilename:)`).
     /// `FileManager.trashItem` handles Trash-name collisions itself.
-    func prune(keeping outdatedIdentities: Set<ArchivePackageIdentity>, skipList: [String]) throws -> [URL] {
+    func prune(keeping outdatedIdentities: Set<ArchivePackageIdentity>, skippedBy skipped: SkipMatcher) throws -> [URL] {
         guard FileManager.default.fileExists(atPath: directory.path) else { return [] }
 
         let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
@@ -51,14 +52,13 @@ final class FileArchiveStore: ArchiveStore {
             guard let identity = Self.packageIdentity(fromArchiveFilename: file.deletingPathExtension().lastPathComponent) else {
                 continue
             }
-            let isSkipped = skipList.contains { fnmatch($0, identity.name, 0) == 0 }
-            guard isSkipped || !outdatedIdentities.contains(identity) else { continue }
+            guard skipped.matches(identity.name) || !outdatedIdentities.contains(identity) else { continue }
 
-            var trashedURL: NSURL?
-            try FileManager.default.trashItem(at: file, resultingItemURL: &trashedURL)
-            if let url = trashedURL as URL? {
-                trashed.append(url)
-            }
+            try FileManager.default.trashItem(at: file, resultingItemURL: nil)
+            // The *archived* path, not `trashItem`'s resulting URL: the latter
+            // is the name inside Trash, which macOS renames on collision, so it
+            // is not a name the user ever saw in the archive.
+            trashed.append(file)
         }
         return trashed
     }

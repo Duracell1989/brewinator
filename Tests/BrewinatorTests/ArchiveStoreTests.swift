@@ -77,10 +77,31 @@ struct ArchiveStorePruneTests {
         let store = FileArchiveStore(directory: directory)
         try store.write(ReleaseNotes(markdown: "notes"), for: package("node", current: "1.1.0"))
 
-        let trashed = try store.prune(keeping: [ArchivePackageIdentity(name: "node", kind: .formula)], skipList: [])
+        let trashed = try store.prune(keeping: [ArchivePackageIdentity(name: "node", kind: .formula)], skippedBy: .none)
 
         #expect(trashed.isEmpty)
         #expect(store.existingFile(for: package("node", current: "1.1.0")))
+    }
+
+    /// The returned URLs are printed to the user, so they have to be the names
+    /// the user recognises from the archive. `trashItem`'s resulting URL is the
+    /// name *inside Trash*, which macOS renames on collision ("node (formula) -
+    /// 1.1.0 2.md") - a name that never existed in the archive.
+    @Test("returns the archived path, not the renamed path inside Trash")
+    func returnsOriginalPaths() throws {
+        let directory = tempDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = FileArchiveStore(directory: directory)
+        try store.write(ReleaseNotes(markdown: "notes"), for: package("node", current: "1.1.0"))
+
+        let trashed = try store.prune(keeping: [], skippedBy: .none)
+
+        #expect(trashed.count == 1)
+        // `resolvingSymlinksInPath` because `contentsOfDirectory` hands back
+        // /private/var while the temp URL says /var - same directory.
+        let parent = trashed.first?.deletingLastPathComponent().resolvingSymlinksInPath().path
+        #expect(parent == directory.resolvingSymlinksInPath().path)
+        #expect(trashed.first?.lastPathComponent == "node (formula) - 1.1.0.md")
     }
 
     @Test("upgraded-away package (no longer outdated) is trashed")
@@ -90,7 +111,7 @@ struct ArchiveStorePruneTests {
         let store = FileArchiveStore(directory: directory)
         try store.write(ReleaseNotes(markdown: "notes"), for: package("node", current: "1.1.0"))
 
-        let trashed = try store.prune(keeping: [], skipList: [])
+        let trashed = try store.prune(keeping: [], skippedBy: .none)
 
         #expect(trashed.count == 1)
         #expect(!store.existingFile(for: package("node", current: "1.1.0")))
@@ -103,7 +124,7 @@ struct ArchiveStorePruneTests {
         let store = FileArchiveStore(directory: directory)
         try store.write(ReleaseNotes(markdown: "notes"), for: package("discord", current: "1.1.0"))
 
-        let trashed = try store.prune(keeping: [ArchivePackageIdentity(name: "discord", kind: .formula)], skipList: ["discord"])
+        let trashed = try store.prune(keeping: [ArchivePackageIdentity(name: "discord", kind: .formula)], skippedBy: SkipMatcher(["discord"]))
 
         #expect(trashed.count == 1)
         #expect(!store.existingFile(for: package("discord", current: "1.1.0")))
@@ -116,7 +137,7 @@ struct ArchiveStorePruneTests {
         let store = FileArchiveStore(directory: directory)
         try store.write(ReleaseNotes(markdown: "notes"), for: package("libssh2", current: "1.0.0"))
 
-        let trashed = try store.prune(keeping: [ArchivePackageIdentity(name: "libssh2", kind: .formula)], skipList: ["lib*"])
+        let trashed = try store.prune(keeping: [ArchivePackageIdentity(name: "libssh2", kind: .formula)], skippedBy: SkipMatcher(["lib*"]))
 
         #expect(trashed.count == 1)
     }
@@ -130,7 +151,7 @@ struct ArchiveStorePruneTests {
         try store.write(ReleaseNotes(markdown: "notes"), for: package("foo", kind: .cask, current: "2.0.0"))
 
         // Only the formula "foo" is still outdated; the cask "foo" upgraded away.
-        let trashed = try store.prune(keeping: [ArchivePackageIdentity(name: "foo", kind: .formula)], skipList: [])
+        let trashed = try store.prune(keeping: [ArchivePackageIdentity(name: "foo", kind: .formula)], skippedBy: .none)
 
         #expect(trashed.count == 1)
         #expect(store.existingFile(for: package("foo", kind: .formula, current: "1.0.0")))
@@ -145,7 +166,7 @@ struct ArchiveStorePruneTests {
         try Data("stray".utf8).write(to: directory.appendingPathComponent(".DS_Store"))
         let store = FileArchiveStore(directory: directory)
 
-        let trashed = try store.prune(keeping: [], skipList: [])
+        let trashed = try store.prune(keeping: [], skippedBy: .none)
 
         #expect(trashed.isEmpty)
     }
@@ -153,7 +174,7 @@ struct ArchiveStorePruneTests {
     @Test("missing archive directory prunes nothing rather than throwing")
     func missingDirectoryIsHarmless() throws {
         let store = FileArchiveStore(directory: tempDirectory())
-        let trashed = try store.prune(keeping: [], skipList: [])
+        let trashed = try store.prune(keeping: [], skippedBy: .none)
         #expect(trashed.isEmpty)
     }
 }

@@ -8,8 +8,8 @@ import Foundation
 // availability annotation" even with the exact annotation it suggests).
 let command: BrewinatorCommand
 do {
-    let parsed = try BrewinatorCommand.parseAsRoot()
-    if var auxiliary = CommandDispatch.auxiliaryCommand(for: parsed) {
+    switch CommandDispatch.dispatch(for: try BrewinatorCommand.parseAsRoot()) {
+    case .auxiliary(var auxiliary):
         // `--help`/`help`: running it throws the help request, which
         // `exit(withError:)` renders and exits 0 on. Discarding it instead
         // is what made v0.1.0's `--help` run a full sync.
@@ -20,9 +20,9 @@ do {
         try auxiliary.validate()
         try auxiliary.run()
         BrewinatorCommand.exit()
+    case .root(let root):
+        command = root
     }
-    // Non-auxiliary is the root command by construction — see CommandDispatch.
-    command = parsed as? BrewinatorCommand ?? BrewinatorCommand()
 } catch {
     BrewinatorCommand.exit(withError: error)
 }
@@ -110,8 +110,17 @@ let sync = BrewNotesSync(
 )
 
 do {
-    let result = try await sync.run()
-    print(OutdatedListing.render(result.outdated))
+    // The listing prints from inside the sync, before prune and the first
+    // fetch - see `BrewNotesSync.run(onOutdated:)`.
+    let result = try await sync.run { print(OutdatedListing.render($0)) }
+
+    if !result.trashedFiles.isEmpty {
+        print("")
+        print("Moved to Trash (\(result.trashedFiles.count)):")
+        for file in result.trashedFiles {
+            print("  - \(file.lastPathComponent)")
+        }
+    }
 
     if !result.newItems.isEmpty {
         print("")

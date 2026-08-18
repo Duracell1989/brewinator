@@ -49,8 +49,8 @@ private struct WriteFailingArchiveStore: ArchiveStore {
         try inner.write(notes, for: package)
     }
 
-    func prune(keeping outdatedIdentities: Set<ArchivePackageIdentity>, skipList: [String]) throws -> [URL] {
-        try inner.prune(keeping: outdatedIdentities, skipList: skipList)
+    func prune(keeping outdatedIdentities: Set<ArchivePackageIdentity>, skippedBy skipped: SkipMatcher) throws -> [URL] {
+        try inner.prune(keeping: outdatedIdentities, skippedBy: skipped)
     }
 }
 
@@ -293,5 +293,73 @@ struct BrewNotesSyncTests {
 
         let result = try await sync.run()
         #expect(result.newItems.map(\.name) == ["node"])
+    }
+}
+
+/// Records the order in which the sync touches the archive, so a test can pin
+/// *when* `onOutdated` fires rather than only that it fires.
+private final class OrderRecordingArchiveStore: ArchiveStore, @unchecked Sendable {
+    var events: [String] = []
+
+    func existingFile(for package: OutdatedPackageInfo) -> Bool {
+        events.append("existingFile")
+        return true
+    }
+
+    func write(_ notes: ReleaseNotes, for package: OutdatedPackageInfo) throws {
+        events.append("write")
+    }
+
+    func prune(keeping outdatedIdentities: Set<ArchivePackageIdentity>, skippedBy skipped: SkipMatcher) throws -> [URL] {
+        events.append("prune")
+        return []
+    }
+}
+
+@Suite("BrewNotesSync.onOutdated")
+struct BrewNotesSyncOnOutdatedTests {
+    private func sync(archiveStore: ArchiveStore, skipList: [String] = []) throws -> BrewNotesSync {
+        BrewNotesSync(
+            brewClient: FakeBrewClient(result: try loadFixture()),
+            archiveStore: archiveStore,
+            resolver: Resolver(sources: [EchoingNoteSource()]),
+            config: UserConfig(archiveDirectory: "/notes", skipList: skipList, notify: false),
+            logger: RecordingLogger()
+        )
+    }
+
+    /// The listing used to print only after every fetch had finished, making it
+    /// slower to appear than the `brew outdated --verbose` call it replaced.
+    @Test("fires before prune and before any fetch, so the listing appears immediately")
+    func firesBeforePruneAndFetch() async throws {
+        let store = OrderRecordingArchiveStore()
+        let sync = try sync(archiveStore: store)
+
+        _ = try await sync.run { _ in store.events.append("onOutdated") }
+
+        #expect(store.events.first == "onOutdated")
+        #expect(store.events.dropFirst().first == "prune")
+    }
+
+    @Test("receives the same unfiltered set that comes back in the result")
+    func receivesUnfilteredSet() async throws {
+        let store = OrderRecordingArchiveStore()
+        let sync = try sync(archiveStore: store, skipList: ["*"])
+        var reported: [OutdatedPackageInfo] = []
+
+        let result = try await sync.run { reported = $0 }
+
+        #expect(!reported.isEmpty)
+        #expect(reported.map(\.name) == result.outdated.map(\.name))
+    }
+
+    @Test("defaults to a no-op, so callers that only want the result need not pass one")
+    func defaultsToNoOp() async throws {
+        let store = OrderRecordingArchiveStore()
+        let sync = try sync(archiveStore: store)
+
+        let result = try await sync.run()
+
+        #expect(!result.outdated.isEmpty)
     }
 }
