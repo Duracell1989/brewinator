@@ -129,3 +129,58 @@ struct ConfigStoreSaveFormattingTests {
         #expect(!written.contains("\\/"))
     }
 }
+
+@Suite("ConfigStore.loadOrCreate write failures")
+struct ConfigStoreWriteFailureTests {
+    /// `save` throws raw `CocoaError`s from `createDirectory`/`data.write`.
+    /// Those are not `ConfigStoreError`, so they slipped past main.swift's typed
+    /// catch and killed the process with "Fatal error: Error raised at top
+    /// level" instead of a message naming the file it could not write.
+    @Test("a save failure surfaces as ConfigStoreError.notWritable, not a raw filesystem error")
+    func saveFailureIsWrapped() {
+        let store = InMemoryConfigStore()
+        store.saveError = CocoaError(.fileWriteNoPermission)
+
+        do {
+            _ = try store.loadOrCreate(default: UserConfig.default)
+            Issue.record("expected loadOrCreate to throw")
+        } catch let error as ConfigStoreError {
+            guard case .notWritable(let path, _) = error else {
+                Issue.record("expected .notWritable, got \(error)")
+                return
+            }
+            #expect(path == store.path)
+        } catch {
+            Issue.record("expected a ConfigStoreError, got a raw \(type(of: error)): \(error)")
+        }
+    }
+}
+
+@Suite("ConfigStoreError messages")
+struct ConfigStoreErrorMessageTests {
+    @Test("notFound reads as a sentence rather than an enum case")
+    func notFoundDescription() {
+        let description = String(describing: ConfigStoreError.notFound(path: "/tmp/config.json"))
+
+        #expect(description.contains("/tmp/config.json"))
+        #expect(!description.contains("notFound("))
+    }
+
+    @Test("invalid names the file and the reason")
+    func invalidDescription() {
+        let description = String(describing: ConfigStoreError.invalid(path: "/tmp/config.json", reason: "bad json"))
+
+        #expect(description.contains("/tmp/config.json"))
+        #expect(description.contains("bad json"))
+        #expect(!description.contains("invalid("))
+    }
+
+    @Test("notWritable names the file and the reason")
+    func notWritableDescription() {
+        let description = String(describing: ConfigStoreError.notWritable(path: "/tmp/config.json", reason: "no permission"))
+
+        #expect(description.contains("/tmp/config.json"))
+        #expect(description.contains("no permission"))
+        #expect(!description.contains("notWritable("))
+    }
+}

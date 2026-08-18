@@ -10,6 +10,12 @@ final class InMemoryConfigStore: ConfigStore, @unchecked Sendable {
     private(set) var saveCount = 0
     private var stored: UserConfig?
 
+    /// Injected to simulate an unwritable `~/.config` (permission denied, read-only
+    /// home, disk full). Deliberately a raw `CocoaError` rather than a
+    /// `ConfigStoreError`: that is exactly what `FileManager`/`Data.write` throw,
+    /// and the point of the test is that such an error never escapes untyped.
+    var saveError: Error?
+
     init(path: String = "/tmp/brewinator-test/config.json", config: UserConfig? = nil) {
         self.path = path
         self.stored = config
@@ -21,6 +27,7 @@ final class InMemoryConfigStore: ConfigStore, @unchecked Sendable {
     }
 
     func save(_ config: UserConfig) throws {
+        if let saveError { throw saveError }
         stored = config
         saveCount += 1
     }
