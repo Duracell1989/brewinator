@@ -11,7 +11,7 @@ struct ConfigCommand: ParsableCommand {
             With no subcommand, prints the config file's location and current settings.
 
             The config file is created automatically on first run, so there is nothing to \
-            initialise by hand. Editing the JSON directly works too — these verbs exist so \
+            initialise by hand. Editing the JSON directly works too - these verbs exist so \
             you don't have to.
 
             EXAMPLES:
@@ -37,7 +37,7 @@ extension ConfigCommand {
             discussion: """
                 Keys: archiveDirectory (a path), notify (true/false).
 
-                The skip list has its own verbs — see `brewinator config skip`.
+                The skip list has its own verbs - see `brewinator config skip`.
                 """
         )
 
@@ -60,7 +60,7 @@ extension ConfigCommand {
                 A pattern is an exact package name or a `*` glob, e.g. `proton-*`.
 
                 Packages that publish no release notes at all are skipped already, \
-                without being listed here — `brewinator config` shows which.
+                without being listed here - `brewinator config` shows which.
                 """,
             subcommands: [AddCommand.self, RemoveCommand.self]
         )

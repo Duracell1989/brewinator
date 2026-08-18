@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Build (release)
+        run: swift build -c release
+
+      # The version in CommandConfiguration is a hand-maintained literal, so
+      # nothing stopped a tag from shipping a binary that reports the previous
+      # version. This is that missing check.
+      - name: Verify the binary reports the tagged version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          reported="$(.build/release/brewinator --version)"
+          if [ "$tag" != "$reported" ]; then
+            echo "Tag is $tag but the binary reports $reported."
+            echo "Update version: in Sources/Brewinator/CLI/BrewinatorCommand.swift."
+            exit 1
+          fi
+
+      - name: Extract the changelog section for this release
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          awk -v version="$tag" '
+            $0 ~ "^## \\[" version "\\]" { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "CHANGELOG.md has no section for $tag."
+            exit 1
+          fi
+          cat release-notes.md
+
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file release-notes.md \
+            --generate-notes
