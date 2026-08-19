@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [0.4.1] - 2026-08-19
+
+### Fixed
+
+- Release notes were never fetched for any formula installed from a third-party tap, brewinator itself included. `brew outdated` reports such a formula by its tap-qualified name (`someone/tap/sometool`) while `brew info` reports it short, so the two could not be joined and the formula was left with no source URL to resolve against. Formulae now carry both names.
+- A tapped formula's slashes were also taken as real path separators when naming its archive file, so the write landed in a subdirectory that does not exist and failed. Archive filenames use the short name.
+- Every failed write leaked one temp file that could never be cleaned up: `prune` only collects `.md` files, and the temp file's extension is the process id. Temp files are now removed whatever the outcome.
+
 ## [0.4.0] - 2026-08-18
 
 Acts on a full review of everything released so far. Several of these are user-facing bugs that shipped in `0.3.x`.
@@ -62,6 +70,7 @@ Acts on a full review of everything released so far. Several of these are user-f
 
 Initial release: a Swift rewrite of the original `brew-notes.zsh`, distributed through `duracell1989/tap`.
 
+[0.4.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.4.1
 [0.4.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.4.0
 [0.3.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.3.1
 [0.3.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.3.0
