@@ -98,6 +98,17 @@ let sync = BrewNotesSync(
     logger: logger
 )
 
+// A banner is a heartbeat, so it must never be the thing that fails the run -
+// a notifier error is logged and swallowed.
+let notify: (NotificationContent) -> Void = { content in
+    guard config.notify else { return }
+    do {
+        try OSAScriptNotifier().post(content)
+    } catch {
+        logger.warn("notification failed - \(error)")
+    }
+}
+
 do {
     // The listing prints from inside the sync, before prune and the first
     // fetch - see `BrewNotesSync.run(onOutdated:)`.
@@ -122,6 +133,9 @@ do {
         print("")
         print("No new release notes.")
     }
+
+    notify(NotificationSummary.render(result))
 } catch {
+    notify(NotificationSummary.renderFailure(error))
     BrewinatorCommand.exit(withError: error)
 }

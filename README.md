@@ -52,7 +52,7 @@ Brewinator reads `~/.config/brewinator/config.json` on every run, and writes a d
 
 - `archiveDirectory` - where release-note Markdown files are written; created automatically if it doesn't exist.
 - `skipList` - package names to skip; exact match or `*` glob (e.g. `"proton-*"`).
-- `notify` - reserved for a future desktop-notification feature; currently has no effect.
+- `notify` - post a desktop notification at the end of every run, including quiet ones, so an absent notification means the run did not happen. The notification carries Script Editor's name and icon; `display notification` provides no way to change either. If none appears, check System Settings > Notifications for the Script Editor entry.
 
 Edit the JSON directly, or use the CLI:
 

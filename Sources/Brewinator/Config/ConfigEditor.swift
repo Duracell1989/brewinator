@@ -48,7 +48,7 @@ struct ConfigEditor {
 
               archiveDirectory  \(config.archiveDirectory)
               skipList          \(skipList)
-              notify            \(config.notify) (not implemented yet)
+              notify            \(config.notify)
 
             Skipped by brewinator itself (no release notes published anywhere):
               \(BuiltInSkipList.patterns.joined(separator: ", "))
