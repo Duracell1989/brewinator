@@ -9,14 +9,12 @@ struct TagCompareSpec: Sendable, Equatable, Codable {
     let subpath: String?
 }
 
-/// The curated, public, in-repo half of the config split — "where release
-/// notes actually live" for the packages this tool supports. The private
-/// half (archive directory, personal skip list) is `UserConfig`.
+/// The public half of the config split - where release notes actually live for
+/// each supported package. The private half is `UserConfig`.
 ///
-/// Compiled as Swift literals rather than loaded from a bundled JSON
-/// resource: this is small, changes only alongside code, and gets
-/// compile-time checking that a parsed resource wouldn't. `Codable` is kept
-/// for potential future serialization, not because anything decodes it today.
+/// Swift literals rather than a bundled JSON resource: it changes only
+/// alongside code and gets compile-time checking. `Codable` is speculative -
+/// nothing decodes this today.
 struct ResolutionDatabase: Sendable, Equatable, Codable {
     let forgeHosts: [ForgeHost]
     let repoOverrides: [String: String]
@@ -42,11 +40,6 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
     let obsidianRepo: String
     let androidStudioFeedURL: URL
 
-    /// The real, curated database: forge hosts, repo overrides, tag-compare
-    /// specs, Sparkle feeds, JetBrains codes, GitLab stub/news-file settings,
-    /// `claude-code`'s Markdown-changelog entry, and the vendor one-off
-    /// constants (Firefox, ffmpeg, dotnet-sdk, Windows App, Claude Desktop,
-    /// Obsidian, Android Studio).
     static let live = ResolutionDatabase(
         forgeHosts: [
             ForgeHost(host: "github.com", dialect: .github),
@@ -62,12 +55,10 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
             "pango": "gitlab.gnome.org/GNOME/pango",
         ],
         tagCompareSpecs: [
-            // Do not "fix" this back to Proton's own feed
-            // (proton.me/download/mail/macos/version.json): its `ReleaseNotes`
-            // field is an empty array on every release ever published, and
+            // Do not "fix" this back to Proton's own version.json feed: its
+            // `ReleaseNotes` array is empty on every release ever published, and
             // `ProtonMail/inbox-desktop` was archived 2025-03 with its source
-            // removed. The app builds from the WebClients monorepo now, so the
-            // commit log between tags is the only real source.
+            // removed. The commit log between tags is the only real source.
             "proton-mail": TagCompareSpec(
                 repo: "ProtonMail/WebClients",
                 tagTemplate: "proton-inbox-desktop@%s",

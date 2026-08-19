@@ -6,11 +6,8 @@ protocol VersionTagged {
 
 enum VersionMatcher {
     /// Drops the cask build-number suffix after a comma, then the formula
-    /// revision suffix (`_1`, `_2`, ...). Anchored to `_[0-9]+$` — a bare
-    /// underscore-digit *anywhere* would also strip a legitimate
-    /// underscore-digit segment that has real version data after it (e.g.
-    /// `3.9_1.2.3`); only a pure digit run at the true end is a revision
-    /// suffix.
+    /// revision suffix. Anchored to `_[0-9]+$` because an unanchored match would
+    /// also eat real version data (`3.9_1.2.3`).
     static func cleanVersion(_ raw: String) -> String {
         var cleaned = raw
         if let commaIndex = cleaned.firstIndex(of: ",") {

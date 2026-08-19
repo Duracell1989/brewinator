@@ -1,15 +1,9 @@
-/// Packages that publish no usable per-version release notes *anywhere* —
-/// skipping them is a fact about the upstream, not a user preference, so it
-/// ships with the tool instead of landing in everyone's config file. Kept in
-/// code (not seeded into a new config) so a release can correct it; a config
-/// seeded once would freeze this list on the day of install.
-///
-/// Entries only belong here when there is genuinely nothing to fetch. A
-/// package a user finds merely noisy goes in their own `skipList`.
+/// Packages that publish no usable per-version notes *anywhere* - a fact about
+/// the upstream, not a user preference. In code rather than seeded into a new
+/// config so a release can correct it; merely noisy packages go in `skipList`.
 enum BuiltInSkipList {
-    /// Where a wrong entry gets corrected. Printed by `brewinator config` and
-    /// by `config skip remove <built-in>`, because the user cannot override
-    /// this list locally - a fix has to ship in a release.
+    /// Printed wherever a built-in bites, since a user cannot override the list
+    /// locally - a fix has to ship in a release.
     static let issuesURL = "https://github.com/Duracell1989/brewinator/issues"
 
     /// - `spotify`: desktop release notes stopped in 2015.

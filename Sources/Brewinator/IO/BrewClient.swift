@@ -26,9 +26,8 @@ final class ProcessBrewClient: BrewClient {
         self.brewPath = brewPath
     }
 
-    /// Refreshes Homebrew's package metadata. Everything else here only
-    /// *reads* Homebrew state — this is the one mutating call, which is why
-    /// it's opt-in behind `--update` and never runs on a bare invocation.
+    /// The one mutating call here - everything else only reads Homebrew state,
+    /// which is why this is opt-in behind `--update`.
     func update() async throws {
         _ = try run(arguments: ["update", "--quiet"])
     }
@@ -50,15 +49,13 @@ final class ProcessBrewClient: BrewClient {
         return Self.parseCaskInfo(data)
     }
 
-    /// Runs `brew` with an absolute executable path (not PATH-lookup) and an
-    /// explicitly augmented PATH for whatever `brew` itself shells out to —
-    /// the whole rewrite exists to kill the launchd-PATH-gap bug class, so
-    /// this must not reintroduce a dependency on inherited PATH.
+    /// Absolute executable path, never a PATH lookup, plus an explicitly
+    /// augmented PATH for whatever `brew` shells out to - the rewrite exists to
+    /// kill the launchd-PATH-gap bug class and must not reintroduce it.
     ///
-    /// Internal (not `private`) so `BrewClientRunTests` can exercise it
-    /// directly against arbitrary executables/arguments — the deadlock and
-    /// exit-status bugs this guards against only reproduce through `run`
-    /// itself, not through the three fixed-argument callers above.
+    /// Internal rather than `private` so tests can drive it against arbitrary
+    /// executables; the deadlock and exit-status bugs below only reproduce
+    /// through `run` itself.
     func run(arguments: [String]) throws -> Data {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: brewPath)
@@ -75,10 +72,8 @@ final class ProcessBrewClient: BrewClient {
 
         try process.run()
 
-        // Drain stderr concurrently with stdout: if the child writes more
-        // than the OS pipe buffer (~64KB) to stderr, it blocks writing while
-        // this thread blocks reading stdout, and neither side can make
-        // progress unless both pipes are drained in parallel.
+        // Drain stderr concurrently with stdout: a child that writes past the
+        // ~64KB pipe buffer blocks, and so does this thread, forever.
         let stderrQueue = DispatchQueue(label: "brewinator.brewclient.stderr")
         stderrQueue.async {
             _ = stderr.fileHandleForReading.readDataToEndOfFile()
@@ -93,8 +88,8 @@ final class ProcessBrewClient: BrewClient {
         return data
     }
 
-    /// Pure, unit-testable independent of `Process` — a garbled/empty result
-    /// must never read as "nothing outdated".
+    /// Pure and testable without `Process`. A garbled or empty result must
+    /// never read as "nothing outdated".
     static func parseOutdated(_ data: Data) throws -> OutdatedResult {
         guard !data.isEmpty else {
             throw BrewClientError.invalidOutdatedOutput
@@ -129,9 +124,8 @@ final class ProcessBrewClient: BrewClient {
     }
 
     /// `brew outdated` reports formulae by `full_name` (`cmd/outdated.rb:195`),
-    /// so a tapped one arrives as "owner/tap/name". Everything downstream wants
-    /// the last component. Casks never take this path — their token has no
-    /// slash by construction.
+    /// so a tapped one arrives as "owner/tap/name" and everything downstream
+    /// wants the last component. Casks never take this path.
     private static func shortFormulaName(_ name: String) -> String {
         guard let slash = name.lastIndex(of: "/") else { return name }
         let short = String(name[name.index(after: slash)...])
@@ -153,10 +147,8 @@ private struct RawOutdatedEntry: Decodable {
     }
 }
 
-/// Decodes one array element leniently: a single malformed entry (missing
-/// field, wrong type) must only cost that one package's release notes, not
-/// abort the whole `brew outdated` decode and produce zero notes for
-/// everything else in the run.
+/// A single malformed entry must only cost that one package's notes, not abort
+/// the whole decode and produce zero notes for the entire run.
 private struct LenientOutdatedEntry: Decodable {
     let value: RawOutdatedEntry?
 
@@ -170,9 +162,8 @@ private struct RawOutdatedResponse: Decodable {
     let casks: [LenientOutdatedEntry]
 }
 
-/// The `.urls.stable.url` / `.homepage` (formula) or `.url` / `.homepage`
-/// (cask) pair `ForgeRepoResolver` needs — everything else in `brew info`'s
-/// ~200-field payload is irrelevant here.
+/// The only two fields `ForgeRepoResolver` needs out of `brew info`'s
+/// ~200-field payload.
 struct PackageURLInfo: Sendable, Equatable {
     let stableURL: String?
     let homepage: String?
@@ -216,14 +207,12 @@ private struct RawInfoResponse: Decodable {
 }
 
 extension ProcessBrewClient {
-    /// Keyed by `.full_name`, not `.name` — `brew info` reports a tapped
+    /// Keyed by `.full_name`, not `.name` - `brew info` reports a tapped
     /// formula's `name` short while `brew outdated` reports it qualified, so the
     /// full name is the only string the two commands agree on.
     ///
-    /// Lenient by design: empty/garbled `brew info` output means every package
-    /// in it just fails forge-repo resolution and falls through to "no forge
-    /// repo detected" — unlike `outdated()`, this must never abort the whole
-    /// sync.
+    /// Lenient: unlike `outdated()`, garbled output here must never abort the
+    /// sync, only cost forge resolution for the packages it covers.
     static func parseFormulaInfo(_ data: Data) -> [String: PackageURLInfo] {
         guard !data.isEmpty, let decoded = try? JSONDecoder().decode(RawInfoResponse.self, from: data) else {
             return [:]

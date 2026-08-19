@@ -17,10 +17,9 @@ final class FileArchiveStore: ArchiveStore {
         FileManager.default.fileExists(atPath: targetURL(for: package).path)
     }
 
-    /// Atomic write: content lands in a per-run temp file first and is only
-    /// moved into place once confirmed non-empty, so a transient failure can
-    /// never cache a blank. Callers are expected to have already checked
-    /// `existingFile(for:)`.
+    /// Atomic: content lands in a temp file and is only moved into place once
+    /// confirmed non-empty, so a transient failure can never cache a blank.
+    /// Callers are expected to have checked `existingFile(for:)` first.
     func write(_ notes: ReleaseNotes, for package: OutdatedPackageInfo) throws {
         guard !notes.markdown.isEmpty else { return }
 
@@ -35,15 +34,11 @@ final class FileArchiveStore: ArchiveStore {
         try FileManager.default.moveItem(at: tmp, to: target)
     }
 
-    /// Trashes any archived file whose package is no longer outdated (i.e.
-    /// upgraded) or is now skip-listed. Returns the archived paths it moved,
-    /// which `main.swift` prints - a run that empties the archive must not do
-    /// so silently. `outdatedIdentities` is deliberately
-    /// the *unfiltered* outdated set: a still-outdated but newly-skip-listed
-    /// package is trashed anyway, since it's computed before skip filtering.
-    /// Keyed by `(name, kind)`, not bare name — a same-named formula and
-    /// cask must not be conflated (see `packageIdentity(fromArchiveFilename:)`).
-    /// `FileManager.trashItem` handles Trash-name collisions itself.
+    /// Trashes any archived file whose package is no longer outdated or is now
+    /// skip-listed. Returns the archived paths it moved, which `main.swift`
+    /// prints - a run that empties the archive must not do so silently.
+    /// Keyed by `(name, kind)` so a same-named formula and cask aren't
+    /// conflated. `FileManager.trashItem` handles Trash-name collisions itself.
     func prune(keeping outdatedIdentities: Set<ArchivePackageIdentity>, skippedBy skipped: SkipMatcher) throws -> [URL] {
         guard FileManager.default.fileExists(atPath: directory.path) else { return [] }
 
@@ -58,9 +53,8 @@ final class FileArchiveStore: ArchiveStore {
             guard skipped.matches(identity.name) || !outdatedIdentities.contains(identity) else { continue }
 
             try FileManager.default.trashItem(at: file, resultingItemURL: nil)
-            // The *archived* path, not `trashItem`'s resulting URL: the latter
-            // is the name inside Trash, which macOS renames on collision, so it
-            // is not a name the user ever saw in the archive.
+            // The archived path, not `trashItem`'s resulting URL - the latter is
+            // the name inside Trash, which macOS renames on collision.
             trashed.append(file)
         }
         return trashed
@@ -76,9 +70,8 @@ final class FileArchiveStore: ArchiveStore {
         packageIdentity(fromArchiveFilename: base)?.name
     }
 
-    /// Parses both the bare name and the kind out of an archive filename's
-    /// base, e.g. "node (formula) - 23.0.0" -> ("node", .formula). Nil if the
-    /// shape doesn't parse or the kind isn't recognised.
+    /// "node (formula) - 23.0.0" -> ("node", .formula). Nil if the shape doesn't
+    /// parse or the kind isn't recognised.
     private static func packageIdentity(fromArchiveFilename base: String) -> ArchivePackageIdentity? {
         guard let openRange = base.range(of: " (") else { return nil }
         let name = String(base[base.startIndex..<openRange.lowerBound])
