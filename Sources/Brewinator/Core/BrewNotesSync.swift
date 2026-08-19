@@ -40,7 +40,9 @@ struct BrewNotesSync: Sendable {
         // broken `outdated()` does — it only costs forge-repo resolution for
         // the affected packages, which fall through to "no forge repo
         // detected".
-        let formulaInfo = (try? await brewClient.formulaInfo(names: outdated.formulae.map(\.name))) ?? [:]
+        // Queried by full name so a tapped formula can't be shadowed by a
+        // same-named core one.
+        let formulaInfo = (try? await brewClient.formulaInfo(names: outdated.formulae.map(\.fullName))) ?? [:]
         let caskInfo = (try? await brewClient.caskInfo(names: outdated.casks.map(\.name))) ?? [:]
 
         let allPackages =
@@ -84,14 +86,11 @@ struct BrewNotesSync: Sendable {
         return SyncResult(outdated: allPackages, newItems: newItems, trashedFiles: trashed)
     }
 
-    /// Cask lookups are keyed by `package.name`, which for casks is safe to
-    /// compare against `brew info`'s `.token` key: Homebrew's own
-    /// `cmd/outdated.rb` populates `brew outdated --json=v2`'s cask `name`
-    /// field directly from `c.token` (`name: c.token`, confirmed against
-    /// `/opt/homebrew/Library/Homebrew/cmd/outdated.rb:205` on 2026-08-17) —
-    /// the two are the same value by construction, not just by convention.
+    /// Joined on `fullName`, which both kinds' info dictionaries are keyed by:
+    /// formulae by `full_name`, casks by `.token` (`outdated.rb:205` emits
+    /// `name: c.token`, so a cask's `fullName` is that same token).
     private static func enrich(_ package: OutdatedPackageInfo, with info: [String: PackageURLInfo]) -> OutdatedPackageInfo {
-        guard let match = info[package.name] else { return package }
+        guard let match = info[package.fullName] else { return package }
         var enriched = package
         enriched.stableURL = match.stableURL
         enriched.homepage = match.homepage

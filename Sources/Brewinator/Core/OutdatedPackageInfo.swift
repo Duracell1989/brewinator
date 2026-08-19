@@ -12,7 +12,14 @@ struct ArchivePackageIdentity: Sendable, Equatable, Hashable {
 }
 
 struct OutdatedPackageInfo: Sendable, Equatable {
+    /// Short name, tap-installed or not — what skip matching, `NoteSource`
+    /// predicates and archive filenames all key on.
     let name: String
+
+    /// Tap-qualified name; equals `name` for core formulae and all casks. Sole
+    /// consumer is the `brew info` join in `BrewNotesSync.enrich`.
+    let fullName: String
+
     let installedVersion: String
     let currentVersion: String
     let kind: PackageKind
@@ -35,10 +42,12 @@ struct OutdatedPackageInfo: Sendable, Equatable {
         installedVersion: String,
         currentVersion: String,
         kind: PackageKind,
+        fullName: String? = nil,
         stableURL: String? = nil,
         homepage: String? = nil
     ) {
         self.name = name
+        self.fullName = fullName ?? name
         self.installedVersion = installedVersion
         self.currentVersion = currentVersion
         self.kind = kind

@@ -110,10 +110,11 @@ final class ProcessBrewClient: BrewClient {
         return OutdatedResult(
             formulae: decoded.formulae.compactMap(\.value).map {
                 OutdatedPackageInfo(
-                    name: $0.name,
+                    name: Self.shortFormulaName($0.name),
                     installedVersion: $0.installedVersions.first ?? "",
                     currentVersion: $0.currentVersion,
-                    kind: .formula
+                    kind: .formula,
+                    fullName: $0.name
                 )
             },
             casks: decoded.casks.compactMap(\.value).map {
@@ -125,6 +126,18 @@ final class ProcessBrewClient: BrewClient {
                 )
             }
         )
+    }
+
+    /// `brew outdated` reports formulae by `full_name` (`cmd/outdated.rb:195`),
+    /// so a tapped one arrives as "owner/tap/name". Everything downstream wants
+    /// the last component. Casks never take this path — their token has no
+    /// slash by construction.
+    private static func shortFormulaName(_ name: String) -> String {
+        guard let slash = name.lastIndex(of: "/") else { return name }
+        let short = String(name[name.index(after: slash)...])
+        // A trailing slash is malformed input; keep the raw string rather than
+        // hand the rest of the pipeline an empty package name.
+        return short.isEmpty ? name : short
     }
 }
 
@@ -175,8 +188,18 @@ private struct RawFormulaURLs: Decodable {
 
 private struct RawFormulaEntry: Decodable {
     let name: String
+    /// Optional as insurance against older/trimmed `brew info` output; for a
+    /// core formula it equals `name` anyway.
+    let fullName: String?
     let homepage: String?
     let urls: RawFormulaURLs?
+
+    enum CodingKeys: String, CodingKey {
+        case name
+        case fullName = "full_name"
+        case homepage
+        case urls
+    }
 }
 
 private struct RawCaskEntry: Decodable {
@@ -193,17 +216,21 @@ private struct RawInfoResponse: Decodable {
 }
 
 extension ProcessBrewClient {
-    /// Keyed by `.name`. Lenient by design: empty/garbled `brew info` output
-    /// means every package in it just fails forge-repo resolution and falls
-    /// through to "no forge repo detected" — unlike `outdated()`, this must
-    /// never abort the whole sync.
+    /// Keyed by `.full_name`, not `.name` — `brew info` reports a tapped
+    /// formula's `name` short while `brew outdated` reports it qualified, so the
+    /// full name is the only string the two commands agree on.
+    ///
+    /// Lenient by design: empty/garbled `brew info` output means every package
+    /// in it just fails forge-repo resolution and falls through to "no forge
+    /// repo detected" — unlike `outdated()`, this must never abort the whole
+    /// sync.
     static func parseFormulaInfo(_ data: Data) -> [String: PackageURLInfo] {
         guard !data.isEmpty, let decoded = try? JSONDecoder().decode(RawInfoResponse.self, from: data) else {
             return [:]
         }
         return Dictionary(
             uniqueKeysWithValues: decoded.formulae.map { entry in
-                (entry.name, PackageURLInfo(stableURL: entry.urls?.stable?.url, homepage: entry.homepage))
+                (entry.fullName ?? entry.name, PackageURLInfo(stableURL: entry.urls?.stable?.url, homepage: entry.homepage))
             }
         )
     }

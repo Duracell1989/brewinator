@@ -66,6 +66,26 @@ struct ArchiveStoreWriteTests {
         let contents = try FileManager.default.contentsOfDirectory(atPath: directory.path)
         #expect(contents == ["node (formula) - 1.1.0.md"])
     }
+
+    /// The temp file's extension is the PID, not "md", so `prune`'s `.md`
+    /// filter can structurally never collect an orphan — one leaked per failed
+    /// write, forever. Reproduced here by moving onto an existing target;
+    /// the same leak happens on disk-full or permission-denied.
+    @Test("a failed write leaves no temp file behind")
+    func failedWriteLeavesNoTempFile() throws {
+        let directory = tempDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = FileArchiveStore(directory: directory)
+        try store.write(ReleaseNotes(markdown: "notes"), for: package("node"))
+
+        #expect(throws: (any Error).self) {
+            try store.write(ReleaseNotes(markdown: "newer notes"), for: package("node"))
+        }
+
+        // `options: []` — hidden files must be listed; the temp file is dot-prefixed.
+        let contents = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil, options: [])
+        #expect(contents.map(\.lastPathComponent) == ["node (formula) - 1.1.0.md"])
+    }
 }
 
 @Suite("FileArchiveStore.prune")

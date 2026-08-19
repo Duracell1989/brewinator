@@ -53,6 +53,52 @@ struct BrewClientParseOutdatedTests {
         #expect(result.formulae.first?.installedVersion == "")
     }
 
+    /// `cmd/outdated.rb:195` emits `name: f.full_name`, so a tapped formula
+    /// arrives slash-qualified and is split back apart here at the boundary.
+    @Test("a tapped formula's slash-qualified name is split into short name + fullName")
+    func splitsTappedFormulaName() throws {
+        let json = """
+            {
+              "formulae": [
+                {"name": "someone/tap/sometool", "installed_versions": ["0.4.0"], "current_version": "0.4.1"}
+              ],
+              "casks": []
+            }
+            """
+        let result = try ProcessBrewClient.parseOutdated(Data(json.utf8))
+
+        #expect(result.formulae.first?.name == "sometool")
+        #expect(result.formulae.first?.fullName == "someone/tap/sometool")
+    }
+
+    @Test("a core formula (name == full_name) is unchanged — fullName mirrors name")
+    func coreFormulaNameIsUnchanged() throws {
+        let json = #"{"formulae":[{"name":"node","installed_versions":["22.0.0"],"current_version":"23.0.0"}],"casks":[]}"#
+        let result = try ProcessBrewClient.parseOutdated(Data(json.utf8))
+
+        #expect(result.formulae.first?.name == "node")
+        #expect(result.formulae.first?.fullName == "node")
+    }
+
+    @Test("a trailing slash doesn't produce an empty name")
+    func trailingSlashKeepsRawName() throws {
+        let json = #"{"formulae":[{"name":"someone/tap/","installed_versions":["1.0.0"],"current_version":"1.1.0"}],"casks":[]}"#
+        let result = try ProcessBrewClient.parseOutdated(Data(json.utf8))
+
+        #expect(result.formulae.first?.name == "someone/tap/")
+        #expect(result.formulae.first?.fullName == "someone/tap/")
+    }
+
+    /// Cask tokens never contain a slash, so the cask branch must not split.
+    @Test("cask tokens pass through with fullName mirroring name")
+    func caskTokensPassThrough() throws {
+        let json = #"{"formulae":[],"casks":[{"name":"obsidian","installed_versions":["1.0.0"],"current_version":"1.1.0"}]}"#
+        let result = try ProcessBrewClient.parseOutdated(Data(json.utf8))
+
+        #expect(result.casks.first?.name == "obsidian")
+        #expect(result.casks.first?.fullName == "obsidian")
+    }
+
     @Test("one malformed entry is skipped, not the whole decode aborted")
     func oneMalformedEntryIsSkippedNotFatal() throws {
         let json = """
@@ -101,12 +147,45 @@ struct BrewClientParseFormulaInfoTests {
         #expect(ProcessBrewClient.parseFormulaInfo(Data("not json".utf8)).isEmpty)
     }
 
-    @Test("keyed by .name, with stable.url and homepage extracted from the real brew info --json=v2 shape")
+    @Test("keyed by .full_name, with stable.url and homepage extracted from the real brew info --json=v2 shape")
     func decodesRealFixture() throws {
         let info = ProcessBrewClient.parseFormulaInfo(try Fixture.data("brew-formula-info-sample", extension: "json"))
         #expect(info["node"]?.stableURL == "https://nodejs.org/dist/v26.7.0/node-v26.7.0.tar.xz")
         #expect(info["node"]?.homepage == "https://nodejs.org/")
         #expect(info["jq"]?.stableURL == "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-1.8.2.tar.gz")
+    }
+
+    /// `brew info` reports a tapped formula's `name` short and only `full_name`
+    /// slash-qualified — the opposite of `brew outdated`, which is what made
+    /// the two unjoinable.
+    @Test("a tapped formula is keyed by its full name, not its short name")
+    func keysTappedFormulaByFullName() {
+        let json = """
+            {
+              "formulae": [
+                {
+                  "name": "sometool",
+                  "full_name": "someone/tap/sometool",
+                  "homepage": "https://example.com/sometool",
+                  "urls": {"stable": {"url": "https://example.com/sometool/v0.4.0.tar.gz"}}
+                }
+              ],
+              "casks": []
+            }
+            """
+        let info = ProcessBrewClient.parseFormulaInfo(Data(json.utf8))
+
+        #expect(info["someone/tap/sometool"]?.homepage == "https://example.com/sometool")
+        #expect(info["sometool"] == nil)
+    }
+
+    /// Optional in the decoder as insurance against trimmed `brew info` output.
+    @Test("an entry with no full_name falls back to name")
+    func fallsBackToNameWhenFullNameMissing() {
+        let json = #"{"formulae":[{"name":"node","homepage":"https://nodejs.org/"}],"casks":[]}"#
+        let info = ProcessBrewClient.parseFormulaInfo(Data(json.utf8))
+
+        #expect(info["node"]?.homepage == "https://nodejs.org/")
     }
 }
 
