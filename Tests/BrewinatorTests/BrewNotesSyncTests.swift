@@ -3,28 +3,6 @@ import Testing
 
 @testable import Brewinator
 
-private struct FakeBrewClient: BrewClient {
-    let result: OutdatedResult
-    var formulaURLInfo: [String: PackageURLInfo] = [:]
-    var caskURLInfo: [String: PackageURLInfo] = [:]
-
-    func update() async throws {}
-    func outdated() async throws -> OutdatedResult { result }
-    func formulaInfo(names: [String]) async throws -> [String: PackageURLInfo] { formulaURLInfo }
-    func caskInfo(names: [String]) async throws -> [String: PackageURLInfo] { caskURLInfo }
-}
-
-/// Echoes the package it was handed back into the note body — lets a test
-/// assert what `BrewNotesSync` actually passed to the resolver (e.g. the
-/// merged `stableURL`) without needing shared mutable state across an async
-/// boundary.
-private struct EchoingNoteSource: NoteSource {
-    func canHandle(_ package: OutdatedPackageInfo) -> Bool { true }
-    func fetch(_ package: OutdatedPackageInfo) async -> Result<ReleaseNotes, FetchError> {
-        .success(ReleaseNotes(markdown: "stableURL=\(package.stableURL ?? "nil")\n"))
-    }
-}
-
 private struct FailingBrewClient: BrewClient {
     func update() async throws {}
     func outdated() async throws -> OutdatedResult { throw BrewClientError.invalidOutdatedOutput }

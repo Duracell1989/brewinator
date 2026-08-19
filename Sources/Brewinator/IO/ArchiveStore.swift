@@ -27,6 +27,9 @@ final class FileArchiveStore: ArchiveStore {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let target = targetURL(for: package)
         let tmp = directory.appendingPathComponent(".\(target.lastPathComponent).tmp.\(ProcessInfo.processInfo.processIdentifier)")
+        // The temp file's extension is the PID, so `prune`'s ".md" filter can
+        // never collect an orphan left by a failed write. No-op once moved.
+        defer { try? FileManager.default.removeItem(at: tmp) }
 
         try notes.markdown.write(to: tmp, atomically: false, encoding: .utf8)
         try FileManager.default.moveItem(at: tmp, to: target)
