@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>b89 product — Brewinator</title>
+  <desc>Stacked Brew/inator, split on the -inator suffix. Sizes differ per line because JetBrains Mono is monospaced, so a 6-character line set at the same size as a 4-character one overruns: Brew at 80 measures 192px, inator at 58 measures 209px. Matching the sizes instead of the widths was tried first and made the lower line read as a subtitle rather than part of the name. Baselines are copied unchanged from RomForge so the two b89 icons share a vertical rhythm.</desc>
+  <defs>
+    <clipPath id="frame">
+      <rect width="256" height="256" rx="36"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#frame)">
+    <rect width="256" height="256" fill="#1A1A1A"/>
+    <rect x="0" y="0" width="256" height="16" fill="#F47C20"/>
+    <text x="128" y="122"
+          font-family="'JetBrains Mono', 'Menlo', monospace"
+          font-size="80" font-weight="700"
+          fill="#F47C20" text-anchor="middle">Brew</text>
+    <text x="128" y="200"
+          font-family="'JetBrains Mono', 'Menlo', monospace"
+          font-size="58" font-weight="700"
+          fill="#F47C20" text-anchor="middle">inator</text>
+  </g>
+</svg>

@@ -1,3 +1,5 @@
+![Brewinator](https://raw.githubusercontent.com/Duracell1989/brewinator/main/assets/icon.png)
+
 # Brewinator
 
 Fetches and archives release notes for outdated Homebrew packages, so you never install an update blind.
