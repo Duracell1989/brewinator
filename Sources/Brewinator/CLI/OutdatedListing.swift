@@ -1,6 +1,5 @@
-/// Renders the outdated set the way `brew outdated --verbose` used to in
-/// `brewcheck` — brewinator already computes this set to decide what to
-/// fetch, so printing it removes the second `brew` call from the workflow.
+/// Replaces the `brew outdated --verbose` call `brewcheck` used to make - the
+/// set is already computed here to decide what to fetch.
 enum OutdatedListing {
     static func render(_ packages: [OutdatedPackageInfo]) -> String {
         guard !packages.isEmpty else { return "Nothing outdated." }
@@ -10,9 +9,8 @@ enum OutdatedListing {
 
         let rows = zip(labels, packages).map { label, package in
             let padding = String(repeating: " ", count: width - label.count)
-            // Cleaned versions read better, but they collapse build-id-only
-            // bumps (android-studio ships those) into a nonsense "X -> X"
-            // row — fall back to the raw pair when that happens.
+            // Cleaned versions read better but collapse build-id-only bumps
+            // (android-studio) into a nonsense "X -> X" row.
             let sameWhenCleaned = package.cleanInstalledVersion == package.cleanCurrentVersion
             let installed = sameWhenCleaned ? package.installedVersion : package.cleanInstalledVersion
             let current = sameWhenCleaned ? package.currentVersion : package.cleanCurrentVersion

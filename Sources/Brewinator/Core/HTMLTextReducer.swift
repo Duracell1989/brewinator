@@ -11,18 +11,16 @@ enum HTMLTextReducer {
         let withoutHead = dropHeadSection(joined)
         let stripped = withoutHead.map(stripTags)
 
-        // Tag→"\n" substitutions above inserted real newlines *inside* a
-        // single element — split those back into true per-line records
-        // before trimming.
+        // The substitutions above inserted newlines inside single elements;
+        // split those into true per-line records before trimming.
         let expanded = stripped.flatMap { $0.components(separatedBy: "\n") }
         let trimmed = expanded.map { $0.trimmingCharacters(in: .whitespaces) }
         return squeezeBlankLines(trimmed)
     }
 
-    /// Joins any line whose `<` count exceeds its `>` count with the next
-    /// line(s) until they balance — pretty-printed anchors (Blogger) split a
-    /// single tag across lines, which would otherwise leave literal
-    /// fragments after per-line tag stripping.
+    /// Joins lines whose `<` count exceeds their `>` count until they balance -
+    /// Blogger pretty-prints anchors across lines, which would otherwise leave
+    /// literal fragments after per-line tag stripping.
     private static func joinWrappedTags(_ lines: [String]) -> [String] {
         var result: [String] = []
         var buffer = ""
@@ -40,13 +38,9 @@ enum HTMLTextReducer {
         return result
     }
 
-    /// Counts only `<` that plausibly start a real HTML tag — immediately
-    /// followed by a letter, `/`, `!`, or `?`. A bare `<` followed by a digit
-    /// or whitespace (e.g. "now <10ms") is prose, not markup; counting it as
-    /// an unclosed tag throws off the balance check above and causes
-    /// unrelated following lines to be merged (and their content silently
-    /// mangled by the per-line tag stripper) until the count happens to
-    /// rebalance.
+    /// Counts only `<` that plausibly start a tag: followed by a letter, `/`,
+    /// `!` or `?`. A bare `<` in prose ("now <10ms") would otherwise read as an
+    /// unclosed tag and merge unrelated lines until the count rebalanced.
     private static func countTagOpens(_ text: String) -> Int {
         let chars = Array(text)
         var count = 0

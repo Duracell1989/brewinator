@@ -1,7 +1,6 @@
 import Foundation
 
-/// Generic HTTP primitive for Phase 3's forge/vendor sources — not consumed
-/// by anything yet in Phase 2.
+/// The HTTP primitive every forge and vendor note source fetches through.
 protocol HTTPFetching: Sendable {
     func fetch(_ url: URL) async throws -> (data: Data, statusCode: Int)
 }
@@ -9,9 +8,8 @@ protocol HTTPFetching: Sendable {
 final class URLSessionHTTPFetcher: HTTPFetching {
     private let session: URLSession
 
-    /// A 5s connect timeout and a 15s overall resource timeout — generous
-    /// enough for slow forges/CDNs without letting one hung fetch stall a
-    /// whole sync run.
+    /// 5s connect, 15s overall: enough for a slow CDN, not enough for one hung
+    /// fetch to stall the run.
     init() {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.timeoutIntervalForRequest = 5

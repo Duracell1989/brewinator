@@ -1,10 +1,7 @@
 import Foundation
 
-/// User-owned settings. The shipped default deliberately points at a visible
-/// folder in the user's home rather than a hidden support directory — the
-/// archive's whole purpose is Markdown a human reads. Ben's own Vault path
-/// stays out of the repo (see the plan's Config-split section); it's just a
-/// value in his config file like anyone else's.
+/// User-owned settings. The default archive is a visible folder in the user's
+/// home, not a hidden support directory - it exists to be read by a human.
 struct UserConfig: Codable, Sendable, Equatable {
     var archiveDirectory: String
     var skipList: [String]
@@ -22,18 +19,16 @@ struct UserConfig: Codable, Sendable, Equatable {
     }
 
     /// The user's own entries plus the shipped ones. `skipList` stays purely
-    /// theirs - `brewinator config skip add/remove` never touches built-ins.
+    /// theirs - `config skip add/remove` never touches built-ins.
     var effectiveSkipList: [String] {
         skipList + BuiltInSkipList.patterns
     }
 
-    /// The single matcher every skip decision goes through, so no caller has to
-    /// pick between `skipList` and `effectiveSkipList` by hand.
+    /// The matcher every skip decision goes through.
     var skipMatcher: SkipMatcher {
         SkipMatcher(effectiveSkipList)
     }
 
-    /// Exact-name or `*`-glob match against the effective skip list.
     func isSkipped(_ name: String) -> Bool {
         skipMatcher.matches(name)
     }

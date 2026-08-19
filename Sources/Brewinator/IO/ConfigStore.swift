@@ -33,15 +33,13 @@ protocol ConfigStore: Sendable {
 }
 
 extension ConfigStore {
-    /// First run writes the default rather than dead-ending on a missing
-    /// file. Deliberately scoped to `.notFound`: a config that exists but
-    /// doesn't parse still throws, because overwriting it would silently
-    /// destroy a skip list the user spent time building.
+    /// First run writes the default. Scoped to `.notFound`: a config that exists
+    /// but doesn't parse still throws, since overwriting it would destroy the
+    /// user's skip list.
     ///
-    /// The `save` failure is wrapped rather than rethrown raw: `createDirectory`
-    /// and `Data.write` throw `CocoaError`, and callers catching only
-    /// `ConfigStoreError` would otherwise let it escape - which at top level in
-    /// main.swift means a trap, not a message.
+    /// The `save` failure is wrapped, not rethrown - `createDirectory` and
+    /// `Data.write` throw `CocoaError`, which escapes a `ConfigStoreError`-only
+    /// catch and traps at top level instead of printing.
     func loadOrCreate(default defaultConfig: UserConfig) throws -> (config: UserConfig, created: Bool) {
         do {
             return (try load(), false)
@@ -72,10 +70,9 @@ final class FileConfigStore: ConfigStore {
         self.fileURL = fileURL
     }
 
-    /// Normalizes every failure mode into `ConfigStoreError` - the caller
-    /// (`main.swift`) only catches that type, so a raw `DecodingError` (from
-    /// malformed JSON) or file-read error escaping here would crash instead
-    /// of showing the friendly "create a config first" message.
+    /// Normalizes every failure into `ConfigStoreError` - `main.swift` catches
+    /// only that type, so a raw `DecodingError` or read error would crash rather
+    /// than print.
     func load() throws -> UserConfig {
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
             throw ConfigStoreError.notFound(path: fileURL.path)
@@ -97,9 +94,8 @@ final class FileConfigStore: ConfigStore {
         let directory = fileURL.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let encoder = JSONEncoder()
-        // `withoutEscapingSlashes` matters here: this file is meant to be
-        // hand-edited, and the default encoder turns every path into
-        // "\/Volumes\/...".
+        // `withoutEscapingSlashes`: this file is hand-edited, and the default
+        // encoder writes every path as "\/Volumes\/...".
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
         let data = try encoder.encode(config)
         try data.write(to: fileURL, options: .atomic)

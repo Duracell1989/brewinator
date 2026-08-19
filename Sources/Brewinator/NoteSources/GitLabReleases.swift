@@ -101,9 +101,8 @@ struct GitLabReleases: NoteSource {
     }
 
     /// Fetches one candidate NEWS file at the release tag and extracts the
-    /// version range; nil if the file is missing/unreadable or the range
-    /// (target-only, then target-to-EOF as a fallback) has no content —
-    /// either way the caller tries the next file in the list.
+    /// version range. Nil if the file is missing or the range is empty; either
+    /// way the caller tries the next candidate.
     private func newsSection(base: String, tag: String, file: String, package: OutdatedPackageInfo) async -> String? {
         guard let url = URL(string: "\(base)/-/raw/\(tag)/\(file)"),
             let (newsData, newsStatus) = try? await httpFetcher.fetch(url),
@@ -163,12 +162,9 @@ private struct RawGitLabRelease: Decodable, VersionTagged {
     }
 }
 
-/// Extracts a *range* of "Overview of changes..." sections from a
-/// GNOME-style NEWS file: starts at the heading for `newest` and stops at
-/// the heading for `oldest` (exclusive) — NEWS is newest-first, so this
-/// yields every intervening release, not just the newest one (pango
-/// 1.58.0 → 1.58.2, where 1.58.2 itself says "No changes" and the substance
-/// is in 1.58.1).
+/// Extracts a *range* of "Overview of changes..." sections from a GNOME-style
+/// NEWS file, from `newest` down to `oldest` (exclusive). The range matters:
+/// pango 1.58.2 says only "No changes" and the substance is in 1.58.1.
 private enum NewsRangeExtractor {
     static func extract(from text: String, newest: String, oldest: String) -> String {
         var started = false
@@ -193,11 +189,9 @@ private enum NewsRangeExtractor {
         return output.joined(separator: "\n")
     }
 
-    /// Headings vary across projects ("Overview of changes in 1.58.2,
-    /// 05-08-2026", "Overview of changes in GLib 2.88.0", "Overview of
-    /// changes leading to 11.0.0") — the version is the last
-    /// whitespace-separated token after stripping the prefix and any
-    /// trailing ", <date>".
+    /// Headings vary ("...in 1.58.2, 05-08-2026", "...in GLib 2.88.0",
+    /// "...leading to 11.0.0"), so the version is the last whitespace-separated
+    /// token once the prefix and any trailing ", <date>" are stripped.
     private static func headingVersion(of line: String) -> String? {
         let pattern = #"^Overview of [Cc]hanges (in|leading to)[ \t]+"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }

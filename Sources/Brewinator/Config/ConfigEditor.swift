@@ -33,11 +33,9 @@ extension ConfigEditorError: CustomStringConvertible, LocalizedError {
 }
 
 /// The read/write half of `brewinator config`, kept out of the ArgumentParser
-/// command types so it can be tested against a fake store - a parsed command
-/// is built by the parser and has nowhere to inject one.
-///
-/// Every method returns the message to print rather than printing it, so a
-/// test asserts on the same string the user sees.
+/// command types, which the parser builds and leave nowhere to inject a fake
+/// store. Every method returns its message rather than printing it, so a test
+/// asserts on the same string the user sees.
 struct ConfigEditor {
     let store: ConfigStore
 
@@ -124,10 +122,9 @@ struct ConfigEditor {
         return (loaded.config, loaded.created ? "Created a default config at \(store.path)\n\n" : "")
     }
 
-    /// A `~` that no shell expanded (quoted, or issued from a script or a
-    /// launchd plist) used to be stored literally, and `URL(fileURLWithPath:)`
-    /// then resolved it against the process cwd - so a daily job created a
-    /// directory actually named `~` and pruned inside it.
+    /// An unexpanded `~` (quoted, or from a script or launchd plist) used to be
+    /// stored literally and resolved against the process cwd, so a daily job
+    /// created a directory actually named `~` and pruned inside it.
     private static func normalizedArchiveDirectory(_ value: String) throws -> String {
         let trimmed = value.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { throw ConfigEditorError.invalidPath(value) }

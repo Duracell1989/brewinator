@@ -1,22 +1,17 @@
 import ArgumentParser
 import Foundation
 
-// Argument parsing stays synchronous (ArgumentParser's own machinery); the
-// actual sync work runs via top-level `await` below rather than through
-// AsyncParsableCommand.main() — its runtime async-bridging check is broken
-// on the current beta Swift 6.4/Xcode 27 toolchain (always reports "needs
-// availability annotation" even with the exact annotation it suggests).
+// Sync work runs via top-level `await` below rather than through
+// AsyncParsableCommand.main(): its runtime async-bridging check is broken on
+// the beta Swift 6.4/Xcode 27 toolchain, demanding an availability annotation
+// it already has.
 let command: BrewinatorCommand
 do {
     switch CommandDispatch.dispatch(for: try BrewinatorCommand.parseAsRoot()) {
     case .auxiliary(var auxiliary):
-        // `--help`/`help`: running it throws the help request, which
-        // `exit(withError:)` renders and exits 0 on. Discarding it instead
-        // is what made v0.1.0's `--help` run a full sync.
-        //
-        // `validate()` first, because that is the order `ParsableCommand.main()`
-        // uses and this dispatch replaces it - skipping it would silently drop
-        // the hook any future validation lands in.
+        // Running it throws the help request, which `exit(withError:)` renders
+        // and exits 0 on. `validate()` first, matching the order
+        // `ParsableCommand.main()` uses, since this dispatch replaces it.
         try auxiliary.validate()
         try auxiliary.run()
         BrewinatorCommand.exit()
@@ -39,13 +34,10 @@ do {
         print("")
     }
 } catch {
-    // A missing config is created above, so only a malformed or unwritable one
-    // lands here. Deliberately never overwritten - the user's skip list is
-    // worth more than the convenience of a self-healing file.
-    //
-    // The catch is untyped on purpose: `save` failures arrive as raw
-    // `CocoaError`s, and an unmatched error at top level traps the process
-    // instead of printing anything.
+    // Only a malformed or unwritable config reaches here, and it is never
+    // overwritten - the user's skip list outweighs a self-healing file.
+    // Untyped catch: `save` failures arrive as raw `CocoaError`s, and an
+    // unmatched error at top level traps the process instead of printing.
     print(error)
     if let configError = error as? ConfigStoreError, case .invalid = configError {
         print("")
@@ -71,9 +63,8 @@ if command.update {
     do {
         try await brewClient.update()
     } catch {
-        // Degrade to the pre-flag behaviour — sync against whatever metadata
-        // Homebrew already had — rather than losing the whole run to a
-        // transient network failure at 09:00.
+        // Degrade to syncing against whatever metadata Homebrew already had,
+        // rather than losing the whole 09:00 run to a transient network failure.
         logger.warn("brew update failed (\(error)) - continuing with existing metadata")
     }
     print("")
@@ -82,11 +73,9 @@ if command.update {
 let httpFetcher = URLSessionHTTPFetcher()
 let database = ResolutionDatabase.live
 
-// Config-map vendor classes first (JetBrains/Sparkle/TagCompare/Markdown),
-// then the seven bespoke vendor one-offs, then generic forge resolution.
-// Order among the vendor one-offs doesn't matter (each `canHandle` is an
-// exact, mutually exclusive name match), and neither does order between the
-// two forge sources (mutually exclusive by dialect).
+// Config-map vendor classes first, then the bespoke vendor one-offs, then
+// generic forge resolution. Order within each group is irrelevant - every
+// `canHandle` is an exact, mutually exclusive match.
 let sync = BrewNotesSync(
     brewClient: brewClient,
     archiveStore: FileArchiveStore(directory: URL(fileURLWithPath: config.archiveDirectory)),

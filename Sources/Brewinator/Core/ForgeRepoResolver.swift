@@ -8,10 +8,9 @@ enum ForgeDialect: String, Sendable, Equatable, Codable {
     case gitea
 }
 
-/// One entry in `ResolutionDatabase.forgeHosts`. A single dialect-tagged list
-/// (rather than a separate GitLab-hosts list alongside the general forge-hosts
-/// list) makes "every GitLab host is a forge host" true by construction —
-/// there is no second array to fall out of sync with the first.
+/// One entry in `ResolutionDatabase.forgeHosts`. One dialect-tagged list rather
+/// than a general list plus a GitLab one, so there is no second array to fall
+/// out of sync.
 struct ForgeHost: Sendable, Equatable, Codable {
     let host: String
     let dialect: ForgeDialect
@@ -77,15 +76,11 @@ enum ForgeRepoResolver {
         return ForgeRepo(host: host, owner: repoPath[0], repo: repoPath[1], dialect: forgeHost.dialect)
     }
 
-    /// Scans free-form text (a download URL or homepage) for the first
-    /// `<forge-host>/<owner>/<repo>` substring. Case-insensitive to match
-    /// `split()`'s lowercasing, and left-boundary anchored so a forge host
-    /// doesn't match as a substring of a longer domain (e.g.
-    /// `docs.gitlab.com` must not match host `gitlab.com`) — a leading
-    /// non-capturing `(?:^|[^A-Za-z0-9.-])` group stands in for a lookbehind,
-    /// which Swift's native `Regex` doesn't support; being non-capturing, it
-    /// doesn't shift the `match.output[1...3]` indices below. Strips a
-    /// trailing `.git` off the repo the same way `split()` does.
+    /// Finds the first `<forge-host>/<owner>/<repo>` in a download URL or
+    /// homepage. Left-boundary anchored so `docs.gitlab.com` doesn't match host
+    /// `gitlab.com`; the leading `(?:^|[^A-Za-z0-9.-])` group stands in for a
+    /// lookbehind, which Swift `Regex` lacks, and being non-capturing it leaves
+    /// the `match.output[1...3]` indices intact.
     private static func scan(_ text: String, hosts: [ForgeHost]) -> ForgeRepo? {
         guard !hosts.isEmpty else { return nil }
         let hostAlternation = hosts.map { NSRegularExpression.escapedPattern(for: $0.host) }.joined(separator: "|")
