@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [0.5.0] - 2026-08-19
+
+### Added
+
+- `notify` now works. With it set to `true`, every run posts a desktop notification saying how many release notes were written and for which packages, or how many packages are outdated when there were none to write. A failed run says so instead.
+- The notification fires on quiet runs too, deliberately: the point is to confirm the scheduled run happened, so an absent notification means the run did not happen rather than that nothing changed.
+
+### Notes
+
+- The notification carries Script Editor's name and icon. `display notification` offers no way to change either, and the alternative - shipping an application bundle - is the wrong shape for a command-line tool installed through a Homebrew formula.
+- macOS can suppress the notification silently. If none appears, check System Settings > Notifications for the Script Editor entry.
+
 ## [0.4.1] - 2026-08-19
 
 ### Fixed
@@ -70,6 +82,7 @@ Acts on a full review of everything released so far. Several of these are user-f
 
 Initial release: a Swift rewrite of the original `brew-notes.zsh`, distributed through `duracell1989/tap`.
 
+[0.5.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.5.0
 [0.4.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.4.1
 [0.4.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.4.0
 [0.3.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.3.1
