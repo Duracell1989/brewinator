@@ -100,10 +100,11 @@ let sync = BrewNotesSync(
 
 // A banner is a heartbeat, so it must never be the thing that fails the run -
 // a notifier error is logged and swallowed.
+let notifier = NotifierSelection.resolve(archiveDirectoryPath: config.archiveDirectory)
 let notify: (NotificationContent) -> Void = { content in
     guard config.notify else { return }
     do {
-        try OSAScriptNotifier().post(content)
+        try notifier.post(content)
     } catch {
         logger.warn("notification failed - \(error)")
     }

@@ -46,6 +46,61 @@ jobs:
           fi
           cat release-notes.md
 
+      # BrewinatorNotify.app (Phase 8, plan doc: brew-notes-swift-rewrite.md) -
+      # the resident notification agent the brewinator-notifier cask installs.
+      # Unlike `brewinator` itself (build-from-source, never quarantined), a
+      # cask ships a *downloaded* prebuilt binary, which Gatekeeper quarantines
+      # on arrival - it must be signed with a real Developer ID and notarized
+      # before that download ever happens.
+      - name: Import the Developer ID Application certificate
+        env:
+          CERT_P12_BASE64: ${{ secrets.DEVELOPER_ID_CERT_P12 }}
+          CERT_PASSWORD: ${{ secrets.DEVELOPER_ID_CERT_PASSWORD }}
+        run: |
+          keychain_password="$(openssl rand -base64 24)"
+          security create-keychain -p "$keychain_password" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$keychain_password" build.keychain
+          security set-keychain-settings -t 3600 -u build.keychain
+          echo "$CERT_P12_BASE64" | base64 --decode > cert.p12
+          security import cert.p12 -k build.keychain -P "$CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$keychain_password" build.keychain
+          rm cert.p12
+
+      - name: Build and sign BrewinatorNotify.app
+        run: |
+          identity="$(security find-identity -v -p codesigning build.keychain \
+            | grep 'Developer ID Application' | head -1 \
+            | sed -E 's/^[[:space:]]*[0-9]+\) [A-F0-9]+ "(.*)"$/\1/')"
+          if [ -z "$identity" ]; then
+            echo "No Developer ID Application identity found in build.keychain."
+            exit 1
+          fi
+          CODESIGN_IDENTITY="$identity" ./Scripts/build-notifier-app.sh
+
+      - name: Notarize and staple BrewinatorNotify.app
+        env:
+          APPLE_NOTARIZATION_KEY_ID: ${{ secrets.APPLE_NOTARIZATION_KEY_ID }}
+          APPLE_NOTARIZATION_ISSUER_ID: ${{ secrets.APPLE_NOTARIZATION_ISSUER_ID }}
+          APPLE_NOTARIZATION_KEY_P8: ${{ secrets.APPLE_NOTARIZATION_KEY_P8 }}
+        run: |
+          echo "$APPLE_NOTARIZATION_KEY_P8" | base64 --decode > AuthKey.p8
+          ditto -c -k --keepParent .build/BrewinatorNotify.app BrewinatorNotify.zip
+          xcrun notarytool submit BrewinatorNotify.zip \
+            --key AuthKey.p8 \
+            --key-id "$APPLE_NOTARIZATION_KEY_ID" \
+            --issuer "$APPLE_NOTARIZATION_ISSUER_ID" \
+            --wait
+          rm AuthKey.p8
+          xcrun stapler staple .build/BrewinatorNotify.app
+          # Stapling modifies the app after the zip above was made - repackage.
+          rm BrewinatorNotify.zip
+          ditto -c -k --keepParent .build/BrewinatorNotify.app BrewinatorNotify.zip
+
+      - name: Remove the CI keychain
+        if: always()
+        run: security delete-keychain build.keychain || true
+
       - name: Create the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -53,4 +108,5 @@ jobs:
           gh release create "$GITHUB_REF_NAME" \
             --title "$GITHUB_REF_NAME" \
             --notes-file release-notes.md \
-            --generate-notes
+            --generate-notes \
+            BrewinatorNotify.zip
