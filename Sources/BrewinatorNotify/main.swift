@@ -15,7 +15,7 @@ import os
 private let logger = Logger(subsystem: "dev.b89.brewinator.notifier", category: "agent")
 
 @MainActor
-final class NotifierAgent: NSObject, NSApplicationDelegate, @MainActor UNUserNotificationCenterDelegate {
+final class NotifierAgent: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     // Keyed by notification request identifier so a click can be traced back
     // to the archive path it should reveal, without smuggling that path
     // through UNNotificationContent's userInfo (which round-trips through
@@ -59,7 +59,14 @@ final class NotifierAgent: NSObject, NSApplicationDelegate, @MainActor UNUserNot
         }
     }
 
-    func userNotificationCenter(
+    // `nonisolated` rather than the isolated-conformance shorthand
+    // (`@MainActor UNUserNotificationCenterDelegate` on the class line): that
+    // syntax only exists on the local beta toolchain (Xcode 27 beta) and
+    // fails to parse at all on CI's stable one ("unknown attribute
+    // 'MainActor'"). This older pattern - nonisolated delegate methods,
+    // hopping to the actor via `Task` only where actor state is touched -
+    // compiles on both.
+    nonisolated func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
@@ -71,17 +78,22 @@ final class NotifierAgent: NSObject, NSApplicationDelegate, @MainActor UNUserNot
     // for "clicking activates Script Editor" (the third of the three
     // `osascript` limitations the companion app exists to fix; see the plan
     // doc's Phase 7/8 notes).
-    func userNotificationCenter(
+    nonisolated func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        defer { completionHandler() }
-        guard response.actionIdentifier == UNNotificationDefaultActionIdentifier else { return }
-
         let requestID = response.notification.request.identifier
-        guard let path = openPathByRequestID.removeValue(forKey: requestID) else { return }
-        NSWorkspace.shared.open(URL(fileURLWithPath: path))
+        let actionIdentifier = response.actionIdentifier
+        // completionHandler isn't @Sendable, so it's called here rather than
+        // captured into the Task below - it only signals "response handled",
+        // it doesn't need to wait on the Finder-opening side effect.
+        Task { @MainActor in
+            guard actionIdentifier == UNNotificationDefaultActionIdentifier else { return }
+            guard let path = self.openPathByRequestID.removeValue(forKey: requestID) else { return }
+            NSWorkspace.shared.open(URL(fileURLWithPath: path))
+        }
+        completionHandler()
     }
 }
 
