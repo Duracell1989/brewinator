@@ -9,6 +9,12 @@ included:
 # The formatter is the one that actually rewrites the file, so it wins —
 # disabled here rather than fighting it file by file. First hit: Phase 3's
 # ResolutionDatabase / Resolver source-list literals (2026-08-14).
+#
+# Same fight, same resolution, for imports: swift-format's OrderedImports
+# sorts case-sensitively (`UserNotifications` before `os`); SwiftLint's
+# sorted_imports sorts case-insensitively (`os` before `UserNotifications`).
+# Left out of opt_in_rules below rather than enabled and immediately
+# disabled. First hit: BrewinatorNotify/main.swift (2026-08-24).
 disabled_rules:
   - trailing_comma
 
@@ -23,7 +29,6 @@ opt_in_rules:
   - implicitly_unwrapped_optional
   - overridden_super_call
   - redundant_nil_coalescing
-  - sorted_imports
   - unneeded_parentheses_in_closure_argument
 
 line_length:

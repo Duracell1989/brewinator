@@ -1,4 +1,5 @@
 import Foundation
+import NotifierIPC
 
 enum NotifierError: Error, Sendable, Equatable {
     case processFailed(exitCode: Int32)
@@ -42,5 +43,48 @@ struct OSAScriptNotifier: Notifying {
         guard process.terminationStatus == 0 else {
             throw NotifierError.processFailed(exitCode: process.terminationStatus)
         }
+    }
+}
+
+/// Posts via `DistributedNotificationCenter` to a running `BrewinatorNotify.app`
+/// resident agent, which turns it into a real `UNUserNotificationCenter`
+/// banner - proper icon, proper name, and a click that does something useful
+/// (reveals the archive), none of which `osascript` can provide. Silent
+/// no-op if the agent isn't currently running: distributed notifications have
+/// no listener-acknowledgement, so a crashed or not-yet-launched agent drops
+/// the banner without this call ever finding out.
+struct ResidentAgentNotifier: Notifying {
+    let archiveDirectoryPath: String
+
+    func post(_ content: NotificationContent) throws {
+        DistributedNotificationCenter.default().postNotificationName(
+            NotifierIPC.notificationName,
+            object: nil,
+            userInfo: [
+                NotifierIPC.Key.title: content.title,
+                NotifierIPC.Key.subtitle: content.subtitle,
+                NotifierIPC.Key.body: content.body,
+                NotifierIPC.Key.openPath: archiveDirectoryPath,
+            ],
+            deliverImmediately: true
+        )
+    }
+}
+
+/// Picks which `Notifying` a run should use. The resident agent is preferred
+/// only when its app bundle is present - installing it is opt-in (the
+/// `brewinator-notifier` cask), so most machines fall back to the
+/// always-available `osascript` banner.
+enum NotifierSelection {
+    static let defaultAgentBundlePath = "/Applications/BrewinatorNotify.app"
+
+    static func resolve(
+        archiveDirectoryPath: String,
+        agentBundlePath: String = defaultAgentBundlePath,
+        fileExists: (String) -> Bool = { FileManager.default.fileExists(atPath: $0) }
+    ) -> Notifying {
+        fileExists(agentBundlePath)
+            ? ResidentAgentNotifier(archiveDirectoryPath: archiveDirectoryPath)
+            : OSAScriptNotifier()
     }
 }
