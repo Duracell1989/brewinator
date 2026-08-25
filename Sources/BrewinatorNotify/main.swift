@@ -14,6 +14,27 @@ import os
 
 private let logger = Logger(subsystem: "dev.b89.brewinator.notifier", category: "agent")
 
+// Plain top-level functions, not closures written inline inside the
+// @MainActor class below. A closure literal lexically nested in a
+// MainActor-isolated method infers MainActor isolation itself - but
+// UNUserNotificationCenter actually invokes both of these completion
+// handlers on its own background queue, not the main thread. That mismatch
+// isn't caught at compile time; Swift 6's runtime isolation check traps
+// (SIGTRAP) the first time the handler actually runs off-main, which under
+// launchd's KeepAlive meant every single launch, in a crash loop. Confirmed
+// via crash report 2026-08-25: faulting thread was
+// com.apple.usernotifications.UNUserNotificationServiceConnection.call-out,
+// inside dispatch_assert_queue_fail. A plain top-level function has no
+// actor isolation to infer, so it can't hit this.
+private func logAuthorizationResult(granted: Bool, error: Error?) {
+    logger.info("authorization granted=\(granted, privacy: .public) error=\(String(describing: error), privacy: .public)")
+}
+
+private func logNotificationPostResult(error: Error?) {
+    guard let error else { return }
+    logger.error("failed to post notification: \(String(describing: error), privacy: .public)")
+}
+
 @MainActor
 final class NotifierAgent: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     // Keyed by notification request identifier so a click can be traced back
@@ -27,9 +48,7 @@ final class NotifierAgent: NSObject, NSApplicationDelegate, UNUserNotificationCe
 
         let center = UNUserNotificationCenter.current()
         center.delegate = self
-        center.requestAuthorization(options: [.alert, .sound]) { granted, error in
-            logger.info("authorization granted=\(granted, privacy: .public) error=\(String(describing: error), privacy: .public)")
-        }
+        center.requestAuthorization(options: [.alert, .sound], completionHandler: logAuthorizationResult)
 
         DistributedNotificationCenter.default().addObserver(
             self,
@@ -53,10 +72,7 @@ final class NotifierAgent: NSObject, NSApplicationDelegate, UNUserNotificationCe
         }
 
         let request = UNNotificationRequest(identifier: requestID, content: content, trigger: nil)
-        UNUserNotificationCenter.current().add(request) { error in
-            guard let error else { return }
-            logger.error("failed to post notification: \(String(describing: error), privacy: .public)")
-        }
+        UNUserNotificationCenter.current().add(request, withCompletionHandler: logNotificationPostResult)
     }
 
     // `nonisolated` rather than the isolated-conformance shorthand
