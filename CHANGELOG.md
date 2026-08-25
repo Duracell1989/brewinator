@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [0.6.0] - 2026-08-24
+
+### Added
+
+- `BrewinatorNotify.app`, a resident notification agent distributed through the separate, opt-in `brewinator-notifier` cask. When it's installed, notifications get a real icon and app name instead of Script Editor's, and clicking one reveals the archive in Finder. Nothing changes for anyone who doesn't install it - `brewinator` falls back to the existing `osascript` banner automatically.
+
+### Notes
+
+- Installing the resident agent requires launching it once so macOS can register it for notification permission - not fully unattended yet on a brand-new install.
+
 ## [0.5.0] - 2026-08-19
 
 ### Added
@@ -82,6 +92,7 @@ Acts on a full review of everything released so far. Several of these are user-f
 
 Initial release: a Swift rewrite of the original `brew-notes.zsh`, distributed through `duracell1989/tap`.
 
+[0.6.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.6.0
 [0.5.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.5.0
 [0.4.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.4.1
 [0.4.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.4.0
