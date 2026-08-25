@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [0.6.1] - 2026-08-25
+
+### Fixed
+
+- `BrewinatorNotify.app` (the resident agent from `brewinator-notifier`) crashed on every single launch once installed as a real `KeepAlive` LaunchAgent. Its authorization and notification-post completion handlers were written as closures inline inside an `@MainActor` method, which inferred `@MainActor` isolation from that lexical nesting - but `UNUserNotificationCenter` actually invokes both off the main thread, and Swift 6's runtime isolation check trapped the mismatch every time. Moved both to plain top-level functions, which have no isolation to infer.
+
 ## [0.6.0] - 2026-08-24
 
 ### Added
@@ -92,6 +98,7 @@ Acts on a full review of everything released so far. Several of these are user-f
 
 Initial release: a Swift rewrite of the original `brew-notes.zsh`, distributed through `duracell1989/tap`.
 
+[0.6.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.6.1
 [0.6.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.6.0
 [0.5.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.5.0
 [0.4.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.4.1
