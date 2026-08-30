@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NSS 3.128 release notes &mdash; Firefox Source Docs  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom_theme.css?v=dcb66cfd" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/firefox.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=30646c52"></script>
+        <script src="../../../_static/design-tabs.js?v=36754332"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="NSS 3.127 release notes" href="nss_3_127.html" />
+    <link rel="prev" title="Release Notes" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Firefox Source Docs
+              <img src="../../../_static/firefox-wordmark.svg" class="logo" alt="Logo"/>
+          </a><! -- This code is governed by the BSD license -->
+
+<div>
+  <h3>Quick search</h3>
+  <script>
+    (function () {
+      var cx = "dd12886298f75dbef";
+      var gcse = document.createElement("script");
+      gcse.async = true;
+      gcse.src = "https://cse.google.com/cse.js?cx=" + cx;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(gcse, s);
+    })();
+  </script>
+  <gcse:search></gcse:search>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary/index.html">A Glossary of Common Terms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview/index.html">A Quick Guide to Mozilla Applications</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup/index.html">Getting Set Up To Work On The Firefox Codebase</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Working On Firefox</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/index.html">Working on Firefox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bug-mgmt/index.html">Bug Handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../crash-reporting/index.html">Firefox Crash Reporting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Firefox User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/3d_view/index.html">3D view</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/about_colon_debugging/index.html">about:debugging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/accessibility_inspector/index.html">Accessibility Inspector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/application/index.html">Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/browser_console/index.html">Browser Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/browser_toolbox/index.html">Browser Toolbox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/custom_formatters/index.html">Custom Formatters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/debugger/index.html">The Firefox JavaScript Debugger</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/debugger-api/index.html">Debugger-API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/deprecated_tools/index.html">Deprecated tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/devtoolsapi/index.html">DevTools API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/devtoolscolors/index.html">DevToolsColors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/dom_property_viewer/index.html">DOM Property Viewer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/eyedropper/index.html">Eyedropper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/index/index.html">Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/javascript_tracer/index.html">JavaScript Tracer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/json_viewer/index.html">JSON viewer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/keyboard_shortcuts/index.html">All keyboard shortcuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/local_mode/index.html">Local Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/measure_a_portion_of_the_page/index.html">Measure a portion of the page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/memory/index.html">Memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/migrating_from_firebug/index.html">Migrating from Firebug</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/network_monitor/index.html">Network Monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/page_inspector/index.html">Page Inspector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/performance/index.html">Performance Tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/responsive_design_mode/index.html">Responsive Design Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/rulers/index.html">Rulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/settings/index.html">Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/shader_editor/index.html">Shader Editor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/storage_inspector/index.html">Storage Inspector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/style_editor/index.html">Style Editor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/taking_screenshots/index.html">Taking screenshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/tips/index.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/tools_toolbox/index.html">Toolbox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/validators/index.html">Validators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/view_source/index.html">View Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/web_audio_editor/index.html">Web Audio Editor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/web_console/index.html">Web Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/working_with_iframes/index.html">Working with iframes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools-user/index.html">Firefox DevTools User Docs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source Code Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../mots/index.html">Governance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../browser/index.html">Firefox Front-end</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dom/index.html">DOM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../editor/index.html">Editor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../layout/index.html">Style system (CSS) &amp; Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gfx/index.html">Graphics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ipc/index.html">Processes, Threads and IPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools/README.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools/architecture-overview.html">Architecture overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools/bugs-issues.html">Bugs and issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devtools/index.html">Firefox DevTools Contributor Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toolkit/index.html">Toolkit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../js/index.html">SpiderMonkey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../jsloader/index.html">JS Loader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mobile/android/geckoview/index.html">GeckoView</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mobile/android/fenix/index.html">Fenix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mobile/android/focus-android/index.html">Focus for Android</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dom/bindings/webidl/index.html">WebIDL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/libpref/index.html">libpref</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../networking/index.html">Networking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../remote/index.html">Remote Protocols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../services/index.html">Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../permissions/index.html">Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../uriloader/index.html">File Handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../widget/cocoa/index.html">Firefox on macOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../widget/windows/index.html">Firefox on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toolkit/components/ml/index.html">Firefox AI Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../accessible/index.html">Accessibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../media/index.html">Media Playback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code-quality/index.html">Code quality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../writing-rust-code/index.html">Writing Rust Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rust-components/index.html">Rust Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tools/profiler/index.html">Gecko Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../performance/index.html">Performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../storage/index.html">Database bindings (SQLite, KV, …)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../xpcom/index.html">XPCOM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nspr/index.html">NSPR</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Network Security Services (NSS)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../build.html">Building NSS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../try.html">Try Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../runbooks/index.html">Runbooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../legacy_extracts/index.html">Legacy Docs</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Release Notes</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">NSS 3.128 release notes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#distribution-information">Distribution Information</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#changes-in-nss-3-128">Changes in NSS 3.128</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_127.html">NSS 3.127 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_126_1.html">NSS 3.126.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_126.html">NSS 3.126 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_125.html">NSS 3.125 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_124.html">NSS 3.124 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_123_1.html">NSS 3.123.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_123.html">NSS 3.123 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_122_2.html">NSS 3.122.2 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_122_1.html">NSS 3.122.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_122.html">NSS 3.122 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_121.html">NSS 3.121 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_120.html">NSS 3.120 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_119_1.html">NSS 3.119.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_119.html">NSS 3.119 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_118_1.html">NSS 3.118.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_118.html">NSS 3.118 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_117.html">NSS 3.117 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_116.html">NSS 3.116 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_115_1.html">NSS 3.115.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_115.html">NSS 3.115 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_114_1.html">NSS 3.114.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_114.html">NSS 3.114 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_113.html">NSS 3.113 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_112_5.html">NSS 3.112.5 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_112_4.html">NSS 3.112.4 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_112_3.html">NSS 3.112.3 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_112_2.html">NSS 3.112.2 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_112_1.html">NSS 3.112.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_112.html">NSS 3.112 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_111.html">NSS 3.111 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_110.html">NSS 3.110 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_109.html">NSS 3.109 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_108.html">NSS 3.108 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_107.html">NSS 3.107 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_106.html">NSS 3.106 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_105.html">NSS 3.105 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_104.html">NSS 3.104 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_103.html">NSS 3.103 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_102_1.html">NSS 3.102.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_102.html">NSS 3.102 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_101_4.html">NSS 3.101.4 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_101_3.html">NSS 3.101.3 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_101_2.html">NSS 3.101.2 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_101_1.html">NSS 3.101.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_101.html">NSS 3.101 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_100.html">NSS 3.100 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_99.html">NSS 3.99 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_98.html">NSS 3.98 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_97.html">NSS 3.97 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_96_1.html">NSS 3.96.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_96.html">NSS 3.96 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_95.html">NSS 3.95 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_94.html">NSS 3.94 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_93.html">NSS 3.93 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_92.html">NSS 3.92 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_91.html">NSS 3.91 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_90_6.html">NSS 3.90.6 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_90_5.html">NSS 3.90.5 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_90_4.html">NSS 3.90.4 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_90_3.html">NSS 3.90.3 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_90_2.html">NSS 3.90.2 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_90_1.html">NSS 3.90.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_90.html">NSS 3.90 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_89_1.html">NSS 3.89.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_89.html">NSS 3.89 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_88_1.html">NSS 3.88.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_88.html">NSS 3.88 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_87_1.html">NSS 3.87.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_87.html">NSS 3.87 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_86.html">NSS 3.86 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_85.html">NSS 3.85 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_84.html">NSS 3.84 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_83.html">NSS 3.83 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_82.html">NSS 3.82 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_81.html">NSS 3.81 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_80.html">NSS 3.80 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_79_4.html">NSS 3.79.4 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_79_3.html">NSS 3.79.3 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_79_2.html">NSS 3.79.2 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_79_1.html">NSS 3.79.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_79.html">NSS 3.79 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_78_1.html">NSS 3.78.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_78.html">NSS 3.78 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_77.html">NSS 3.77 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_76_1.html">NSS 3.76.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_76.html">NSS 3.76 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_75.html">NSS 3.75 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_74.html">NSS 3.74 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_73_1.html">NSS 3.73.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_73.html">NSS 3.73 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_72_1.html">NSS 3.72.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_72.html">NSS 3.72 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_71.html">NSS 3.71 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_70.html">NSS 3.70 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_69_1.html">NSS 3.69.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_69.html">NSS 3.69 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_68_4.html">NSS 3.68.4 (ESR) release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_68_3.html">NSS 3.68.3 (ESR) release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_68_2.html">NSS 3.68.2 (ESR) release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_68_1.html">NSS 3.68.1 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_68.html">NSS 3.68 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_67.html">NSS 3.67 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_66.html">NSS 3.66 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_65.html">NSS 3.65 release notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nss_3_64.html">NSS 3.64 release notes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../content-security/index.html">Web Security Checks in Gecko</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rlbox/index.html">RLBox sandboxing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The Firefox Build System</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../mach/index.html">Mach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tools/try/index.html">Pushing to Try</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../build/buildsystem/index.html">Build System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../taskcluster/index.html">Firefox CI and Taskgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tools/moztreedocs/index.html">Managing Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mozbuild/vendor/index.html">Vendoring Third Party Components</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Testing &amp; Test Infrastructure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/automated-testing/index.html">Automated Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/treeherder-try/index.html">Understanding Treeherder Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/sheriffed-intermittents/index.html">Sheriffed intermittent failures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/tests-for-new-config/index.html">Turning on Firefox tests for a new configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/intermittent/index.html">Avoiding intermittent tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/debugging-intermittents/index.html">Debugging Intermittent Test Failures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/testing-policy/index.html">Testing Policy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/ci-configs/index.html">Configuration Changes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/browser-chrome/index.html">Browser chrome mochitests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/chrome-tests/index.html">Chrome Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/geckodriver/index.html">geckodriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/test-verification/index.html">Test Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/webrender/index.html">WebRender Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/mochitest-plain/index.html">Mochitest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/xpcshell/index.html">XPCShell tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/tps/index.html">TPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../web-platform/index.html">web-platform-tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gtest/index.html">GTest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tools/fuzzing/index.html">Fuzzing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tools/sanitizer/index.html">Sanitizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing/perfdocs/index.html">Performance Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tools/code-coverage/index.html">Code coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing-rust-code/index.html">Testing &amp; Debugging Rust Code</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">AI Agent Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../ai-agent-tools/index.html">AI Agent Tools for Firefox Development</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Releases &amp; Updates</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../update-infrastructure/index.html">Mozilla Update Infrastructure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../update-infrastructure/index.html#watershed-updates">Watershed Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../update-infrastructure/index.html#desupport-updates">Desupport Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tools/update-verify/index.html">Update Verify</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Localization &amp; Internationalization</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intl/index.html">Internationalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../l10n/index.html">Localization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Firefox and Python</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../mozbase/index.html">mozbase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../python/index.html">Using third-party Python packages</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Metrics Collected in Firefox</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics/index.html">Firefox metrics</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Firefox Source Docs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  --><div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Network Security Services (NSS)</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Release Notes</a></li>
+      <li class="breadcrumb-item active">NSS 3.128 release notes</li>
+<li class="wy-breadcrumbs-aside">
+  <a
+    href="https://bugzilla.mozilla.org/enter_bug.cgi?product=Developer+Infrastructure&component=Firefox+Source+Docs%3A+Content&short_desc=Documentation+issue+on+security/nss/releases/nss_3_128&comment=URL+=+https://firefox-source-docs.mozilla.org/security/nss/releases/nss_3_128.html&bug_file_loc=https://firefox-source-docs.mozilla.org/security/nss/releases/nss_3_128.html"
+    rel="nofollow"
+    >Report an issue</a
+  >
+  /
+  <a
+    href="https://github.com/mozilla-firefox/firefox/blob/main/security/nss/doc/src/releases/nss_3_128.md"
+    rel="nofollow"
+    >View page source</a
+  >
+</li>
+
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="nss-3-128-release-notes">
+<span id="mozilla-projects-nss-nss-3-128-release-notes"></span><h1>NSS 3.128 release notes<a class="headerlink" href="#nss-3-128-release-notes" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<div class="docutils container">
+<p>Network Security Services (NSS) 3.128 was released on <em>26 August 2026</em>.</p>
+</div>
+</section>
+<section id="distribution-information">
+<h2>Distribution Information<a class="headerlink" href="#distribution-information" title="Link to this heading"></a></h2>
+<div class="docutils container">
+<p>The HG tag is NSS_3_128_RTM. NSS 3.128 requires NSPR 4.39 or newer.</p>
+<p>NSS 3.128 source distributions are available on ftp.mozilla.org for secure HTTPS download:</p>
+<ul class="simple">
+<li><p>Source tarballs:
+<a class="reference external" href="https://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/NSS_3_128_RTM/src/">https://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/NSS_3_128_RTM/src/</a></p></li>
+</ul>
+<p>Other releases are available <a class="reference internal" href="index.html#mozilla-projects-nss-releases"><span class="std std-ref">Release Notes</span></a>.</p>
+</div>
+</section>
+<section id="changes-in-nss-3-128">
+<span id="id1"></span><h2>Changes in NSS 3.128<a class="headerlink" href="#changes-in-nss-3-128" title="Link to this heading"></a></h2>
+<div class="docutils container">
+<ul class="simple">
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2063360">Bug 2063360</a> - Rejoin the table cells the conversion wrapped mid-construct.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2063360">Bug 2063360</a> - Generate heading anchors and stop the headings linking to themselves.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2063360">Bug 2063360</a> - Unlink the self-linking headings in the release notes.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2063360">Bug 2063360</a> - Point documentation cross-references at the dashed anchors.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2063360">Bug 2063360</a> - Fix doc-lint in the release process.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2066375">Bug 2066375</a> - Make fuzz tasks selectable with try syntax.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2066375">Bug 2066375</a> - Build Cryptofuzz in its own CI task.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2066604">Bug 2066604</a> - fix EC public key encoding in sftk_PutPubKey.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2066183">Bug 2066183</a> - set CKA_ID on imported private keys.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2017925">Bug 2017925</a> - Hash prfs need to be evaluated for indicators.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2066327">Bug 2066327</a> - rename libcrux gyp target.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2066415">Bug 2066415</a> - Update BoGo tests to disable ML_DSA Default test.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2065354">Bug 2065354</a> - unify the two clang-format docker images.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2056265">Bug 2056265</a> - -trust-cert for TLS BoGo tests.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2056235">Bug 2056235</a> - DTLS1.2/1.3 - silently discard invalid records.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2052273">Bug 2052273</a> - Adding -trust-cert support for BoGo DTLS tests.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2063443">Bug 2063443</a> - nullify dangling pointers in libssl, pk11wrap, and softoken.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2027768">Bug 2027768</a> - Fix build failure due to missing gcm stubs if on big endian.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2065354">Bug 2065354</a> - clang-format everything.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2065354">Bug 2065354</a> - Update clang-format version to 22.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2054818">Bug 2054818</a> - make mach try work with git-cinnabar checkouts.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2054696">Bug 2054696</a> - avoid integer overflow in PK11SDR_EncryptWithMechanism.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2056778">Bug 2056778</a> - fix slot over-release in PK11_FindCertFromDERCertItem.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2056789">Bug 2056789</a> - fix missing BAD_PARAM_CAST in NSC_DeriveKey CKM_DES3_CBC_ENCRYPT_DATA branch.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2064946">Bug 2064946</a> - additional ML-DSA ssl gtests.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2064644">Bug 2064644</a> - ml_dsat.h: portable comments should use block comment style.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1983320">Bug 1983320</a> - ml-dsa tls tests.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2056787">Bug 2056787</a> - hold handshake locks longer in SSL_ResetHandshake.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1983320">Bug 1983320</a> - ML-DSA tests for Sign/Verify, certificates and pkcs12.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2056786">Bug 2056786</a> - take smime profile lock while updating profile data.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2062824">Bug 2062824</a> - add defensive null checks in PK11_Encapsulate and PK11_Decapsulate.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2062822">Bug 2062822</a> - nulled slot in pk11_loadPrivKeyWithFlags leads to token object leak.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2062802">Bug 2062802</a> - handle ML-KEM in stfk_CopyTokenPrivateKey and stfk_CopyTokenPublicKey.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2062450">Bug 2062450</a> - Allow unknown hashAlg with ML-DSA in VFY_VerifyDataDirect.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2062379">Bug 2062379</a> - additional ML-KEM tests.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2062375">Bug 2062375</a> - handle unknown ML-KEM parameter sets in PK11_ExtractPublicKey.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2062373">Bug 2062373</a> - missing CKP_NSS_ML_KEM_768 branches in seckey helper functions.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2062372">Bug 2062372</a> - remove unused sftk_kyber_AllocCiphertextItem function.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2060302">Bug 2060302</a> - additional ML-DSA tests.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2060358">Bug 2060358</a> - add wycheproof tests for ML-KEM and ML-DSA.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2060302">Bug 2060302</a> - vendor libcrux ML-DSA and enable the ML-DSA freebl backend.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2060301">Bug 2060301</a> - bump libcrux and re-vendor ML-KEM from the combined C extraction.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2027352">Bug 2027352</a> - validate IV length for CKM_RC2_CBC in pk11_ParamFromIVWithLen.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1983320">Bug 1983320</a> - ml-dsa tls patch.</p></li>
+<li><p><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=2056775">Bug 2056775</a> - protect nssPKIObject.cryptoContext with a lock.</p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Release Notes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="nss_3_127.html" class="btn btn-neutral float-right" title="NSS 3.127 release notes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
