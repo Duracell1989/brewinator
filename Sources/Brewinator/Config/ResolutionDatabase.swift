@@ -33,6 +33,9 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
     /// %s = channel (major.minor).
     let dotnetReleasesURLTemplate: String
     let dotnetNotableChangesHeading: String
+    /// %s = exact target version with dots swapped for underscores (`3.128` ->
+    /// `3_128`) — the Sphinx page's own filename convention.
+    let nssNotesURLTemplate: String
     let windowsAppURL: URL
     /// The `claude` Desktop cask's changelog page.
     let claudeDesktopChangelogURL: URL
@@ -81,6 +84,7 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
         ffmpegChangelogURLTemplate: "https://raw.githubusercontent.com/FFmpeg/FFmpeg/%s/Changelog",
         dotnetReleasesURLTemplate: "https://builds.dotnet.microsoft.com/dotnet/release-metadata/%s/releases.json",
         dotnetNotableChangesHeading: "### Notable Changes",
+        nssNotesURLTemplate: "https://firefox-source-docs.mozilla.org/security/nss/releases/nss_%s.html",
         windowsAppURL: URL(string: "https://learn.microsoft.com/en-us/windows-app/whats-new")!,
         claudeDesktopChangelogURL: URL(string: "https://claude.com/docs/cowork/changelog.md")!,
         obsidianRepo: "obsidianmd/obsidian-releases",

@@ -24,6 +24,7 @@ private let testDatabase = ResolutionDatabase(
     ffmpegChangelogURLTemplate: "",
     dotnetReleasesURLTemplate: "",
     dotnetNotableChangesHeading: "",
+    nssNotesURLTemplate: "",
     windowsAppURL: URL(string: "https://example.test/windows-app")!,
     claudeDesktopChangelogURL: URL(string: "https://example.test/claude")!,
     obsidianRepo: "",
