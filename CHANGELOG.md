@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [0.7.0] - 2026-09-01
+
+### Added
+
+- Release notes for the whole GnuPG family: gnupg, gpgme, gpgmepp, libassuan, libgcrypt, libgpg-error, libksba, npth and pinentry. They are read from each project's in-tree `NEWS` file, because their canonical host (git.gnupg.org) is intermittently offline behind an anti-scraper 429 and the official `gpg/*` GitHub mirrors publish no releases at all. All nine used to archive as "No forge repo detected".
+- Release notes for `nss`, read from the Firefox source docs.
+
+### Changed
+
+- The NEWS-file reader that GitLab packages already used for GNOME-style stub descriptions is now shared, and understands GnuPG's heading format alongside GNOME's. Behaviour for GNOME packages is unchanged.
+
 ## [0.6.1] - 2026-08-25
 
 ### Fixed
@@ -98,6 +109,7 @@ Acts on a full review of everything released so far. Several of these are user-f
 
 Initial release: a Swift rewrite of the original `brew-notes.zsh`, distributed through `duracell1989/tap`.
 
+[0.7.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.7.0
 [0.6.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.6.1
 [0.6.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.6.0
 [0.5.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.5.0
