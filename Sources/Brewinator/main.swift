@@ -84,6 +84,7 @@ let sync = BrewNotesSync(
         SparkleAppcast(httpFetcher: httpFetcher, database: database),
         TagCompare(httpFetcher: httpFetcher, database: database),
         MarkdownChangelog(httpFetcher: httpFetcher, database: database),
+        NewsFileChangelog(httpFetcher: httpFetcher, database: database),
         FirefoxReleaseNotes(httpFetcher: httpFetcher, database: database),
         FFmpegChangelog(httpFetcher: httpFetcher, database: database),
         DotnetSdkReleaseNotes(httpFetcher: httpFetcher, database: database),

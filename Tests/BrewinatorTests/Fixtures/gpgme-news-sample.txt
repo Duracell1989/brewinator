@@ -1,0 +1,97 @@
+Noteworthy changes in version 2.2.1 (unreleased)   [C__/A_/R0]
+------------------------------------------------
+
+
+ Release-info: https://dev.gnupg.org/T8427
+
+
+Noteworthy changes in version 2.2.0 (2026-08-31)   [C47/A2/R0]
+------------------------------------------------
+
+ * gpgme_verify_result_t now provides issuer serial number and issuer name
+   for S/MIME certificates used for signing that are not included in a
+   signature.  [T8369]
+
+ * Handle the new SIGINFO status line.  [T8368]
+
+ * Ignore TRUST_ status lines if no NEWSIG was seen.  [T8333]
+
+ * Interface changes relative to the 2.1.2 release:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ gpgme_signature_t             EXT: New fields "issuer_serial",
+                                    "issuer_name".
+ GPGME_STATUS_SIGINFO          NEW: Note that the use of stati codes
+                                    is deprecated.  Please switch to
+                                    gpgme_op_interact.
+
+
+ Release-info: https://dev.gnupg.org/T8311
+
+
+Noteworthy changes in version 2.1.2 (2026-06-30)   [C46/A1/R2]
+------------------------------------------------
+
+ * w32: Fix a syntax error
+
+ Release-info: https://dev.gnupg.org/T8269
+
+
+Noteworthy changes in version 2.1.1 (2026-06-25)   [C46/A1/R1]
+------------------------------------------------
+
+ * gpgme_op_export now also returns operational errors.  [T8287]
+
+ * w32: Improve debug output in spawn and selection functions.
+   [rMf5ad431a1c]
+
+ * w32: Improve serialization between reader and writer threads.
+   [T8264]
+
+ * w32: Add CRLF handling for armored output in gpgme-json.  [T8263]
+
+ Release-info: https://dev.gnupg.org/T8269
+
+
+Noteworthy changes in version 2.1.0 (2026-05-18)   [C46/A1/R0]
+------------------------------------------------
+
+ * New flags "is_de_vs" and "beta_compliance" for encryption results.
+   [T6702]
+
+ * New decryption flag GPGME_DECRYPT_SESSION_HASH and new field
+   session_hash in gpgme_decrypt_result_t.  For details see the gpg
+   option --show-session-key.  [rM63f18298d3]
+
+ * Setting of attributes for CMS signatures is now supported via
+   gpgme_sig_notation_add.  [rM8081d34e5f]
+
+ * New context flag "export-filter".  [T8033]
+
+ * Extend the internal gpgsm_assuan_simple_command to consume all
+   received lines.  This fixes a possible lockup introduced by the
+   fix for T7759.  [T8187]
+
+ * Fix passphrase cancel handling.  [T8172]
+
+ * Fix a regression wrt the auto-key-locate option.  [rMd242561dae]
+
+ * Handle the case when pinentry is invoked multiple times.  [T7339]
+
+ * Don't cap ISO dates beyond year 2037 on Windows.  [T8088]
+
+ * Treat empty DISPLAY envvar as unset.  [T7919]
+
+ * Interface changes relative to the 2.0.0 release:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ gpgme_set_ctx_flag            EXT: New flag "export-filter".
+ gpgme_decrypt_result_t        EXT: New fields "is_de_vs",
+
+                                    "beta_compliance", "session_hash".
+ gpgme_sig_notation_t          EXT: New field "unprotected".
+ GPGME_DECRYPT_SESSION_HASH     NEW.
+ GPGME_SIG_NOTATION_UNPROTECTED NEW.
+
+
+ Release-info: https://dev.gnupg.org/T8237
+
+

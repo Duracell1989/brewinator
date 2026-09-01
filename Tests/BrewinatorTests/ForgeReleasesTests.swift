@@ -14,6 +14,7 @@ private let testDatabase = ResolutionDatabase(
     sparkleFeeds: [:],
     jetbrainsCodes: [:],
     markdownChangelogSources: [:],
+    newsFileSources: [:],
     gitlabStubPattern: "^the .* release\\.?$",
     gitlabStubMaxLength: 30,
     gitlabNewsFiles: [],

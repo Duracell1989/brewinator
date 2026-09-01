@@ -113,9 +113,14 @@ struct GitLabReleases: NoteSource {
             return nil
         }
 
-        var section = NewsRangeExtractor.extract(from: news, newest: package.cleanCurrentVersion, oldest: package.cleanInstalledVersion)
+        var section = NewsRangeExtractor.extract(
+            from: news,
+            newest: package.cleanCurrentVersion,
+            oldest: package.cleanInstalledVersion,
+            style: .gnome
+        )
         if section.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            section = NewsRangeExtractor.extract(from: news, newest: package.cleanCurrentVersion, oldest: "")
+            section = NewsRangeExtractor.extract(from: news, newest: package.cleanCurrentVersion, oldest: "", style: .gnome)
         }
         return section.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : section
     }
@@ -159,52 +164,5 @@ private struct RawGitLabRelease: Decodable, VersionTagged {
         case tagName = "tag_name"
         case description
         case links = "_links"
-    }
-}
-
-/// Extracts a *range* of "Overview of changes..." sections from a GNOME-style
-/// NEWS file, from `newest` down to `oldest` (exclusive). The range matters:
-/// pango 1.58.2 says only "No changes" and the substance is in 1.58.1.
-private enum NewsRangeExtractor {
-    static func extract(from text: String, newest: String, oldest: String) -> String {
-        var started = false
-        var output: [String] = []
-
-        for line in text.components(separatedBy: "\n") {
-            if let version = headingVersion(of: line) {
-                if !started {
-                    if newest.isEmpty || version == newest {
-                        started = true
-                    } else {
-                        continue
-                    }
-                } else if !oldest.isEmpty && version == oldest {
-                    break
-                }
-            }
-            if started {
-                output.append(line)
-            }
-        }
-        return output.joined(separator: "\n")
-    }
-
-    /// Headings vary ("...in 1.58.2, 05-08-2026", "...in GLib 2.88.0",
-    /// "...leading to 11.0.0"), so the version is the last whitespace-separated
-    /// token once the prefix and any trailing ", <date>" are stripped.
-    private static func headingVersion(of line: String) -> String? {
-        let pattern = #"^Overview of [Cc]hanges (in|leading to)[ \t]+"#
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
-        let range = NSRange(line.startIndex..<line.endIndex, in: line)
-        guard let match = regex.firstMatch(in: line, range: range), let matchRange = Range(match.range, in: line) else {
-            return nil
-        }
-
-        var rest = String(line[matchRange.upperBound...])
-        if let commaIndex = rest.firstIndex(of: ",") {
-            rest = String(rest[rest.startIndex..<commaIndex])
-        }
-        let tokens = rest.split(whereSeparator: { $0 == " " || $0 == "\t" })
-        return tokens.last.map(String.init)
     }
 }
