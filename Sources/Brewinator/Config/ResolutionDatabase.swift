@@ -9,6 +9,13 @@ struct TagCompareSpec: Sendable, Equatable, Codable {
     let subpath: String?
 }
 
+/// A `NEWS`-file source for an upstream that keeps well-structured release
+/// notes in-tree but publishes nothing a forge API can return.
+struct NewsFileSpec: Sendable, Equatable, Codable {
+    let url: URL
+    let headingStyle: NewsHeadingStyle
+}
+
 /// The public half of the config split - where release notes actually live for
 /// each supported package. The private half is `UserConfig`.
 ///
@@ -22,6 +29,7 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
     let sparkleFeeds: [String: URL]
     let jetbrainsCodes: [String: String]
     let markdownChangelogSources: [String: URL]
+    let newsFileSources: [String: NewsFileSpec]
     let gitlabStubPattern: String
     let gitlabStubMaxLength: Int
     let gitlabNewsFiles: [String]
@@ -76,6 +84,29 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
         ],
         markdownChangelogSources: [
             "claude-code": URL(string: "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md")!
+        ],
+        // The whole GnuPG family resolves through here rather than through
+        // `repoOverrides`. Their canonical host is git.gnupg.org, whose gitweb
+        // is intermittently offline behind a 429 against scrapers; the official
+        // `gpg/*` GitHub mirrors are reachable but publish zero releases, so
+        // pointing forge resolution at them would only trade the no-forge
+        // placeholder for an empty releases page — and, being an early-return
+        // contract, would block this source from ever running. The in-tree NEWS
+        // file is the only machine-readable source that actually carries notes.
+        // Read from `master` rather than from the release tag: NEWS is cumulative,
+        // so one static URL serves every version, and `NewsRangeExtractor` starting
+        // at the target version is what keeps the "(unreleased)" section at the top
+        // of the file out of the notes.
+        newsFileSources: [
+            "gnupg": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/gnupg/master/NEWS")!, headingStyle: .gnupg),
+            "gpgme": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/gpgme/master/NEWS")!, headingStyle: .gnupg),
+            "gpgmepp": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/gpgmepp/master/NEWS")!, headingStyle: .gnupg),
+            "libassuan": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/libassuan/master/NEWS")!, headingStyle: .gnupg),
+            "libgcrypt": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/libgcrypt/master/NEWS")!, headingStyle: .gnupg),
+            "libgpg-error": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/libgpg-error/master/NEWS")!, headingStyle: .gnupg),
+            "libksba": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/libksba/master/NEWS")!, headingStyle: .gnupg),
+            "npth": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/npth/master/NEWS")!, headingStyle: .gnupg),
+            "pinentry": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/pinentry/master/NEWS")!, headingStyle: .gnupg),
         ],
         gitlabStubPattern: "^the .* release\\.?$",
         gitlabStubMaxLength: 30,
