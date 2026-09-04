@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+    <channel>
+        <title>ProtonVPN Changelog</title>
+        <description>Most recent changes with links to updates.</description>
+        <language>en</language>
+
+        <item>
+            <title>Version 6.5.1</title>
+            <pubDate>Monday, 11 May 2026 15:13:03 +0000</pubDate>
+            <description>
+                <![CDATA[
+                    <html><body>
+                        <h2>Version 6.5.1</h2>
+                    <ul>
+                        <li><p>Kill switch no longer leaks on wake</p></li>
+                        <li><p>Bug fixes and stability improvements</p></li>
+                    </ul>
+                    </body></html>
+                ]]>
+            </description>
+            <enclosure url="https://example.test/ProtonVPN_mac_v6.5.1.dmg"
+                       sparkle:version="3106797.2605011144"
+                       sparkle:shortVersionString="6.5.1"
+                       length="131028182"
+                       type="application/octet-stream" />
+        </item>
+
+        <item>
+            <title>Version 6.5.0</title>
+            <pubDate>Monday, 06 Apr 2026 09:00:00 +0000</pubDate>
+            <description><![CDATA[<ul><li>Earlier release, must not be picked</li></ul>]]></description>
+            <enclosure url="https://example.test/ProtonVPN_mac_v6.5.0.dmg"
+                       sparkle:version="3106790.2604060900"
+                       sparkle:shortVersionString="6.5.0"
+                       length="130028182"
+                       type="application/octet-stream" />
+        </item>
+    </channel>
+</rss>
