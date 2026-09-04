@@ -16,6 +16,23 @@ struct HTMLTextReducerTests {
         #expect(result.contains("Hello"))
     }
 
+    // An app's bundled ReleaseNotes.html inlines its stylesheet outside any
+    // <head>, and CSS contains no tags for the stripper to remove — so without
+    // this it lands in the notes verbatim.
+    @Test("drops style and script sections wherever they appear")
+    func dropsStyleAndScript() {
+        let result = HTMLTextReducer.reduce("<style>\nhtml { font-family: Helvetica; }\n</style>\n<div><p>Hello</p></div>\n<script>\nvar x = 1;\n</script>")
+        #expect(!result.contains("font-family"))
+        #expect(!result.contains("var x"))
+        #expect(result.contains("Hello"))
+    }
+
+    @Test("a style attribute does not open a style section")
+    func styleAttributeIsNotASection() {
+        let result = HTMLTextReducer.reduce("<p style=\"color: red\">Hello</p>")
+        #expect(result.contains("Hello"))
+    }
+
     @Test("li items become bullets, closing li becomes a line break")
     func liToBullets() {
         let result = HTMLTextReducer.reduce("<ul><li>One</li><li>Two</li></ul>")

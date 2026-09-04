@@ -57,8 +57,8 @@ struct SparkleAppcastTests {
         #expect(notes.markdown.contains("[Full release notes](\(vivaldiNotesURL.absoluteString))"))
     }
 
-    @Test("no releaseNotesLink in the feed is a cacheable message, not a failure")
-    func noNotesLinkIsCacheable() async {
+    @Test("an item with neither a notes link nor a description is a cacheable message, not a failure")
+    func noNotesOfEitherKindIsCacheable() async {
         let emptyFeed = """
             <?xml version="1.0"?>
             <rss><channel><item><title>1.0</title></item></channel></rss>
@@ -72,7 +72,7 @@ struct SparkleAppcastTests {
             Issue.record("expected success, got \(result)")
             return
         }
-        #expect(notes.markdown.contains("No release-notes link"))
+        #expect(notes.markdown.contains("No release notes in the Sparkle feed"))
     }
 
     @Test("a feed fetch failure is transient")
@@ -113,7 +113,7 @@ struct SparkleAppcastTests {
             return
         }
         #expect(notes.markdown.contains("[Full release notes](\(vivaldiNotesURL.absoluteString))"))
-        #expect(!notes.markdown.contains("No release-notes link"))
+        #expect(!notes.markdown.contains("No release notes in the Sparkle feed"))
     }
 
     @Test("a notes-page fetch failure is transient")
@@ -128,5 +128,84 @@ struct SparkleAppcastTests {
             Issue.record("expected failure, got \(result)")
             return
         }
+    }
+
+    // ProtonVPN, QLMarkdown and Telegram all publish this way: no notes page
+    // anywhere, the notes inlined in the item as CDATA HTML.
+    @Test("notes inlined in an item's description are used when there is no notes link")
+    func inlineDescriptionIsUsed() async throws {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: vivaldiFeed, data: try Fixture.data("sparkle-appcast-description-sample", extension: "xml"), statusCode: 200)
+        let source = SparkleAppcast(httpFetcher: fetcher, database: testDatabase)
+
+        let result = await source.fetch(vivaldiPackage(current: "6.5.1"))
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("- Kill switch no longer leaks on wake"))
+        #expect(!notes.markdown.contains("Earlier release, must not be picked"))
+    }
+
+    // Without attribute matching this falls back to the newest item, so the
+    // wrong release's notes get archived under the requested version.
+    @Test("a version published only as an enclosure attribute still matches its item")
+    func enclosureAttributeVersionMatches() async throws {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: vivaldiFeed, data: try Fixture.data("sparkle-appcast-description-sample", extension: "xml"), statusCode: 200)
+        let source = SparkleAppcast(httpFetcher: fetcher, database: testDatabase)
+
+        let result = await source.fetch(vivaldiPackage(current: "6.5.0"))
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("Earlier release, must not be picked"))
+        #expect(!notes.markdown.contains("Kill switch"))
+    }
+
+    // Items are split on `</item>`, so the first record also holds the channel
+    // header — whose own <description> must not be read as the item's notes.
+    @Test("a channel-level description is not mistaken for the first item's notes")
+    func channelDescriptionIgnored() async throws {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: vivaldiFeed, data: try Fixture.data("sparkle-appcast-description-sample", extension: "xml"), statusCode: 200)
+        let source = SparkleAppcast(httpFetcher: fetcher, database: testDatabase)
+
+        let result = await source.fetch(vivaldiPackage(current: "6.5.1"))
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(!notes.markdown.contains("Most recent changes with links to updates"))
+    }
+
+    @Test("an item carrying both a notes link and a description resolves through the link")
+    func linkWinsOverDescription() async throws {
+        let feedWithBoth = """
+            <?xml version="1.0" standalone="yes"?>
+            <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+                <channel>
+                    <item>
+                        <title>8.1.4087.64</title>
+                        <description><![CDATA[<p>Inline copy, second best</p>]]></description>
+                        <sparkle:releaseNotesLink>\(vivaldiNotesURL.absoluteString)</sparkle:releaseNotesLink>
+                        <sparkle:shortVersionString>8.1.4087.64</sparkle:shortVersionString>
+                    </item>
+                </channel>
+            </rss>
+            """
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: vivaldiFeed, string: feedWithBoth, statusCode: 200)
+        fetcher.respond(to: vivaldiNotesURL, data: try Fixture.data("sparkle-notes-sample", extension: "html"), statusCode: 200)
+        let source = SparkleAppcast(httpFetcher: fetcher, database: testDatabase)
+
+        let result = await source.fetch(vivaldiPackage(current: "8.1.4087.64"))
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("Changelog since Vivaldi"))
+        #expect(!notes.markdown.contains("Inline copy, second best"))
     }
 }

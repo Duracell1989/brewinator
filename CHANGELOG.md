@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [0.8.0] - 2026-09-04
+
+### Added
+
+- A last-resort note source that reads the cask's own installed `.app`, for vendors who publish no changelog a forge, feed or vendor page can reach. It takes the requested version's section out of `Contents/Resources/ReleaseNotes.html` (the cumulative changelog Sparkle shows in its update dialog), and otherwise follows `SUFeedURL` from `Contents/Info.plist` to the app's own appcast - discovered from the bundle, with no database entry needed. It runs last, so it can only ever replace the "No forge repo detected" placeholder. On this machine it covers `proton-drive` (bundled changelog; Proton publishes per-version notes nowhere else), `protonvpn` and `telegram` (discovered feeds).
+- Sparkle appcasts whose items carry their notes inline in `<description>` as CDATA HTML are now read. Only `sparkle:releaseNotesLink` was understood before, so ProtonVPN, QLMarkdown and Telegram-style feeds resolved to "No release-notes link in the Sparkle feed" even though the notes were right there in the feed.
+
+### Changed
+
+- Sparkle items are also matched on the version published as an `<enclosure>` attribute, not just as a child element. ProtonVPN and Telegram publish it only there, so the match previously fell back to the newest item - which would have archived a beta's notes under the requested version.
+- A channel-level `<description>` is no longer read as the first item's notes.
+- HTML reduction drops `<style>` and `<script>` sections wherever they appear, not just inside `<head>`. An app's bundled `ReleaseNotes.html` inlines its stylesheet outside `<head>`, and CSS survives tag stripping intact.
+- The "nothing in this feed" message is now "No release notes in the Sparkle feed", since a feed can carry notes two ways and neither being present is what it reports.
+
 ## [0.7.0] - 2026-09-01
 
 ### Added
@@ -109,6 +123,7 @@ Acts on a full review of everything released so far. Several of these are user-f
 
 Initial release: a Swift rewrite of the original `brew-notes.zsh`, distributed through `duracell1989/tap`.
 
+[0.8.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.8.0
 [0.7.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.7.0
 [0.6.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.6.1
 [0.6.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.6.0

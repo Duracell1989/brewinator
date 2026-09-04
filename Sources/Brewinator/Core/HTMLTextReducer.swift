@@ -1,15 +1,16 @@
 import Foundation
 
-/// Reduces HTML to a plain-text digest: drops `<head>`, turns block tags and
-/// `<li>` into breaks and bullets, strips remaining tags, decodes the handful
-/// of entities the Sparkle/JetBrains feeds emit, and squeezes blank lines.
+/// Reduces HTML to a plain-text digest: drops `<head>`, `<style>` and
+/// `<script>` sections, turns block tags and `<li>` into breaks and bullets,
+/// strips remaining tags, decodes the handful of entities the Sparkle/JetBrains
+/// feeds emit, and squeezes blank lines.
 /// Tuned to those specific feeds, not a general-purpose HTML parser.
 enum HTMLTextReducer {
     static func reduce(_ html: String) -> String {
         let rawLines = html.components(separatedBy: "\n")
         let joined = joinWrappedTags(rawLines)
-        let withoutHead = dropHeadSection(joined)
-        let stripped = withoutHead.map(stripTags)
+        let withoutNoise = dropSections(joined)
+        let stripped = withoutNoise.map(stripTags)
 
         // The substitutions above inserted newlines inside single elements;
         // split those into true per-line records before trimming.
@@ -53,20 +54,37 @@ enum HTMLTextReducer {
         return count
     }
 
-    /// Drops every line from a `<head ...>`/`<head>` line through its
-    /// matching `</head>` line, inclusive.
-    private static func dropHeadSection(_ lines: [String]) -> [String] {
+    /// Content-free sections: their text is markup or code, never release
+    /// notes. `<style>` earns its place here because an app's bundled
+    /// `ReleaseNotes.html` inlines a stylesheet *outside* any `<head>`, and CSS
+    /// survives tag stripping intact (it contains no tags to strip).
+    private static let droppedSections = ["head", "style", "script"]
+
+    /// Drops every line from an opening `<tag ...>`/`<tag>` line through its
+    /// matching `</tag>` line, inclusive, for each of `droppedSections`. A
+    /// section opened and closed on one line drops that line too.
+    private static func dropSections(_ lines: [String]) -> [String] {
         var result: [String] = []
-        var inHead = false
+        var openTag: String?
         for line in lines {
-            if isHeadOpen(line) { inHead = true }
-            if inHead {
-                if isHeadClose(line) { inHead = false }
+            if openTag == nil {
+                openTag = droppedSections.first { containsOpen(line, tag: $0) }
+            }
+            guard let tag = openTag else {
+                result.append(line)
                 continue
             }
-            result.append(line)
+            if line.lowercased().contains("</\(tag)>") { openTag = nil }
         }
         return result
+    }
+
+    /// True when the line opens `tag` — `<tag>` or `<tag attr=...>`, matched
+    /// anywhere in the line, never `<tagfoo>` and never an attribute that
+    /// merely shares the name (`<p style="...">` does not open `<style>`).
+    private static func containsOpen(_ line: String, tag: String) -> Bool {
+        let lower = line.lowercased()
+        return lower.contains("<\(tag)>") || lower.contains("<\(tag) ") || lower.contains("<\(tag)\t")
     }
 
     private static func stripTags(_ line: String) -> String {
@@ -108,17 +126,5 @@ enum HTMLTextReducer {
         guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else { return text }
         let range = NSRange(text.startIndex..<text.endIndex, in: text)
         return regex.stringByReplacingMatches(in: text, range: range, withTemplate: template)
-    }
-
-    /// True while inside `<head>...</head>` (case-insensitive, matched
-    /// anywhere in the line — not anchored). Content in this section is
-    /// dropped entirely.
-    private static func isHeadOpen(_ line: String) -> Bool {
-        let lower = line.lowercased()
-        return lower.contains("<head ") || lower.contains("<head>")
-    }
-
-    private static func isHeadClose(_ line: String) -> Bool {
-        line.lowercased().contains("</head>")
     }
 }

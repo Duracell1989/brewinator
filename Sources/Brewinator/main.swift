@@ -74,8 +74,10 @@ let httpFetcher = URLSessionHTTPFetcher()
 let database = ResolutionDatabase.live
 
 // Config-map vendor classes first, then the bespoke vendor one-offs, then
-// generic forge resolution. Order within each group is irrelevant - every
-// `canHandle` is an exact, mutually exclusive match.
+// generic forge resolution, and the installed-app fallback dead last. Order
+// within each group is irrelevant - every `canHandle` is an exact, mutually
+// exclusive match - but the last entry is the one broad predicate, so it has
+// to stay last: anything it moves ahead of, it would hijack.
 let sync = BrewNotesSync(
     brewClient: brewClient,
     archiveStore: FileArchiveStore(directory: URL(fileURLWithPath: config.archiveDirectory)),
@@ -95,6 +97,7 @@ let sync = BrewNotesSync(
         AndroidStudioBlog(httpFetcher: httpFetcher, database: database),
         ForgeReleases(httpFetcher: httpFetcher, database: database),
         GitLabReleases(httpFetcher: httpFetcher, database: database),
+        AppBundleReleaseNotes(locator: CaskroomAppBundleLocator(), httpFetcher: httpFetcher),
     ]),
     config: config,
     logger: logger

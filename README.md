@@ -13,6 +13,7 @@ Brewinator checks `brew outdated` against a curated, in-repo database of where r
 ## Features
 
 - Fetches release notes for outdated packages from GitHub, GitLab, Gitea, Sparkle appcasts, JetBrains, and several vendor-specific sources
+- Falls back to the cask's own installed app - its bundled `ReleaseNotes.html`, or the Sparkle feed named by its `Info.plist` - for vendors that publish no changelog anywhere else (Proton Drive, ProtonVPN, Telegram)
 - Archives one Markdown file per package (e.g. `node (formula) - 23.0.0.md`)
 - Prunes archives for packages that have since been upgraded or added to the skip list - always to Trash, never deleted outright
 - Skip list supports exact names and `*` globs
