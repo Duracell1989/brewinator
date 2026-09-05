@@ -60,10 +60,12 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
             ForgeHost(host: "gitlab.gnome.org", dialect: .gitlab),
             ForgeHost(host: "gitlab.freedesktop.org", dialect: .gitlab),
         ],
+        // Only entries that no URL on the formula/cask exposes. `node` and
+        // `pango` used to live here; both name their forge in `head do`, so
+        // head-URL scanning now resolves them to the same repo. `signal` stays:
+        // casks have no head URL at all.
         repoOverrides: [
-            "node": "nodejs/node",
-            "signal": "signalapp/Signal-Desktop",
-            "pango": "gitlab.gnome.org/GNOME/pango",
+            "signal": "signalapp/Signal-Desktop"
         ],
         tagCompareSpecs: [
             // Do not "fix" this back to Proton's own version.json feed: its

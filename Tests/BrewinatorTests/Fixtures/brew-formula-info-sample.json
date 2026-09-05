@@ -6,6 +6,11 @@
       "urls": {
         "stable": {
           "url": "https://nodejs.org/dist/v26.7.0/node-v26.7.0.tar.xz"
+        },
+        "head": {
+          "url": "https://github.com/nodejs/node.git",
+          "branch": "main",
+          "using": null
         }
       }
     },

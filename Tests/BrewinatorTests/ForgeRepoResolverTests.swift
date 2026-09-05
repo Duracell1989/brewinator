@@ -32,8 +32,16 @@ private let testDatabase = ResolutionDatabase(
     androidStudioFeedURL: URL(string: "https://example.test/android-studio")!
 )
 
-private func package(_ name: String, stableURL: String? = nil, homepage: String? = nil) -> OutdatedPackageInfo {
-    OutdatedPackageInfo(name: name, installedVersion: "1.0.0", currentVersion: "1.1.0", kind: .formula, stableURL: stableURL, homepage: homepage)
+private func package(_ name: String, stableURL: String? = nil, homepage: String? = nil, headURL: String? = nil) -> OutdatedPackageInfo {
+    OutdatedPackageInfo(
+        name: name,
+        installedVersion: "1.0.0",
+        currentVersion: "1.1.0",
+        kind: .formula,
+        stableURL: stableURL,
+        homepage: homepage,
+        headURL: headURL
+    )
 }
 
 @Suite("ForgeRepoResolver")
@@ -81,7 +89,46 @@ struct ForgeRepoResolverTests {
         #expect(repo == nil)
     }
 
-    @Test("no override, no stable URL, no homepage resolves to nil")
+    /// poppler's shape: tarball and homepage both on poppler.freedesktop.org,
+    /// the forge named only in `head do`.
+    @Test("falls back to the head URL when neither the stable URL nor the homepage exposes a forge repo")
+    func headURLScan() {
+        let repo = ForgeRepoResolver.resolve(
+            package: package(
+                "poppler",
+                stableURL: "https://poppler.freedesktop.org/poppler-26.09.0.tar.xz",
+                homepage: "https://poppler.freedesktop.org/",
+                headURL: "https://gitlab.example.org/poppler/poppler.git"
+            ),
+            database: testDatabase
+        )
+        #expect(repo?.host == "gitlab.example.org")
+        #expect(repo?.ownerRepo == "poppler/poppler")
+        #expect(repo?.dialect == .gitlab)
+    }
+
+    /// The head URL is the development remote, which for a mirror need not be
+    /// where releases are published — so it must never outrank the other two.
+    @Test("the stable URL and the homepage both outrank the head URL")
+    func headURLRanksLast() {
+        let viaStable = ForgeRepoResolver.resolve(
+            package: package(
+                "tool",
+                stableURL: "https://github.com/owner/from-stable/archive/v1.tar.gz",
+                headURL: "https://github.com/owner/from-head.git"
+            ),
+            database: testDatabase
+        )
+        #expect(viaStable?.repo == "from-stable")
+
+        let viaHomepage = ForgeRepoResolver.resolve(
+            package: package("tool", homepage: "https://github.com/owner/from-homepage", headURL: "https://github.com/owner/from-head.git"),
+            database: testDatabase
+        )
+        #expect(viaHomepage?.repo == "from-homepage")
+    }
+
+    @Test("no override, no stable URL, no homepage, no head URL resolves to nil")
     func nothingResolves() {
         #expect(ForgeRepoResolver.resolve(package: package("foo"), database: testDatabase) == nil)
     }

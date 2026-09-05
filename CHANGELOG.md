@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [0.9.0] - 2026-09-05
+
+### Changed
+
+- Forge repo resolution now also scans the formula's `head` URL, after the stable URL and the homepage. A project that publishes its tarballs and its docs on its own domain names its forge nowhere else, so every one of them archived as "No forge repo detected" - on this machine cairo, ffmpeg, libidn2, libpng, libssh2, libuv, node, pango and poppler. The head URL is checked last because it names the development remote, which for a fork or a mirror need not be where the releases are published.
+- `node` and `pango` no longer need hand-written `repoOverrides` entries - head-URL scanning resolves both to the repo the override named. `signal` keeps its override: casks have no head URL at all.
+
 ## [0.8.0] - 2026-09-04
 
 ### Added
