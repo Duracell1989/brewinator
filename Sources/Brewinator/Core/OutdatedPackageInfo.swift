@@ -33,6 +33,11 @@ struct OutdatedPackageInfo: Sendable, Equatable {
     /// forge-repo signal when `stableURL` doesn't expose it.
     var homepage: String?
 
+    /// Populated from `brew info --json=v2`'s `.urls.head.url` (formula only) —
+    /// the last forge-repo signal, for projects that release tarballs from
+    /// their own domain and name the forge nowhere else. Nil for casks.
+    var headURL: String?
+
     var cleanInstalledVersion: String { VersionMatcher.cleanVersion(installedVersion) }
     var cleanCurrentVersion: String { VersionMatcher.cleanVersion(currentVersion) }
     var archiveIdentity: ArchivePackageIdentity { ArchivePackageIdentity(name: name, kind: kind) }
@@ -44,7 +49,8 @@ struct OutdatedPackageInfo: Sendable, Equatable {
         kind: PackageKind,
         fullName: String? = nil,
         stableURL: String? = nil,
-        homepage: String? = nil
+        homepage: String? = nil,
+        headURL: String? = nil
     ) {
         self.name = name
         self.fullName = fullName ?? name
@@ -53,5 +59,6 @@ struct OutdatedPackageInfo: Sendable, Equatable {
         self.kind = kind
         self.stableURL = stableURL
         self.homepage = homepage
+        self.headURL = headURL
     }
 }

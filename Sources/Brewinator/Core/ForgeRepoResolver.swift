@@ -29,16 +29,23 @@ struct ForgeRepo: Sendable, Equatable {
 enum ForgeRepoResolver {
     /// Explicit override first, then a forge-host-prefixed `owner/repo`
     /// pattern scanned out of the package's stable download URL, then its
-    /// homepage. Nil means no forge repo could be determined.
+    /// homepage, then its head URL. Nil means no forge repo could be
+    /// determined.
+    ///
+    /// The head URL comes last because it is the least authoritative of the
+    /// three — it names the development remote, which for a fork or a mirror
+    /// need not be where the releases are published. It is nonetheless the only
+    /// signal for a whole class of formula: projects that host tarballs and
+    /// docs on their own domain and name the forge nowhere but `head do`
+    /// (poppler, cairo, libpng, libuv, …).
     static func resolve(package: OutdatedPackageInfo, database: ResolutionDatabase) -> ForgeRepo? {
         if let override = database.repoOverrides[package.name] {
             return split(override, hosts: database.forgeHosts)
         }
-        if let url = package.stableURL, let hit = scan(url, hosts: database.forgeHosts) {
-            return hit
-        }
-        if let homepage = package.homepage, let hit = scan(homepage, hosts: database.forgeHosts) {
-            return hit
+        for candidate in [package.stableURL, package.homepage, package.headURL] {
+            if let candidate, let hit = scan(candidate, hosts: database.forgeHosts) {
+                return hit
+            }
         }
         return nil
     }

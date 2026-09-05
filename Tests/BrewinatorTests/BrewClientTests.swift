@@ -147,12 +147,24 @@ struct BrewClientParseFormulaInfoTests {
         #expect(ProcessBrewClient.parseFormulaInfo(Data("not json".utf8)).isEmpty)
     }
 
-    @Test("keyed by .full_name, with stable.url and homepage extracted from the real brew info --json=v2 shape")
+    @Test("keyed by .full_name, with stable.url, head.url and homepage extracted from the real brew info --json=v2 shape")
     func decodesRealFixture() throws {
         let info = ProcessBrewClient.parseFormulaInfo(try Fixture.data("brew-formula-info-sample", extension: "json"))
         #expect(info["node"]?.stableURL == "https://nodejs.org/dist/v26.7.0/node-v26.7.0.tar.xz")
         #expect(info["node"]?.homepage == "https://nodejs.org/")
+        #expect(info["node"]?.headURL == "https://github.com/nodejs/node.git")
         #expect(info["jq"]?.stableURL == "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-1.8.2.tar.gz")
+    }
+
+    /// Most formulae have no `head do` block at all, so the key is simply
+    /// absent rather than null.
+    @Test("a formula with no head block decodes to a nil headURL")
+    func missingHeadDecodesToNil() {
+        let json = #"{"formulae":[{"name":"jq","urls":{"stable":{"url":"https://example.test/jq.tar.gz"}}}],"casks":[]}"#
+        let info = ProcessBrewClient.parseFormulaInfo(Data(json.utf8))
+
+        #expect(info["jq"]?.stableURL == "https://example.test/jq.tar.gz")
+        #expect(info["jq"]?.headURL == nil)
     }
 
     /// `brew info` reports a tapped formula's `name` short and only `full_name`

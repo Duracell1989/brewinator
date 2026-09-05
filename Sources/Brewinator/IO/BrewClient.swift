@@ -162,19 +162,32 @@ private struct RawOutdatedResponse: Decodable {
     let casks: [LenientOutdatedEntry]
 }
 
-/// The only two fields `ForgeRepoResolver` needs out of `brew info`'s
+/// The only three fields `ForgeRepoResolver` needs out of `brew info`'s
 /// ~200-field payload.
 struct PackageURLInfo: Sendable, Equatable {
     let stableURL: String?
     let homepage: String?
+
+    /// `urls.head.url` — the git remote the formula's `head do` block builds
+    /// from. Formula-only: casks have no head URL and always leave this nil.
+    let headURL: String?
+
+    init(stableURL: String?, homepage: String?, headURL: String? = nil) {
+        self.stableURL = stableURL
+        self.homepage = homepage
+        self.headURL = headURL
+    }
 }
 
-private struct RawFormulaStableURL: Decodable {
+/// One `urls.<channel>` entry. `stable` and `head` carry the same `url` field,
+/// so one type covers both.
+private struct RawFormulaURL: Decodable {
     let url: String?
 }
 
 private struct RawFormulaURLs: Decodable {
-    let stable: RawFormulaStableURL?
+    let stable: RawFormulaURL?
+    let head: RawFormulaURL?
 }
 
 private struct RawFormulaEntry: Decodable {
@@ -219,7 +232,10 @@ extension ProcessBrewClient {
         }
         return Dictionary(
             uniqueKeysWithValues: decoded.formulae.map { entry in
-                (entry.fullName ?? entry.name, PackageURLInfo(stableURL: entry.urls?.stable?.url, homepage: entry.homepage))
+                (
+                    entry.fullName ?? entry.name,
+                    PackageURLInfo(stableURL: entry.urls?.stable?.url, homepage: entry.homepage, headURL: entry.urls?.head?.url)
+                )
             }
         )
     }

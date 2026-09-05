@@ -81,6 +81,7 @@ struct BrewNotesSync: Sendable {
         var enriched = package
         enriched.stableURL = match.stableURL
         enriched.homepage = match.homepage
+        enriched.headURL = match.headURL
         return enriched
     }
 
