@@ -109,6 +109,12 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
             "libksba": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/libksba/master/NEWS")!, headingStyle: .gnupg),
             "npth": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/npth/master/NEWS")!, headingStyle: .gnupg),
             "pinentry": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/pinentry/master/NEWS")!, headingStyle: .gnupg),
+            // poppler is on a forge brewinator can talk to, and resolves there
+            // now that head URLs are scanned — but gitlab.freedesktop.org has
+            // zero release objects for it, so that path can only ever report
+            // "No releases published". Same trade as the GnuPG mirrors above.
+            // This source runs first, so the NEWS file wins either way.
+            "poppler": NewsFileSpec(url: URL(string: "https://gitlab.freedesktop.org/poppler/poppler/-/raw/master/NEWS")!, headingStyle: .poppler),
         ],
         gitlabStubPattern: "^the .* release\\.?$",
         gitlabStubMaxLength: 30,

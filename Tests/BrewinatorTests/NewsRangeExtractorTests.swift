@@ -22,12 +22,33 @@ struct NewsHeadingStyleTests {
         #expect(NewsHeadingStyle.gnome.version(of: "Overview of changes leading to 11.0.0") == "11.0.0")
     }
 
-    @Test("neither style matches the other's headings or ordinary prose")
+    /// One cumulative file spans 20 years of poppler, so the modern colon form
+    /// and the 2005-era dated ones all have to parse.
+    @Test("poppler reads the version as the first token, with or without the trailing colon")
+    func popplerHeadings() {
+        #expect(NewsHeadingStyle.poppler.version(of: "Release 26.09.0:") == "26.09.0")
+        #expect(NewsHeadingStyle.poppler.version(of: "Release 0.2.0  (Tue Apr  5 12:32:10 EDT 2005)") == "0.2.0")
+        #expect(NewsHeadingStyle.poppler.version(of: "Release 0.1 - no date yet") == "0.1")
+        #expect(NewsHeadingStyle.poppler.version(of: "Release 0.1.1") == "0.1.1")
+    }
+
+    @Test("no style matches another's headings or ordinary prose")
     func stylesDoNotOverlap() {
         #expect(NewsHeadingStyle.gnome.version(of: "Noteworthy changes in version 2.2.0 (2026-08-31)") == nil)
         #expect(NewsHeadingStyle.gnupg.version(of: "Overview of changes in 1.58.2, 05-08-2026") == nil)
         #expect(NewsHeadingStyle.gnupg.version(of: " * Handle the new SIGINFO status line.  [T8368]") == nil)
         #expect(NewsHeadingStyle.gnome.version(of: "------------------------------------------------") == nil)
+        #expect(NewsHeadingStyle.poppler.version(of: "Noteworthy changes in version 2.2.0 (2026-08-31)") == nil)
+        #expect(NewsHeadingStyle.gnupg.version(of: "Release 26.09.0:") == nil)
+        #expect(NewsHeadingStyle.gnome.version(of: "Release 26.09.0:") == nil)
+    }
+
+    /// Every poppler body line is indented, so the column-0 anchor is the whole
+    /// defence against a bullet that happens to start with the word.
+    @Test("poppler does not match an indented line that starts with the same word")
+    func popplerRequiresColumnZero() {
+        #expect(NewsHeadingStyle.poppler.version(of: "         * Release notes are now generated") == nil)
+        #expect(NewsHeadingStyle.poppler.version(of: "Released 26.09.0") == nil)
     }
 }
 
