@@ -4,6 +4,7 @@ import Testing
 @testable import Brewinator
 
 private let newsURL = URL(string: "https://raw.githubusercontent.com/gpg/gpgme/master/NEWS")!
+private let popplerNewsURL = URL(string: "https://gitlab.freedesktop.org/poppler/poppler/-/raw/master/NEWS")!
 
 private let testDatabase = ResolutionDatabase(
     forgeHosts: [],
@@ -12,7 +13,10 @@ private let testDatabase = ResolutionDatabase(
     sparkleFeeds: [:],
     jetbrainsCodes: [:],
     markdownChangelogSources: [:],
-    newsFileSources: ["gpgme": NewsFileSpec(url: newsURL, headingStyle: .gnupg)],
+    newsFileSources: [
+        "gpgme": NewsFileSpec(url: newsURL, headingStyle: .gnupg),
+        "poppler": NewsFileSpec(url: popplerNewsURL, headingStyle: .poppler),
+    ],
     gitlabStubPattern: "^the .* release\\.?$",
     gitlabStubMaxLength: 30,
     gitlabNewsFiles: [],
@@ -141,5 +145,59 @@ struct NewsFileChangelogTests {
             Issue.record("expected failure, got \(result)")
             return
         }
+    }
+}
+
+/// poppler goes through the same source as the GnuPG family but with the
+/// `Release 26.09.0:` heading style, so the range logic is worth pinning
+/// against its real NEWS file too.
+@Suite("NewsFileChangelog (poppler)")
+struct NewsFileChangelogPopplerTests {
+    private func popplerPackage(installed: String = "26.08.0", current: String = "26.09.0") -> OutdatedPackageInfo {
+        OutdatedPackageInfo(name: "poppler", installedVersion: installed, currentVersion: current, kind: .formula)
+    }
+
+    private func loadedSource() throws -> NewsFileChangelog {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: popplerNewsURL, data: try Fixture.data("poppler-news-sample", extension: "txt"), statusCode: 200)
+        return NewsFileChangelog(httpFetcher: fetcher, database: testDatabase)
+    }
+
+    @Test("the upgrade's own section is extracted and the installed one left out")
+    func extractsRange() async throws {
+        let source = try loadedSource()
+        let result = await source.fetch(popplerPackage())
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("Release 26.09.0:"))
+        #expect(notes.markdown.contains("pdftotext: Add -urls option"))
+        #expect(notes.markdown.contains("harfbuzz is now required for font subsetting"))
+        #expect(!notes.markdown.contains("Release 26.08.0:"))
+    }
+
+    @Test("skipping several releases collects every section down to the installed one")
+    func spansMultipleReleases() async throws {
+        let source = try loadedSource()
+        let result = await source.fetch(popplerPackage(installed: "26.07.0"))
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("Release 26.09.0:"))
+        #expect(notes.markdown.contains("Release 26.08.0:"))
+        #expect(!notes.markdown.contains("Release 26.07.0:"))
+    }
+
+    @Test("the NEWS URL is linked under a labelled footer")
+    func linksTheSource() async throws {
+        let source = try loadedSource()
+        let result = await source.fetch(popplerPackage())
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("[Full NEWS](\(popplerNewsURL.absoluteString))"))
     }
 }

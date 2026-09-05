@@ -8,6 +8,11 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ## [0.9.0] - 2026-09-05
 
+### Added
+
+- Release notes for `poppler`, read from its in-tree `NEWS` file. Its forge is now resolved (see below), but gitlab.freedesktop.org publishes zero release objects for the project, so that path can only ever report "No releases published" - the same trade already made for the GnuPG mirrors. The `NEWS` file is the only machine-readable source that carries the notes.
+- A `NEWS` heading style for poppler's `Release 26.09.0:` format, including the 2005-era `Release 0.2.0  (Tue Apr  5 12:32:10 EDT 2005)` and `Release 0.1 - no date yet` shapes that are still in the same cumulative file.
+
 ### Changed
 
 - Forge repo resolution now also scans the formula's `head` URL, after the stable URL and the homepage. A project that publishes its tarballs and its docs on its own domain names its forge nowhere else, so every one of them archived as "No forge repo detected" - on this machine cairo, ffmpeg, libidn2, libpng, libssh2, libuv, node, pango and poppler. The head URL is checked last because it names the development remote, which for a fork or a mirror need not be where the releases are published.

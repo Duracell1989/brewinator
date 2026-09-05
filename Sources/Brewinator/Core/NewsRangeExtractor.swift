@@ -2,8 +2,8 @@ import Foundation
 
 /// The heading convention a project's `NEWS` file uses. A case owns both how a
 /// heading line is recognised and how the version is read out of it — the two
-/// rules are inseparable, and one regex spanning both styles reads worse than
-/// two small ones.
+/// rules are inseparable, and one regex spanning every style reads worse than
+/// one small regex per style.
 enum NewsHeadingStyle: String, Sendable, Equatable, Codable {
     /// GNOME: "Overview of changes in 1.58.2, 05-08-2026", "Overview of
     /// Changes in GLib 2.88.0", "Overview of changes leading to 11.0.0".
@@ -13,6 +13,12 @@ enum NewsHeadingStyle: String, Sendable, Equatable, Codable {
     /// Shared by every project on the `gpg/*` mirrors.
     case gnupg
 
+    /// poppler: "Release 26.09.0:". Its 2005-era entries drop the colon and
+    /// trail a date instead — "Release 0.2.0  (Tue Apr  5 12:32:10 EDT 2005)",
+    /// "Release 0.1 - no date yet" — and all three shapes are still in the one
+    /// cumulative file.
+    case poppler
+
     /// The version a heading line announces, or nil when the line is not a
     /// heading in this style.
     func version(of line: String) -> String? {
@@ -21,6 +27,8 @@ enum NewsHeadingStyle: String, Sendable, Equatable, Codable {
             return Self.gnomeVersion(of: line)
         case .gnupg:
             return Self.gnupgVersion(of: line)
+        case .poppler:
+            return Self.popplerVersion(of: line)
         }
     }
 
@@ -47,6 +55,21 @@ enum NewsHeadingStyle: String, Sendable, Equatable, Codable {
         }
         let tokens = rest.split(whereSeparator: { $0 == " " || $0 == "\t" })
         return tokens.first.map(String.init)
+    }
+
+    /// The GnuPG first-token rule plus a trailing colon to strip, which is what
+    /// separates the modern "Release 26.09.0:" headings from the old ones that
+    /// put a date after the version.
+    private static func popplerVersion(of line: String) -> String? {
+        guard let rest = suffix(of: line, afterPattern: #"^Release[ \t]+"#),
+            var version = rest.split(whereSeparator: { $0 == " " || $0 == "\t" }).first.map(String.init)
+        else {
+            return nil
+        }
+        if version.hasSuffix(":") {
+            version.removeLast()
+        }
+        return version.isEmpty ? nil : version
     }
 
     private static func suffix(of line: String, afterPattern pattern: String) -> String? {
