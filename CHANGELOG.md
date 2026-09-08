@@ -12,6 +12,7 @@ The release workflow reads the section matching the tag it is building, and fail
 
 - Release notes for `poppler`, read from its in-tree `NEWS` file. Its forge is now resolved (see below), but gitlab.freedesktop.org publishes zero release objects for the project, so that path can only ever report "No releases published" - the same trade already made for the GnuPG mirrors. The `NEWS` file is the only machine-readable source that carries the notes.
 - A `NEWS` heading style for poppler's `Release 26.09.0:` format, including the 2005-era `Release 0.2.0  (Tue Apr  5 12:32:10 EDT 2005)` and `Release 0.1 - no date yet` shapes that are still in the same cumulative file.
+- The resident notification agent is now loaded automatically when its plist is on disk but nothing has registered it with launchd. The `brewinator-notifier` cask writes the plist and cannot load it: Homebrew's declarative install steps run inside a sandbox, and launchd refuses job submission from any sandboxed process - even a fully permissive `sandbox-exec -p '(version 1)(allow default)'` profile fails with `Bootstrap failed: 5: Input/output error`. Until now a fresh cask install therefore posted to nobody until the next login, because `ResidentAgentNotifier` drops its banner in silence when the agent isn't running.
 
 ### Changed
 
