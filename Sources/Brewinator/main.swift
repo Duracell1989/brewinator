@@ -115,6 +115,13 @@ let notify: (NotificationContent) -> Void = { content in
     }
 }
 
+// The cask writes the agent's plist but cannot load it - see
+// `NotifierAgentActivation`. Doing it here, ahead of the sync's network work,
+// leaves the agent time to come up before the banner is posted at the end.
+if config.notify, notifier is ResidentAgentNotifier {
+    NotifierAgentActivation.activate(logger: logger)
+}
+
 do {
     // The listing prints from inside the sync, before prune and the first
     // fetch - see `BrewNotesSync.run(onOutdated:)`.
