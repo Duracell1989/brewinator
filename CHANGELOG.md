@@ -6,7 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
-## [0.9.0] - 2026-09-05
+## [0.9.0] - 2026-09-08
 
 ### Added
 
@@ -136,6 +136,7 @@ Acts on a full review of everything released so far. Several of these are user-f
 
 Initial release: a Swift rewrite of the original `brew-notes.zsh`, distributed through `duracell1989/tap`.
 
+[0.9.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.9.0
 [0.8.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.8.0
 [0.7.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.7.0
 [0.6.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.6.1
