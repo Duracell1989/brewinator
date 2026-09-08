@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [Unreleased]
+
+### Changed
+
+- The `brewinator-notifier` cask now loads the notifier agent while it installs, instead of leaving it dormant until brewinator next runs. It ships an `install-agent.sh` inside `BrewinatorNotify.zip` and runs it as an `installer script:`, which - unlike the declarative install steps - runs outside Homebrew's sandbox, where launchd accepts job submission (Homebrew/brew#23891). The script also receives the cask's real app directory, so the plist no longer hard-codes `/Applications`. Homebrew runs installer artifacts before it moves the app, so the job first fails with exit 78 and `KeepAlive` picks it up once the app lands, about a throttle interval later. `NotifierAgentActivation` stays as the fallback for installs predating this and for an agent unloaded by hand.
+
 ## [0.9.0] - 2026-09-08
 
 ### Added

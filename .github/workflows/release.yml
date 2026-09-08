@@ -94,8 +94,19 @@ jobs:
           rm AuthKey.p8
           xcrun stapler staple .build/BrewinatorNotify.app
           # Stapling modifies the app after the zip above was made - repackage.
+          # The distribution zip also carries the cask's installer script, which
+          # loads the launch agent from outside Homebrew's install-step sandbox
+          # (Homebrew/brew#23891). Notarization above only ever sees the app:
+          # the script is not code, and submitting it would notarize nothing.
+          # `ditto` for the copy, not `cp` - it is the one that preserves the
+          # stapled bundle intact. No --keepParent, so the app and the script
+          # sit side by side at the root of the zip, where the cask expects them.
           rm BrewinatorNotify.zip
-          ditto -c -k --keepParent .build/BrewinatorNotify.app BrewinatorNotify.zip
+          rm -rf .build/payload
+          mkdir -p .build/payload
+          ditto .build/BrewinatorNotify.app .build/payload/BrewinatorNotify.app
+          install -m 755 NotifierApp/install-agent.sh .build/payload/install-agent.sh
+          ditto -c -k .build/payload BrewinatorNotify.zip
 
       - name: Remove the CI keychain
         if: always()

@@ -55,19 +55,22 @@ struct LaunchctlAgentControl: LaunchAgentControlling {
 /// Loads the resident agent when its plist is on disk but nothing has
 /// registered it with launchd yet.
 ///
-/// The `brewinator-notifier` cask writes the plist but cannot load it:
-/// Homebrew runs cask install steps inside a sandbox, and launchd refuses job
-/// submission from any sandboxed process - verified 2026-09-08, where even
-/// `sandbox-exec -p '(version 1)(allow default)'` fails with `Bootstrap
-/// failed: 5: Input/output error`. So the bootstrap belongs here, in a process
-/// that runs unsandboxed in the user's own session. Without it a fresh install
-/// posts to nobody until the next login, because `ResidentAgentNotifier` drops
-/// its banner in silence when the agent isn't running.
+/// The `brewinator-notifier` cask loads the agent itself, from an `installer
+/// script:` that runs outside Homebrew's install-step sandbox. Its declarative
+/// steps cannot: launchd refuses job submission from any sandboxed process -
+/// verified 2026-09-08, where even `sandbox-exec -p '(version 1)(allow
+/// default)'` fails with `Bootstrap failed: 5: Input/output error`
+/// (Homebrew/brew#23891). This is the fallback for the cases that script does
+/// not cover: an install predating it, an agent booted out by hand, and a
+/// bootstrap it could not complete. Without it those users post to nobody
+/// until the next login, because `ResidentAgentNotifier` drops its banner in
+/// silence when the agent isn't running.
 enum NotifierAgentActivation {
     static let label = "dev.b89.brewinator.notifier"
 
     /// `homeDirectoryForCurrentUser` reads the passwd entry rather than
-    /// `$HOME`, which is what the cask's own `base: :home` resolves to.
+    /// `$HOME`, which is the same directory the cask's installer script writes
+    /// the plist to.
     static var defaultPlistPath: String {
         FileManager.default
             .homeDirectoryForCurrentUser
