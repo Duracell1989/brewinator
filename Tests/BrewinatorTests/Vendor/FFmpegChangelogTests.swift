@@ -18,6 +18,7 @@ private let testDatabase = ResolutionDatabase(
     gitlabStubPattern: "",
     gitlabStubMaxLength: 0,
     gitlabNewsFiles: [],
+    downloadHostForges: [],
     firefoxNotesURLTemplate: "",
     ffmpegChangelogURLTemplate: "https://example.test/ffmpeg/%s/Changelog",
     dotnetReleasesURLTemplate: "",

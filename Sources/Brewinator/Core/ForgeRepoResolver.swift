@@ -16,6 +16,21 @@ struct ForgeHost: Sendable, Equatable, Codable {
     let dialect: ForgeDialect
 }
 
+/// One entry in `ResolutionDatabase.downloadHostForges`. Maps a tarball
+/// download path to the forge that hosts the same projects, for the families
+/// whose formulae name a download host and nothing else.
+struct DownloadHostForge: Sendable, Equatable, Codable {
+    /// The path prefix a project's tarball URL starts with, host included:
+    /// `download.gnome.org/sources/`. The segment straight after it is the
+    /// project name.
+    let downloadPrefix: String
+    /// The forge the project's repo lives on. Must also appear in
+    /// `forgeHosts`, or the mapping is skipped.
+    let forgeHost: String
+    /// The owner every project of this family sits under on that forge.
+    let owner: String
+}
+
 struct ForgeRepo: Sendable, Equatable {
     let host: String
     let owner: String
@@ -46,6 +61,9 @@ enum ForgeRepoResolver {
             if let candidate, let hit = scan(candidate, hosts: database.forgeHosts) {
                 return hit
             }
+        }
+        if let stableURL = package.stableURL {
+            return derive(stableURL, forges: database.downloadHostForges, hosts: database.forgeHosts)
         }
         return nil
     }
@@ -110,5 +128,34 @@ enum ForgeRepoResolver {
             repo.removeLast(4)
         }
         return ForgeRepo(host: host, owner: String(ownerSub), repo: repo, dialect: forgeHost.dialect)
+    }
+
+    /// Last resort: derive the repo from a download URL that names the project
+    /// but no forge at all. GNOME publishes every tarball under
+    /// `download.gnome.org/sources/<project>/`, and those formulae carry no
+    /// `head do` and a documentation homepage, so `scan` has nothing to find
+    /// and they resolved to nothing - `librsvg`, `glib` and `gdk-pixbuf` all
+    /// reported "No forge repo detected" while their GitLab publishes real
+    /// releases for every version.
+    ///
+    /// Runs only after `scan` has failed on all three URLs, because a URL that
+    /// names a forge outright is always the better answer: `pango` has the same
+    /// download URL as these but names its repo in `head do`, and keeps
+    /// resolving through that.
+    ///
+    /// The project segment is assumed to be the repo name. Where a family
+    /// breaks that assumption the forge API 404s and the caller falls back to
+    /// the same placeholder as before, so a wrong guess costs nothing a missing
+    /// mapping did not already cost.
+    private static func derive(_ text: String, forges: [DownloadHostForge], hosts: [ForgeHost]) -> ForgeRepo? {
+        for forge in forges {
+            guard let prefix = text.range(of: forge.downloadPrefix, options: .caseInsensitive),
+                let segment = text[prefix.upperBound...].split(separator: "/", omittingEmptySubsequences: true).first,
+                segment.allSatisfy({ $0.isLetter || $0.isNumber || $0 == "_" || $0 == "." || $0 == "-" }),
+                let forgeHost = hosts.first(where: { $0.host == forge.forgeHost })
+            else { continue }
+            return ForgeRepo(host: forge.forgeHost, owner: forge.owner, repo: String(segment), dialect: forgeHost.dialect)
+        }
+        return nil
     }
 }

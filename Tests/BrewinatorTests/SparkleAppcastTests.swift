@@ -17,6 +17,7 @@ private let testDatabase = ResolutionDatabase(
     gitlabStubPattern: "^the .* release\\.?$",
     gitlabStubMaxLength: 30,
     gitlabNewsFiles: [],
+    downloadHostForges: [],
     firefoxNotesURLTemplate: "",
     ffmpegChangelogURLTemplate: "",
     dotnetReleasesURLTemplate: "",
