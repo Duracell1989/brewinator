@@ -33,6 +33,7 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
     let gitlabStubPattern: String
     let gitlabStubMaxLength: Int
     let gitlabNewsFiles: [String]
+    let downloadHostForges: [DownloadHostForge]
 
     /// %s = exact target version.
     let firefoxNotesURLTemplate: String
@@ -119,6 +120,15 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
         gitlabStubPattern: "^the .* release\\.?$",
         gitlabStubMaxLength: 30,
         gitlabNewsFiles: ["NEWS", "NEWS.md", "ChangeLog.md"],
+        // GNOME formulae name a download host and a documentation homepage,
+        // and most carry no `head do` at all, so nothing on them points at a
+        // forge - librsvg, glib and gdk-pixbuf all reported "No forge repo
+        // detected" against a GitLab that publishes real releases for every
+        // version. `gitlab.gnome.org` is already a known forge host; only the
+        // link from the tarball URL to it was missing.
+        downloadHostForges: [
+            DownloadHostForge(downloadPrefix: "download.gnome.org/sources/", forgeHost: "gitlab.gnome.org", owner: "GNOME")
+        ],
         firefoxNotesURLTemplate: "https://www.firefox.com/en-US/firefox/%s/releasenotes/",
         ffmpegChangelogURLTemplate: "https://raw.githubusercontent.com/FFmpeg/FFmpeg/%s/Changelog",
         dotnetReleasesURLTemplate: "https://builds.dotnet.microsoft.com/dotnet/release-metadata/%s/releases.json",

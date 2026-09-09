@@ -21,6 +21,10 @@ private let testDatabase = ResolutionDatabase(
     gitlabStubPattern: "^the .* release\\.?$",
     gitlabStubMaxLength: 30,
     gitlabNewsFiles: [],
+    downloadHostForges: [
+        DownloadHostForge(downloadPrefix: "downloads.example.org/sources/", forgeHost: "gitlab.example.org", owner: "GNOME"),
+        DownloadHostForge(downloadPrefix: "downloads.nowhere.example/sources/", forgeHost: "svn.example.org", owner: "GNOME"),
+    ],
     firefoxNotesURLTemplate: "",
     ffmpegChangelogURLTemplate: "",
     dotnetReleasesURLTemplate: "",
@@ -156,6 +160,57 @@ struct ForgeRepoResolverTests {
     func scanRequiresHostBoundary() {
         let repo = ForgeRepoResolver.resolve(
             package: package("foo", homepage: "https://docs.gitlab.example.org/ee/user/foo"),
+            database: testDatabase
+        )
+        #expect(repo == nil)
+    }
+
+    /// librsvg's shape: the tarball names the project, nothing names the forge,
+    /// and there is no `head do` to fall back on.
+    @Test("derives the repo from a download host when no URL names a forge")
+    func downloadHostDerivation() {
+        let repo = ForgeRepoResolver.resolve(
+            package: package(
+                "librsvg",
+                stableURL: "https://downloads.example.org/sources/librsvg/2.63/librsvg-2.63.0.tar.xz",
+                homepage: "https://wiki.example.org/Projects/LibRsvg"
+            ),
+            database: testDatabase
+        )
+        #expect(repo?.host == "gitlab.example.org")
+        #expect(repo?.ownerRepo == "GNOME/librsvg")
+        #expect(repo?.dialect == .gitlab)
+    }
+
+    /// pango's shape: same download host as librsvg, but it names its repo in
+    /// `head do`. A URL that says where the repo is always beats a guess from
+    /// the download path.
+    @Test("a head URL outranks the download-host derivation")
+    func downloadHostDerivationRanksLast() {
+        let repo = ForgeRepoResolver.resolve(
+            package: package(
+                "pango-head",
+                stableURL: "https://downloads.example.org/sources/pango/1.58/pango-1.58.2.tar.xz",
+                headURL: "https://gitlab.example.org/Fork/pango.git"
+            ),
+            database: testDatabase
+        )
+        #expect(repo?.ownerRepo == "Fork/pango")
+    }
+
+    @Test("a download host mapped to a forge host that isn't known resolves to nil")
+    func downloadHostDerivationRequiresKnownForge() {
+        let repo = ForgeRepoResolver.resolve(
+            package: package("thing", stableURL: "https://downloads.nowhere.example/sources/thing/1.0/thing-1.0.tar.xz"),
+            database: testDatabase
+        )
+        #expect(repo == nil)
+    }
+
+    @Test("an unmapped download host resolves to nil rather than guessing")
+    func downloadHostDerivationIgnoresUnmappedHosts() {
+        let repo = ForgeRepoResolver.resolve(
+            package: package("thing", stableURL: "https://cdn.example.com/sources/thing/1.0/thing-1.0.tar.xz"),
             database: testDatabase
         )
         #expect(repo == nil)

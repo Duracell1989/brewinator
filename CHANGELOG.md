@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [0.9.2] - 2026-09-09
+
+### Fixed
+
+- Forge repo resolution now derives the repo from a download host that names the project but no forge, so the GNOME family stops reporting "No forge repo detected". Their formulae put the tarball on `download.gnome.org/sources/<project>/`, point `homepage` at documentation, and mostly carry no `head do` at all, so none of the three URLs scanned named a forge - on this machine `librsvg`, `glib` and `gdk-pixbuf`, every one of them with a `gitlab.gnome.org` project publishing real release notes for the exact version being upgraded to. `gitlab.gnome.org` was already a known forge host; only the link from the tarball URL to it was missing. The mapping runs last, after all three URL scans have failed, so a formula that names its forge outright still wins - `pango` shares the same download host and keeps resolving through its `head do`.
+
 ## [0.9.1] - 2026-09-09
 
 ### Changed
@@ -142,6 +148,7 @@ Acts on a full review of everything released so far. Several of these are user-f
 
 Initial release: a Swift rewrite of the original `brew-notes.zsh`, distributed through `duracell1989/tap`.
 
+[0.9.2]: https://github.com/Duracell1989/brewinator/releases/tag/v0.9.2
 [0.9.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.9.1
 [0.9.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.9.0
 [0.8.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.8.0
