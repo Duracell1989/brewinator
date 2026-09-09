@@ -11,7 +11,7 @@ struct BrewinatorCommand: ParsableCommand {
             anything new. The config file is created on first run; `brewinator config` \
             shows where it lives and what's in it.
             """,
-        version: "0.9.0",
+        version: "0.9.1",
         subcommands: [ConfigCommand.self]
     )
 
