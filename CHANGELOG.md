@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [0.10.0] - 2026-09-10
+
+### Added
+
+- Release notes for `proton-pass`, read from `applications/pass-desktop/CHANGELOG.md` in `ProtonMail/WebClients`. Nothing on the cask names that repo - the homepage is a marketing page, the download URL is proton.me, and casks carry no `head do` to scan - so forge resolution had nothing to work with and every upgrade reported "No forge repo detected". Deliberately not a `TagCompare` entry like `proton-mail`: that one diffs commit subjects only because inbox-desktop ships no changelog, whereas pass-desktop keeps a curated one in the tree. Proton's own `version.json` is no help for either, since Pass publishes no `ReleaseNotes` key at all. Read from `main` rather than the release tag, so a cask bumped before Proton merges the entry falls through to the no-entry message instead of failing the fetch.
+
+### Changed
+
+- `MarkdownChangelog` now reads a `### Version 1.40.2` heading alongside the `## 2.1.231` shape it already handled, so one source covers both consumers instead of gaining a per-source heading style like `NewsFileSpec` has. The match stays narrow - the whole line must be the marker, an optional `Version` word and a dotted version - so a bullet mentioning a version, or a non-version subheading such as `### Breaking changes`, is not read as the start of the next release.
+
 ## [0.9.2] - 2026-09-09
 
 ### Fixed
@@ -148,6 +158,7 @@ Acts on a full review of everything released so far. Several of these are user-f
 
 Initial release: a Swift rewrite of the original `brew-notes.zsh`, distributed through `duracell1989/tap`.
 
+[0.10.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.10.0
 [0.9.2]: https://github.com/Duracell1989/brewinator/releases/tag/v0.9.2
 [0.9.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.9.1
 [0.9.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.9.0
