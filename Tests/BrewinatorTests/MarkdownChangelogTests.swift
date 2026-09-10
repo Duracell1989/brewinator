@@ -4,6 +4,7 @@ import Testing
 @testable import Brewinator
 
 private let changelogURL = URL(string: "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md")!
+private let protonPassURL = URL(string: "https://raw.githubusercontent.com/ProtonMail/WebClients/main/applications/pass-desktop/CHANGELOG.md")!
 
 private let testDatabase = ResolutionDatabase(
     forgeHosts: [],
@@ -11,7 +12,7 @@ private let testDatabase = ResolutionDatabase(
     tagCompareSpecs: [:],
     sparkleFeeds: [:],
     jetbrainsCodes: [:],
-    markdownChangelogSources: ["claude-code": changelogURL],
+    markdownChangelogSources: ["claude-code": changelogURL, "proton-pass": protonPassURL],
     newsFileSources: [:],
     gitlabStubPattern: "^the .* release\\.?$",
     gitlabStubMaxLength: 30,
@@ -30,6 +31,10 @@ private let testDatabase = ResolutionDatabase(
 
 private func claudeCodePackage(current: String) -> OutdatedPackageInfo {
     OutdatedPackageInfo(name: "claude-code", installedVersion: "2.1.231", currentVersion: current, kind: .formula)
+}
+
+private func protonPassPackage(current: String) -> OutdatedPackageInfo {
+    OutdatedPackageInfo(name: "proton-pass", installedVersion: "1.40.0", currentVersion: current, kind: .cask)
 }
 
 @Suite("MarkdownChangelog")
@@ -96,5 +101,66 @@ struct MarkdownChangelogTests {
             return
         }
         #expect(notes.markdown.contains("No changelog entry found"))
+    }
+
+    @Test("a `### Version X` heading is recognised and its section extracted")
+    func extractsVersionWordHeadingSection() async throws {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: protonPassURL, data: try Fixture.data("proton-pass-changelog-sample", extension: "md"), statusCode: 200)
+        let source = MarkdownChangelog(httpFetcher: fetcher, database: testDatabase)
+
+        let result = await source.fetch(protonPassPackage(current: "1.40.0"))
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("### Version 1.40.0"))
+        #expect(notes.markdown.contains("Pass Monitor"))
+        #expect(!notes.markdown.contains("### Version 1.40.2"))
+        #expect(!notes.markdown.contains("Check for updates"))
+    }
+
+    @Test("no matching version falls back to the newest `### Version X` section")
+    func versionWordHeadingFallsBackToNewestSection() async throws {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: protonPassURL, data: try Fixture.data("proton-pass-changelog-sample", extension: "md"), statusCode: 200)
+        let source = MarkdownChangelog(httpFetcher: fetcher, database: testDatabase)
+
+        let result = await source.fetch(protonPassPackage(current: "99.0.0"))
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("### Version 1.40.2"))
+        #expect(!notes.markdown.contains("Pass Monitor"))
+    }
+
+    @Test("a non-version subheading does not cut a section short")
+    func nonVersionSubheadingIsNotAHeading() async {
+        var fetcher = FakeHTTPFetcher()
+        let changelog = """
+            # Changelog
+
+            ## 2.1.231
+
+            ### Breaking changes
+
+            - Something changed
+
+            ## 2.1.230
+
+            - Older entry
+            """
+        fetcher.respond(to: changelogURL, string: changelog, statusCode: 200)
+        let source = MarkdownChangelog(httpFetcher: fetcher, database: testDatabase)
+
+        let result = await source.fetch(claudeCodePackage(current: "2.1.231"))
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("### Breaking changes"))
+        #expect(notes.markdown.contains("Something changed"))
+        #expect(!notes.markdown.contains("Older entry"))
     }
 }

@@ -86,7 +86,21 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
             "jetbrains-toolbox": "TBA"
         ],
         markdownChangelogSources: [
-            "claude-code": URL(string: "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md")!
+            "claude-code": URL(string: "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md")!,
+            // Proton Pass desktop is built from the WebClients monorepo, which
+            // nothing on the cask names: the homepage is a marketing page, the
+            // download URL is proton.me, and casks carry no head URL to scan —
+            // so forge resolution has nothing to go on and the placeholder is
+            // correct rather than broken. Not a `tagCompareSpecs` entry like
+            // `proton-mail` above: that one diffs commit subjects only because
+            // inbox-desktop ships no changelog, whereas pass-desktop keeps a
+            // curated one in the tree. Proton's own version.json is no use for
+            // either — Pass publishes no `ReleaseNotes` key at all.
+            //
+            // Read from `main`, not from the release tag: a cask bumped before
+            // Proton merges the entry then falls through to the no-entry
+            // message instead of 404ing the whole fetch.
+            "proton-pass": URL(string: "https://raw.githubusercontent.com/ProtonMail/WebClients/main/applications/pass-desktop/CHANGELOG.md")!,
         ],
         // The whole GnuPG family resolves through here rather than through
         // `repoOverrides`. Their canonical host is git.gnupg.org, whose gitweb
