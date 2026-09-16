@@ -11,6 +11,7 @@ private let testDatabase = ResolutionDatabase(
     jetbrainsCodes: [:],
     markdownChangelogSources: [:],
     newsFileSources: [:],
+    gnuPatchProjects: [:],
     gitlabStubPattern: "",
     gitlabStubMaxLength: 0,
     gitlabNewsFiles: [],

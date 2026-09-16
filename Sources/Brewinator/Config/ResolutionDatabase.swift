@@ -16,6 +16,14 @@ struct NewsFileSpec: Sendable, Equatable, Codable {
     let headingStyle: NewsHeadingStyle
 }
 
+/// A GNU project whose Homebrew version is `<release>.<patch level>` rather
+/// than an upstream release — the notes for a bump live in the numbered patch
+/// reports, not in any release object or `NEWS` entry.
+struct GNUPatchSpec: Sendable, Equatable, Codable {
+    /// `%release` -> `8.3`, `%compact` -> `83`, `%patch` -> `004`.
+    let urlTemplate: String
+}
+
 /// The public half of the config split - where release notes actually live for
 /// each supported package. The private half is `UserConfig`.
 ///
@@ -30,6 +38,7 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
     let jetbrainsCodes: [String: String]
     let markdownChangelogSources: [String: URL]
     let newsFileSources: [String: NewsFileSpec]
+    let gnuPatchProjects: [String: GNUPatchSpec]
     let gitlabStubPattern: String
     let gitlabStubMaxLength: Int
     let gitlabNewsFiles: [String]
@@ -130,6 +139,22 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
             // "No releases published". Same trade as the GnuPG mirrors above.
             // This source runs first, so the NEWS file wins either way.
             "poppler": NewsFileSpec(url: URL(string: "https://gitlab.freedesktop.org/poppler/poppler/-/raw/master/NEWS")!, headingStyle: .poppler),
+        ],
+        gnuPatchProjects: [
+            // Chet Ramey ships fixes for both of these as numbered patch files
+            // instead of point releases, and Homebrew encodes the applied patch
+            // count as the version's last component: `readline 8.3.6` is
+            // upstream 8.3 with patches 001-006 applied, against a `url` still
+            // pinned at `readline-8.3.tar.gz`. No forge and no NEWS entry
+            // covers that bump - see `GNUPatchNotes`. The two projects' patch
+            // reports are laid out identically, so one source handles both.
+            //
+            // A package here must not also appear in `newsFileSources`:
+            // `NewsFileChangelog` is ahead of `GNUPatchNotes` in the source
+            // list and would claim it first, on a file that documents only the
+            // release the patches apply to.
+            "bash": GNUPatchSpec(urlTemplate: "https://ftp.gnu.org/gnu/bash/bash-%release-patches/bash%compact-%patch"),
+            "readline": GNUPatchSpec(urlTemplate: "https://ftp.gnu.org/gnu/readline/readline-%release-patches/readline%compact-%patch"),
         ],
         gitlabStubPattern: "^the .* release\\.?$",
         gitlabStubMaxLength: 30,
