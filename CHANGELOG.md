@@ -6,13 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
-## [0.11.0] - 2026-09-16
+## [0.11.0] - 2026-09-17
 
 ### Added
 
 - Release notes for `readline` and `bash`, read from the numbered patch reports on ftp.gnu.org. Both projects ship fixes as patch files rather than point releases, and Homebrew encodes the applied patch count as the version's last component - `readline 8.3.3 -> 8.3.6` is not three releases but patches 004, 005 and 006 against a `url` still pinned at `readline-8.3.tar.gz`. Nothing already in the source list could cover that: the stable URL, homepage and absent head URL name no forge, and resolving one would not have helped either, since upstream is Savannah cgit - no release objects, and not a dialect `ForgeRepoResolver` speaks. The in-tree `NEWS` file is no better, describing 8.3 against 8.2 and never mentioning a patch. The notes exist only as the `Bug-Description` block inside each patch file, so that is what the new source reads. One parser covers both projects because their patch reports are laid out identically.
 - The source claims a package only for a same-release patch bump. A real release bump (`8.3.6 -> 8.4`) falls through to the rest of the list instead: a patch range is meaningless across one, and `Resolver` hands the first claimant the whole result with no fallback.
-- A patch report that cannot be fetched is named in the output rather than quietly dropped. ftp.gnu.org throttles, and an early build narrowed its own stated range to whatever came back - turning a retrieval gap into a false claim that the upgrade applied fewer patches than it did. The preamble now always states what the bump applies; only the bodies are missing.
+- The preamble always states what the bump *applies*, never what happened to come back. ftp.gnu.org throttles, and an early build narrowed its own stated range to whatever it fetched - turning a retrieval gap into a false claim that the upgrade applied fewer patches than it did. The same applies to the 12-report cap: the full range is named, and the omission is called out separately.
+- An unreachable report aborts the range transiently instead of archiving a partial note. `BrewNotesSync` writes an archive file once and never revisits that version, so a note written during a throttle would be permanently degraded with nothing to repair it; failing costs only a retry on the next run. Stopping at the first failure also keeps 12 reports against a hung host from adding minutes to an unattended run.
+- A report that is fetched but cannot be parsed is archived as a named gap rather than retried. The two failures are kept apart deliberately - conflating them either retries a layout change forever or makes a throttle permanent - and the transient reason now carries the URL and the HTTP status, so a throttle is distinguishable from a mistyped template.
+- Only formulae are claimed. A cask sharing a formula's bare name would otherwise be fetched from ftp.gnu.org and never reach its real notes, since the first claimant takes the whole result.
+- Parser hardening: CRLF-served reports no longer leak a carriage return into headings, reporter names or bug-report links; a description written on the `Bug-Description:` line itself is kept instead of read as empty; and the diff is detected by its unified header lines as well as the `Patch (apply with` marker, so a reformatted marker ends the description instead of archiving the whole patch as release notes.
 
 ## [0.10.0] - 2026-09-10
 
@@ -166,6 +170,7 @@ Acts on a full review of everything released so far. Several of these are user-f
 
 Initial release: a Swift rewrite of the original `brew-notes.zsh`, distributed through `duracell1989/tap`.
 
+[0.11.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.11.0
 [0.10.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.10.0
 [0.9.2]: https://github.com/Duracell1989/brewinator/releases/tag/v0.9.2
 [0.9.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.9.1

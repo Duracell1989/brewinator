@@ -91,6 +91,52 @@ struct GNUPatchReportTests {
         #expect(!report.reportedBy.contains { $0.contains("@") })
     }
 
+    @Test("a CRLF-served report leaves no carriage return in the heading, the reporter or the bug-report link")
+    func carriageReturns() throws {
+        let crlf = try Fixture.string("readline-patch-report-sample", extension: "txt").replacingOccurrences(of: "\n", with: "\r\n")
+        let report = try #require(GNUPatchReport(crlf))
+
+        #expect(report.patchID == "readline83-004")
+        #expect(report.reportedBy == ["Lennart Ackermans"])
+        #expect(report.referenceURL == "https://lists.gnu.org/archive/html/bug-bash/2026-05/msg00066.html")
+        #expect(!report.description.contains("\r"))
+    }
+
+    @Test("a description written on the Bug-Description line itself is kept, not discarded as empty")
+    func sameLineDescription() throws {
+        let text = """
+            Patch-ID: readline83-099
+
+            Bug-Description:  Fixes a crash in the completion code.
+
+            Patch (apply with `patch -p0'):
+            *** a
+            --- b
+            """
+        let report = try #require(GNUPatchReport(text))
+
+        #expect(report.description == "Fixes a crash in the completion code.")
+    }
+
+    @Test("a reformatted diff marker still ends the description at the first diff line instead of swallowing the patch")
+    func fallbackDiffAnchor() throws {
+        let text = """
+            Patch-ID: readline83-098
+
+            Bug-Description:
+
+            Corrects the prompt width calculation.
+
+              Patch (apply with a reformatted marker):
+            *** ../readline-8.3-patched/display.c
+            --- display.c
+            """
+        let report = try #require(GNUPatchReport(text))
+
+        #expect(report.description.contains("Corrects the prompt width calculation."))
+        #expect(!report.description.contains("display.c"))
+    }
+
     @Test("a file with no description is not a report")
     func noDescription() {
         #expect(GNUPatchReport("Patch-ID: readline83-099\n\nPatch (apply with `patch -p0'):\n*** a\n--- b\n") == nil)
@@ -116,6 +162,12 @@ struct GNUPatchNotesTests {
     func ignoresOtherPackages() {
         let source = GNUPatchNotes(httpFetcher: FakeHTTPFetcher(), database: testDatabase)
         #expect(!source.canHandle(OutdatedPackageInfo(name: "gettext", installedVersion: "0.26", currentVersion: "1.0", kind: .formula)))
+    }
+
+    @Test("does not claim a cask that happens to share the formula's name - it would be fetched from ftp.gnu.org and never reach its real notes")
+    func ignoresCasks() {
+        let source = GNUPatchNotes(httpFetcher: FakeHTTPFetcher(), database: testDatabase)
+        #expect(!source.canHandle(OutdatedPackageInfo(name: "readline", installedVersion: "8.3.3", currentVersion: "8.3.6", kind: .cask)))
     }
 
     @Test("fetches every patch in the range and joins them under one preamble")
@@ -152,32 +204,11 @@ struct GNUPatchNotesTests {
         #expect(notes.markdown.contains("applies patch 004."))
     }
 
-    @Test("one unreachable patch does not sink the rest of the range")
-    func partialFailure() async throws {
+    @Test("an unreachable report fails the whole range transiently rather than archiving a permanent gap")
+    func unreachableIsTransient() async throws {
         var fetcher = FakeHTTPFetcher()
         fetcher.respond(to: patchURL(4), string: try Fixture.string("readline-patch-report-sample", extension: "txt"), statusCode: 200)
-        fetcher.respond(to: patchURL(5), string: "", statusCode: 404)
-        fetcher.fail(patchURL(6))
-        let source = GNUPatchNotes(httpFetcher: fetcher, database: testDatabase)
-
-        let result = await source.fetch(readline())
-        guard case .success(let notes) = result else {
-            Issue.record("expected success, got \(result)")
-            return
-        }
-        #expect(notes.markdown.contains("### readline83-004"))
-        // The stated range is what the bump applies, not what happened to come
-        // back - narrowing it to 004 would be a false claim about the upgrade.
-        #expect(notes.markdown.contains("applies patches 004, 005 and 006."))
-        #expect(notes.markdown.contains("_Patch reports 005, 006 could not be fetched"))
-    }
-
-    @Test("a range that fetches nothing is transient - the mirror lags a formula bump by hours")
-    func totalFailureIsTransient() async {
-        var fetcher = FakeHTTPFetcher()
-        for number in 4...6 {
-            fetcher.respond(to: patchURL(number), string: "", statusCode: 404)
-        }
+        fetcher.respond(to: patchURL(5), string: "", statusCode: 429)
         let source = GNUPatchNotes(httpFetcher: fetcher, database: testDatabase)
 
         let result = await source.fetch(readline())
@@ -185,10 +216,31 @@ struct GNUPatchNotesTests {
             Issue.record("expected failure, got \(result)")
             return
         }
-        #expect(error == .transient(reason: "readline: no patch report fetched for 004-006"))
+        // The status and the URL both survive into the reason - a throttle has
+        // to be distinguishable from a mistyped template in the log.
+        #expect(error == .transient(reason: "readline \(patchURL(5).absoluteString): HTTP 429"))
     }
 
-    @Test("a long-deferred upgrade fetches only the newest 12 patches and says so")
+    @Test("a fetched but unreadable report is archived as a named gap, not retried forever")
+    func unparseableIsArchived() async throws {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: patchURL(4), string: try Fixture.string("readline-patch-report-sample", extension: "txt"), statusCode: 200)
+        fetcher.respond(to: patchURL(5), string: "a layout nobody recognises\n", statusCode: 200)
+        fetcher.respond(to: patchURL(6), string: try Fixture.string("readline-patch-report-sample", extension: "txt"), statusCode: 200)
+        let source = GNUPatchNotes(httpFetcher: fetcher, database: testDatabase)
+
+        let result = await source.fetch(readline())
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("`8.3.3 → 8.3.6` applies patches 004, 005 and 006."))
+        #expect(notes.markdown.contains("### readline83-005"))
+        #expect(notes.markdown.contains("could not be read"))
+        #expect(notes.markdown.contains("[Patch report](\(patchURL(5).absoluteString))"))
+    }
+
+    @Test("the capped range still states what the bump applies - narrowing it to the fetched subset would be a false claim")
     func capsTheRange() async throws {
         var fetcher = FakeHTTPFetcher()
         let sample = try Fixture.string("readline-patch-report-sample", extension: "txt")
@@ -202,7 +254,28 @@ struct GNUPatchNotesTests {
             Issue.record("expected success, got \(result)")
             return
         }
-        #expect(notes.markdown.contains("_8 older patches are omitted._"))
-        #expect(notes.markdown.contains("applies patches 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019 and 020."))
+        let fullRange = (1...19).map { String(format: "%03d", $0) }.joined(separator: ", ")
+        #expect(notes.markdown.contains("applies patches \(fullRange) and 020."))
+        #expect(notes.markdown.contains("_Only the newest 12 are reproduced below; 8 older reports are omitted._"))
+    }
+
+    @Test("the shipped templates render the real ftp.gnu.org paths")
+    func liveTemplatesRender() async {
+        let source = GNUPatchNotes(httpFetcher: FakeHTTPFetcher(), database: .live)
+
+        let readlineResult = await source.fetch(readline(installed: "8.3.3", current: "8.3.4"))
+        guard case .failure(let readlineError) = readlineResult, case .transient(let readlineReason) = readlineError else {
+            Issue.record("expected an unregistered-URL failure, got \(readlineResult)")
+            return
+        }
+        #expect(readlineReason.contains("https://ftp.gnu.org/gnu/readline/readline-8.3-patches/readline83-004"))
+
+        let bash = OutdatedPackageInfo(name: "bash", installedVersion: "5.3.0", currentVersion: "5.3.1", kind: .formula)
+        let bashResult = await source.fetch(bash)
+        guard case .failure(let bashError) = bashResult, case .transient(let bashReason) = bashError else {
+            Issue.record("expected an unregistered-URL failure, got \(bashResult)")
+            return
+        }
+        #expect(bashReason.contains("https://ftp.gnu.org/gnu/bash/bash-5.3-patches/bash53-001"))
     }
 }
