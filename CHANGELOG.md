@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [0.11.0] - 2026-09-16
+
+### Added
+
+- Release notes for `readline` and `bash`, read from the numbered patch reports on ftp.gnu.org. Both projects ship fixes as patch files rather than point releases, and Homebrew encodes the applied patch count as the version's last component - `readline 8.3.3 -> 8.3.6` is not three releases but patches 004, 005 and 006 against a `url` still pinned at `readline-8.3.tar.gz`. Nothing already in the source list could cover that: the stable URL, homepage and absent head URL name no forge, and resolving one would not have helped either, since upstream is Savannah cgit - no release objects, and not a dialect `ForgeRepoResolver` speaks. The in-tree `NEWS` file is no better, describing 8.3 against 8.2 and never mentioning a patch. The notes exist only as the `Bug-Description` block inside each patch file, so that is what the new source reads. One parser covers both projects because their patch reports are laid out identically.
+- The source claims a package only for a same-release patch bump. A real release bump (`8.3.6 -> 8.4`) falls through to the rest of the list instead: a patch range is meaningless across one, and `Resolver` hands the first claimant the whole result with no fallback.
+- A patch report that cannot be fetched is named in the output rather than quietly dropped. ftp.gnu.org throttles, and an early build narrowed its own stated range to whatever came back - turning a retrieval gap into a false claim that the upgrade applied fewer patches than it did. The preamble now always states what the bump applies; only the bodies are missing.
+
 ## [0.10.0] - 2026-09-10
 
 ### Added

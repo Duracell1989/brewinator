@@ -17,6 +17,7 @@ private let testDatabase = ResolutionDatabase(
         "gpgme": NewsFileSpec(url: newsURL, headingStyle: .gnupg),
         "poppler": NewsFileSpec(url: popplerNewsURL, headingStyle: .poppler),
     ],
+    gnuPatchProjects: [:],
     gitlabStubPattern: "^the .* release\\.?$",
     gitlabStubMaxLength: 30,
     gitlabNewsFiles: [],

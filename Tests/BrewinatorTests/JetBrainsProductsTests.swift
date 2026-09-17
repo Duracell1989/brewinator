@@ -13,6 +13,7 @@ private let testDatabase = ResolutionDatabase(
     jetbrainsCodes: ["jetbrains-toolbox": "TBA"],
     markdownChangelogSources: [:],
     newsFileSources: [:],
+    gnuPatchProjects: [:],
     gitlabStubPattern: "^the .* release\\.?$",
     gitlabStubMaxLength: 30,
     gitlabNewsFiles: [],

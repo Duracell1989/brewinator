@@ -87,6 +87,7 @@ let sync = BrewNotesSync(
         TagCompare(httpFetcher: httpFetcher, database: database),
         MarkdownChangelog(httpFetcher: httpFetcher, database: database),
         NewsFileChangelog(httpFetcher: httpFetcher, database: database),
+        GNUPatchNotes(httpFetcher: httpFetcher, database: database),
         FirefoxReleaseNotes(httpFetcher: httpFetcher, database: database),
         FFmpegChangelog(httpFetcher: httpFetcher, database: database),
         DotnetSdkReleaseNotes(httpFetcher: httpFetcher, database: database),
