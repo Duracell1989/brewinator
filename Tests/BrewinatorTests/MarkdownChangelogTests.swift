@@ -6,28 +6,8 @@ import Testing
 private let changelogURL = URL(string: "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md")!
 private let protonPassURL = URL(string: "https://raw.githubusercontent.com/ProtonMail/WebClients/main/applications/pass-desktop/CHANGELOG.md")!
 
-private let testDatabase = ResolutionDatabase(
-    forgeHosts: [],
-    repoOverrides: [:],
-    tagCompareSpecs: [:],
-    sparkleFeeds: [:],
-    jetbrainsCodes: [:],
-    markdownChangelogSources: ["claude-code": changelogURL, "proton-pass": protonPassURL],
-    newsFileSources: [:],
-    gnuPatchProjects: [:],
-    gitlabStubPattern: "^the .* release\\.?$",
-    gitlabStubMaxLength: 30,
-    gitlabNewsFiles: [],
-    downloadHostForges: [],
-    firefoxNotesURLTemplate: "",
-    ffmpegChangelogURLTemplate: "",
-    dotnetReleasesURLTemplate: "",
-    dotnetNotableChangesHeading: "",
-    nssNotesURLTemplate: "",
-    windowsAppURL: URL(string: "https://example.test/windows-app")!,
-    claudeDesktopChangelogURL: URL(string: "https://example.test/claude")!,
-    obsidianRepo: "",
-    androidStudioFeedURL: URL(string: "https://example.test/android-studio")!
+private let testDatabase = ResolutionDatabase.testDefaults.with(
+    markdownChangelogSources: ["claude-code": changelogURL, "proton-pass": protonPassURL]
 )
 
 private func claudeCodePackage(current: String) -> OutdatedPackageInfo {

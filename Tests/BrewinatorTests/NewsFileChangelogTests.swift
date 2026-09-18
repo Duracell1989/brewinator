@@ -6,31 +6,11 @@ import Testing
 private let newsURL = URL(string: "https://raw.githubusercontent.com/gpg/gpgme/master/NEWS")!
 private let popplerNewsURL = URL(string: "https://gitlab.freedesktop.org/poppler/poppler/-/raw/master/NEWS")!
 
-private let testDatabase = ResolutionDatabase(
-    forgeHosts: [],
-    repoOverrides: [:],
-    tagCompareSpecs: [:],
-    sparkleFeeds: [:],
-    jetbrainsCodes: [:],
-    markdownChangelogSources: [:],
+private let testDatabase = ResolutionDatabase.testDefaults.with(
     newsFileSources: [
         "gpgme": NewsFileSpec(url: newsURL, headingStyle: .gnupg),
         "poppler": NewsFileSpec(url: popplerNewsURL, headingStyle: .poppler),
-    ],
-    gnuPatchProjects: [:],
-    gitlabStubPattern: "^the .* release\\.?$",
-    gitlabStubMaxLength: 30,
-    gitlabNewsFiles: [],
-    downloadHostForges: [],
-    firefoxNotesURLTemplate: "",
-    ffmpegChangelogURLTemplate: "",
-    dotnetReleasesURLTemplate: "",
-    dotnetNotableChangesHeading: "",
-    nssNotesURLTemplate: "",
-    windowsAppURL: URL(string: "https://example.test/windows-app")!,
-    claudeDesktopChangelogURL: URL(string: "https://example.test/claude")!,
-    obsidianRepo: "",
-    androidStudioFeedURL: URL(string: "https://example.test/android-studio")!
+    ]
 )
 
 private func gpgmePackage(installed: String = "2.1.2", current: String) -> OutdatedPackageInfo {

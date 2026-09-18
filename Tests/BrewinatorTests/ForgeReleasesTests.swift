@@ -3,32 +3,12 @@ import Testing
 
 @testable import Brewinator
 
-private let testDatabase = ResolutionDatabase(
+private let testDatabase = ResolutionDatabase.testDefaults.with(
     forgeHosts: [
         ForgeHost(host: "github.com", dialect: .github),
         ForgeHost(host: "codeberg.org", dialect: .gitea),
         ForgeHost(host: "gitlab.com", dialect: .gitlab),
-    ],
-    repoOverrides: [:],
-    tagCompareSpecs: [:],
-    sparkleFeeds: [:],
-    jetbrainsCodes: [:],
-    markdownChangelogSources: [:],
-    newsFileSources: [:],
-    gnuPatchProjects: [:],
-    gitlabStubPattern: "^the .* release\\.?$",
-    gitlabStubMaxLength: 30,
-    gitlabNewsFiles: [],
-    downloadHostForges: [],
-    firefoxNotesURLTemplate: "",
-    ffmpegChangelogURLTemplate: "",
-    dotnetReleasesURLTemplate: "",
-    dotnetNotableChangesHeading: "",
-    nssNotesURLTemplate: "",
-    windowsAppURL: URL(string: "https://example.test/windows-app")!,
-    claudeDesktopChangelogURL: URL(string: "https://example.test/claude")!,
-    obsidianRepo: "",
-    androidStudioFeedURL: URL(string: "https://example.test/android-studio")!
+    ]
 )
 
 private func batPackage(current: String, installed: String = "0.25.0") -> OutdatedPackageInfo {

@@ -5,28 +5,8 @@ import Testing
 
 private let releasesURL = URL(string: "https://data.services.jetbrains.com/products/releases?code=TBA")!
 
-private let testDatabase = ResolutionDatabase(
-    forgeHosts: [],
-    repoOverrides: [:],
-    tagCompareSpecs: [:],
-    sparkleFeeds: [:],
-    jetbrainsCodes: ["jetbrains-toolbox": "TBA"],
-    markdownChangelogSources: [:],
-    newsFileSources: [:],
-    gnuPatchProjects: [:],
-    gitlabStubPattern: "^the .* release\\.?$",
-    gitlabStubMaxLength: 30,
-    gitlabNewsFiles: [],
-    downloadHostForges: [],
-    firefoxNotesURLTemplate: "",
-    ffmpegChangelogURLTemplate: "",
-    dotnetReleasesURLTemplate: "",
-    dotnetNotableChangesHeading: "",
-    nssNotesURLTemplate: "",
-    windowsAppURL: URL(string: "https://example.test/windows-app")!,
-    claudeDesktopChangelogURL: URL(string: "https://example.test/claude")!,
-    obsidianRepo: "",
-    androidStudioFeedURL: URL(string: "https://example.test/android-studio")!
+private let testDatabase = ResolutionDatabase.testDefaults.with(
+    jetbrainsCodes: ["jetbrains-toolbox": "TBA"]
 )
 
 private func toolboxPackage(current: String) -> OutdatedPackageInfo {

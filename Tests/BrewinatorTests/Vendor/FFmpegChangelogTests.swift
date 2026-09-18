@@ -7,28 +7,8 @@ private let branchURL = URL(string: "https://example.test/ffmpeg/release/8.1/Cha
 private let branch90URL = URL(string: "https://example.test/ffmpeg/release/9.0/Changelog")!
 private let fallbackBranchURL = URL(string: "https://example.test/ffmpeg/master/Changelog")!
 
-private let testDatabase = ResolutionDatabase(
-    forgeHosts: [],
-    repoOverrides: [:],
-    tagCompareSpecs: [:],
-    sparkleFeeds: [:],
-    jetbrainsCodes: [:],
-    markdownChangelogSources: [:],
-    newsFileSources: [:],
-    gnuPatchProjects: [:],
-    gitlabStubPattern: "",
-    gitlabStubMaxLength: 0,
-    gitlabNewsFiles: [],
-    downloadHostForges: [],
-    firefoxNotesURLTemplate: "",
-    ffmpegChangelogURLTemplate: "https://example.test/ffmpeg/%s/Changelog",
-    dotnetReleasesURLTemplate: "",
-    dotnetNotableChangesHeading: "",
-    nssNotesURLTemplate: "",
-    windowsAppURL: URL(string: "https://example.test/windows-app")!,
-    claudeDesktopChangelogURL: URL(string: "https://example.test/claude")!,
-    obsidianRepo: "",
-    androidStudioFeedURL: URL(string: "https://example.test/android-studio")!
+private let testDatabase = ResolutionDatabase.testDefaults.with(
+    ffmpegChangelogURLTemplate: "https://example.test/ffmpeg/%s/Changelog"
 )
 
 private func package(current: String = "8.1.2", installed: String = "8.1.1") -> OutdatedPackageInfo {

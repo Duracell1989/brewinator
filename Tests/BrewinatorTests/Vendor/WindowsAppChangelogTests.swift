@@ -5,28 +5,8 @@ import Testing
 
 private let whatsNewURL = URL(string: "https://example.test/windows-app")!
 
-private let testDatabase = ResolutionDatabase(
-    forgeHosts: [],
-    repoOverrides: [:],
-    tagCompareSpecs: [:],
-    sparkleFeeds: [:],
-    jetbrainsCodes: [:],
-    markdownChangelogSources: [:],
-    newsFileSources: [:],
-    gnuPatchProjects: [:],
-    gitlabStubPattern: "",
-    gitlabStubMaxLength: 0,
-    gitlabNewsFiles: [],
-    downloadHostForges: [],
-    firefoxNotesURLTemplate: "",
-    ffmpegChangelogURLTemplate: "",
-    dotnetReleasesURLTemplate: "",
-    dotnetNotableChangesHeading: "",
-    nssNotesURLTemplate: "",
-    windowsAppURL: whatsNewURL,
-    claudeDesktopChangelogURL: URL(string: "https://example.test/claude")!,
-    obsidianRepo: "",
-    androidStudioFeedURL: URL(string: "https://example.test/android-studio")!
+private let testDatabase = ResolutionDatabase.testDefaults.with(
+    windowsAppURL: whatsNewURL
 )
 
 private func package(current: String = "11.3.8") -> OutdatedPackageInfo {

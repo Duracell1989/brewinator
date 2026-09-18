@@ -7,28 +7,9 @@ private let indexURL = URL(string: "https://example.test/dotnet/10.0/releases.js
 private let notesURL = URL(string: "https://github.com/dotnet/core/blob/main/release-notes/10.0/10.0.11/10.0.11.md")!
 private let rawNotesURL = URL(string: "https://raw.githubusercontent.com/dotnet/core/main/release-notes/10.0/10.0.11/10.0.11.md")!
 
-private let testDatabase = ResolutionDatabase(
-    forgeHosts: [],
-    repoOverrides: [:],
-    tagCompareSpecs: [:],
-    sparkleFeeds: [:],
-    jetbrainsCodes: [:],
-    markdownChangelogSources: [:],
-    newsFileSources: [:],
-    gnuPatchProjects: [:],
-    gitlabStubPattern: "",
-    gitlabStubMaxLength: 0,
-    gitlabNewsFiles: [],
-    downloadHostForges: [],
-    firefoxNotesURLTemplate: "",
-    ffmpegChangelogURLTemplate: "",
+private let testDatabase = ResolutionDatabase.testDefaults.with(
     dotnetReleasesURLTemplate: "https://example.test/dotnet/%s/releases.json",
-    dotnetNotableChangesHeading: "### Notable Changes",
-    nssNotesURLTemplate: "",
-    windowsAppURL: URL(string: "https://example.test/windows-app")!,
-    claudeDesktopChangelogURL: URL(string: "https://example.test/claude")!,
-    obsidianRepo: "",
-    androidStudioFeedURL: URL(string: "https://example.test/android-studio")!
+    dotnetNotableChangesHeading: "### Notable Changes"
 )
 
 private func package(current: String = "10.0.400") -> OutdatedPackageInfo {
