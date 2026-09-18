@@ -3,30 +3,10 @@ import Testing
 
 @testable import Brewinator
 
-private let testDatabase = ResolutionDatabase(
-    forgeHosts: [],
-    repoOverrides: [:],
-    tagCompareSpecs: [:],
-    sparkleFeeds: [:],
-    jetbrainsCodes: [:],
-    markdownChangelogSources: [:],
-    newsFileSources: [:],
+private let testDatabase = ResolutionDatabase.testDefaults.with(
     gnuPatchProjects: [
         "readline": GNUPatchSpec(urlTemplate: "https://example.test/readline/readline-%release-patches/readline%compact-%patch")
-    ],
-    gitlabStubPattern: "",
-    gitlabStubMaxLength: 0,
-    gitlabNewsFiles: [],
-    downloadHostForges: [],
-    firefoxNotesURLTemplate: "",
-    ffmpegChangelogURLTemplate: "",
-    dotnetReleasesURLTemplate: "",
-    dotnetNotableChangesHeading: "",
-    nssNotesURLTemplate: "",
-    windowsAppURL: URL(string: "https://example.test/windows-app")!,
-    claudeDesktopChangelogURL: URL(string: "https://example.test/claude")!,
-    obsidianRepo: "",
-    androidStudioFeedURL: URL(string: "https://example.test/android-studio")!
+    ]
 )
 
 private func readline(installed: String = "8.3.3", current: String = "8.3.6") -> OutdatedPackageInfo {

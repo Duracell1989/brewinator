@@ -6,30 +6,10 @@ import Testing
 private let compareURL = URL(string: "https://api.github.com/repos/sharkdp/bat/compare/v0.25.0...v0.26.0")!
 private let commitsURL = URL(string: "https://api.github.com/repos/sharkdp/bat/commits?sha=v0.26.0&per_page=20")!
 
-private let testDatabase = ResolutionDatabase(
-    forgeHosts: [],
-    repoOverrides: [:],
+private let testDatabase = ResolutionDatabase.testDefaults.with(
     tagCompareSpecs: [
         "bat-notes": TagCompareSpec(repo: "sharkdp/bat", tagTemplate: "v%s", subpath: nil)
-    ],
-    sparkleFeeds: [:],
-    jetbrainsCodes: [:],
-    markdownChangelogSources: [:],
-    newsFileSources: [:],
-    gnuPatchProjects: [:],
-    gitlabStubPattern: "^the .* release\\.?$",
-    gitlabStubMaxLength: 30,
-    gitlabNewsFiles: [],
-    downloadHostForges: [],
-    firefoxNotesURLTemplate: "",
-    ffmpegChangelogURLTemplate: "",
-    dotnetReleasesURLTemplate: "",
-    dotnetNotableChangesHeading: "",
-    nssNotesURLTemplate: "",
-    windowsAppURL: URL(string: "https://example.test/windows-app")!,
-    claudeDesktopChangelogURL: URL(string: "https://example.test/claude")!,
-    obsidianRepo: "",
-    androidStudioFeedURL: URL(string: "https://example.test/android-studio")!
+    ]
 )
 
 private func package(current: String = "0.26.0", installed: String = "0.25.0") -> OutdatedPackageInfo {

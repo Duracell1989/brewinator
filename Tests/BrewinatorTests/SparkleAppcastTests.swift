@@ -6,28 +6,8 @@ import Testing
 private let vivaldiFeed = URL(string: "https://update.vivaldi.com/update/1.0/public/mac/appcast.xml")!
 private let vivaldiNotesURL = URL(string: "https://update.vivaldi.com/update/1.0/relnotes/8.1.4087.64.html")!
 
-private let testDatabase = ResolutionDatabase(
-    forgeHosts: [],
-    repoOverrides: [:],
-    tagCompareSpecs: [:],
-    sparkleFeeds: ["vivaldi": vivaldiFeed],
-    jetbrainsCodes: [:],
-    markdownChangelogSources: [:],
-    newsFileSources: [:],
-    gnuPatchProjects: [:],
-    gitlabStubPattern: "^the .* release\\.?$",
-    gitlabStubMaxLength: 30,
-    gitlabNewsFiles: [],
-    downloadHostForges: [],
-    firefoxNotesURLTemplate: "",
-    ffmpegChangelogURLTemplate: "",
-    dotnetReleasesURLTemplate: "",
-    dotnetNotableChangesHeading: "",
-    nssNotesURLTemplate: "",
-    windowsAppURL: URL(string: "https://example.test/windows-app")!,
-    claudeDesktopChangelogURL: URL(string: "https://example.test/claude")!,
-    obsidianRepo: "",
-    androidStudioFeedURL: URL(string: "https://example.test/android-studio")!
+private let testDatabase = ResolutionDatabase.testDefaults.with(
+    sparkleFeeds: ["vivaldi": vivaldiFeed]
 )
 
 private func vivaldiPackage(current: String) -> OutdatedPackageInfo {

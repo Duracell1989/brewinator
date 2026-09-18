@@ -3,7 +3,7 @@ import Testing
 
 @testable import Brewinator
 
-private let testDatabase = ResolutionDatabase(
+private let testDatabase = ResolutionDatabase.testDefaults.with(
     forgeHosts: [
         ForgeHost(host: "github.com", dialect: .github),
         ForgeHost(host: "gitea.example.org", dialect: .gitea),
@@ -13,28 +13,10 @@ private let testDatabase = ResolutionDatabase(
         "node": "nodejs/node",
         "pango": "gitlab.example.org/GNOME/pango",
     ],
-    tagCompareSpecs: [:],
-    sparkleFeeds: [:],
-    jetbrainsCodes: [:],
-    markdownChangelogSources: [:],
-    newsFileSources: [:],
-    gnuPatchProjects: [:],
-    gitlabStubPattern: "^the .* release\\.?$",
-    gitlabStubMaxLength: 30,
-    gitlabNewsFiles: [],
     downloadHostForges: [
         DownloadHostForge(downloadPrefix: "downloads.example.org/sources/", forgeHost: "gitlab.example.org", owner: "GNOME"),
         DownloadHostForge(downloadPrefix: "downloads.nowhere.example/sources/", forgeHost: "svn.example.org", owner: "GNOME"),
-    ],
-    firefoxNotesURLTemplate: "",
-    ffmpegChangelogURLTemplate: "",
-    dotnetReleasesURLTemplate: "",
-    dotnetNotableChangesHeading: "",
-    nssNotesURLTemplate: "",
-    windowsAppURL: URL(string: "https://example.test/windows-app")!,
-    claudeDesktopChangelogURL: URL(string: "https://example.test/claude")!,
-    obsidianRepo: "",
-    androidStudioFeedURL: URL(string: "https://example.test/android-studio")!
+    ]
 )
 
 private func package(_ name: String, stableURL: String? = nil, homepage: String? = nil, headURL: String? = nil) -> OutdatedPackageInfo {
