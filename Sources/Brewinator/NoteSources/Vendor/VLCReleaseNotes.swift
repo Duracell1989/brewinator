@@ -13,9 +13,15 @@ import Foundation
 /// start coming back as challenge pages, which makes it unfit for a source
 /// that runs unattended every day. www.videolan.org is not gated.
 ///
-/// A non-200 stays **transient**: VideoLAN publishes the release page with the
-/// build, but a mirror serving it late should cost a retry, not a permanent
-/// stub in the archive.
+/// A **404 is permanent, not transient** - the opposite of `FirefoxReleaseNotes`,
+/// and the distinction matters. VideoLAN publishes a page per *release*, and its
+/// four-component point releases never get one: `3.0.17.3`, `3.0.17.4` and
+/// `3.0.11.1` are all 404 today while `3.0.16` and `3.0.18` are 200. A version
+/// like that is missing a page as a permanent property, so retrying it means
+/// re-fetching the same 404 on every daily run and never archiving anything -
+/// strictly worse than the "No forge repo detected" placeholder it replaced,
+/// which at least archived once and stopped. Every other non-200 stays
+/// transient, since a mirror serving a real page late should cost a retry.
 struct VLCReleaseNotes: NoteSource {
     private let httpFetcher: HTTPFetching
     private let database: ResolutionDatabase
@@ -25,8 +31,12 @@ struct VLCReleaseNotes: NoteSource {
         self.database = database
     }
 
+    /// Casks only. `vlc` is a cask here, and a formula that happened to share
+    /// the name would otherwise be sent to a videolan.org URL built from its
+    /// own version - the first claimant takes the whole result, so it would
+    /// never reach its real notes.
     func canHandle(_ package: OutdatedPackageInfo) -> Bool {
-        package.name == "vlc"
+        package.name == "vlc" && package.kind == .cask
     }
 
     func fetch(_ package: OutdatedPackageInfo) async -> Result<ReleaseNotes, FetchError> {
@@ -41,8 +51,20 @@ struct VLCReleaseNotes: NoteSource {
         } catch {
             return .failure(.transient(reason: "\(package.name): \(error)"))
         }
-        guard status == 200, let html = String(data: data, encoding: .utf8), !html.isEmpty else {
+        if status == 404 {
+            return .success(ReleaseNotes(markdown: "_VideoLAN published no release page for this version — \(url.absoluteString)_\n\n"))
+        }
+        guard status == 200 else {
             return .failure(.transient(reason: "\(package.name): HTTP \(status)"))
+        }
+        // Named separately from the status: an undecodable or empty body is not
+        // an HTTP failure, and reporting it as "HTTP 200" hides the real cause
+        // in the one line a failed fetch ever surfaces.
+        guard let html = String(data: data, encoding: .utf8) else {
+            return .failure(.transient(reason: "\(package.name): release notes page is not valid UTF-8"))
+        }
+        guard !html.isEmpty else {
+            return .failure(.transient(reason: "\(package.name): release notes page was empty"))
         }
 
         let block = Self.extractReleaseBlock(from: html)
@@ -80,10 +102,18 @@ struct VLCReleaseNotes: NoteSource {
         for line in html.components(separatedBy: "\n") {
             if let heading = headingText(in: line) {
                 if capturing { break }
-                if line.contains("bigtitle") || heading.isEmpty { continue }
+                if line.lowercased().contains("bigtitle") { continue }
                 capturing = true
-                output.append("### \(heading)")
-                output.append("")
+                // An empty heading means the `<h1>` opened here but its text is
+                // on a later line. Start capturing anyway rather than skipping:
+                // skipping would hand the block to the next `<h1>`, which is the
+                // evergreen "3.0 Highlights" marketing section - archived once as
+                // that version's release notes and never revisited, since a
+                // non-empty result is a success.
+                if !heading.isEmpty {
+                    output.append("### \(heading)")
+                    output.append("")
+                }
                 continue
             }
             guard capturing else { continue }
@@ -96,11 +126,31 @@ struct VLCReleaseNotes: NoteSource {
         return output.joined(separator: "\n")
     }
 
-    /// The text of an `<h1>` opened and closed on one line, or nil when the
-    /// line opens no heading.
+    /// The text between an `<h1 ...>` and its `</h1>` when both sit on this
+    /// line, an empty string when the line opens an `<h1>` whose text or
+    /// closing tag is elsewhere, and nil when the line opens no heading.
+    ///
+    /// Matched case-insensitively and allowing a tab after the tag name, the
+    /// way `HTMLTextReducer.containsOpen` already does - the two halves of the
+    /// same parsing job should not disagree about what opens a tag. Reading
+    /// only the element's own text, rather than stripping the whole line, keeps
+    /// a sibling on the same line (`<h1>3.0.25</h1> released 2026-10-01`) out
+    /// of the heading. Every index comes from `line` itself: lowercasing can
+    /// change a string's length, so indices taken from a lowercased copy are
+    /// not safe to use against the original.
     private static func headingText(in line: String) -> String? {
-        guard line.contains("<h1>") || line.contains("<h1 ") else { return nil }
-        let stripped = line.replacingOccurrences(of: "<[^>]*>", with: "", options: .regularExpression)
+        let openings = ["<h1>", "<h1 ", "<h1\t"]
+        let found = openings.compactMap { line.range(of: $0, options: .caseInsensitive) }
+        guard let open = found.min(by: { $0.lowerBound < $1.lowerBound }) else { return nil }
+        guard let tagEnd = line[open.lowerBound...].firstIndex(of: ">") else { return "" }
+
+        let contentStart = line.index(after: tagEnd)
+        guard let close = line.range(of: "</h1>", options: .caseInsensitive, range: contentStart..<line.endIndex) else {
+            return ""
+        }
+
+        let inner = String(line[contentStart..<close.lowerBound])
+        let stripped = inner.replacingOccurrences(of: "<[^>]*>", with: "", options: .regularExpression)
         return stripped.trimmingCharacters(in: .whitespaces)
     }
 }
