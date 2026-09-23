@@ -18,19 +18,24 @@ struct FirefoxReleaseNotes: NoteSource {
     }
 
     func fetch(_ package: OutdatedPackageInfo) async -> Result<ReleaseNotes, FetchError> {
-        guard let url = URL(string: database.firefoxNotesURLTemplate.replacingOccurrences(of: "%s", with: package.cleanCurrentVersion)) else {
-            return .failure(.transient(reason: "\(package.name): invalid release notes URL"))
-        }
+        let outcome = await VersionedNotesPage.fetch(
+            template: database.firefoxNotesURLTemplate,
+            versionSlug: package.cleanCurrentVersion,
+            packageName: package.name,
+            notFound: .transient,
+            httpFetcher: httpFetcher
+        )
 
-        let data: Data
-        let status: Int
-        do {
-            (data, status) = try await httpFetcher.fetch(url)
-        } catch {
-            return .failure(.transient(reason: "\(package.name): \(error)"))
-        }
-        guard status == 200, let html = String(data: data, encoding: .utf8), !html.isEmpty else {
-            return .failure(.transient(reason: "\(package.name): HTTP \(status)"))
+        let html: String
+        let url: URL
+        switch outcome {
+        case .failure(let error):
+            return .failure(error)
+        case .stub(let notes):
+            return .success(notes)
+        case .page(let pageHTML, let pageURL):
+            html = pageHTML
+            url = pageURL
         }
 
         let notes = Self.extractNoteBlocks(from: html)
@@ -72,7 +77,7 @@ struct FirefoxReleaseNotes: NoteSource {
                 if skipped > 10 {
                     pending = false
                 } else {
-                    let stripped = stripTags(line).trimmingCharacters(in: .whitespaces)
+                    let stripped = HTMLTextReducer.removingTags(line).trimmingCharacters(in: .whitespaces)
                     if !stripped.isEmpty {
                         output.append("")
                         output.append("### \(stripped)")
@@ -98,9 +103,5 @@ struct FirefoxReleaseNotes: NoteSource {
         }
 
         return output.joined(separator: "\n")
-    }
-
-    private static func stripTags(_ line: String) -> String {
-        line.replacingOccurrences(of: "<[^>]*>", with: "", options: .regularExpression)
     }
 }
