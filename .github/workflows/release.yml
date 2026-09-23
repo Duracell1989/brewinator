@@ -112,42 +112,70 @@ jobs:
         if: always()
         run: security delete-keychain build.keychain || true
 
-      # Passing the zip as a positional argument to `gh release create`
-      # published v0.12.0 twice with no asset at all: it printed the release
-      # URL, exited 0, and attached nothing. The same workflow file had
-      # attached the zip for v0.11.0 five days earlier and nothing here
-      # changed in between, so the cause is the runner's `gh` or the API
-      # rather than this repo - which is the argument for not relying on that
-      # one call to do both jobs. The upload is its own step, and the step
-      # after it is the gate.
-      - name: Create the GitHub release
+      # The release is created as a draft and published only once the asset is
+      # verified, because `gh release create` given the file as an argument
+      # already did exactly that - created a draft, uploaded, then published -
+      # and doing the upload separately gives that atomicity up. Without the
+      # draft the tag is public and asset-less for the length of the upload, and
+      # a failed upload strands an empty *published* release that the next
+      # attempt cannot recreate.
+      #
+      # Creating only when absent is what makes a re-run work at all: every step
+      # here is idempotent, so a job that dies after the release exists can
+      # simply be re-run.
+      - name: Create the GitHub release as a draft
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            --title "$GITHUB_REF_NAME" \
-            --notes-file release-notes.md \
-            --generate-notes
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release $GITHUB_REF_NAME already exists; reusing it."
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              --draft \
+              --title "$GITHUB_REF_NAME" \
+              --notes-file release-notes.md \
+              --generate-notes
+          fi
 
       - name: Upload BrewinatorNotify.zip
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload "$GITHUB_REF_NAME" BrewinatorNotify.zip --clobber
 
-      # `gh` exiting 0 is not evidence the asset landed - that is the whole
-      # reason this step exists. A release that ships without the zip leaves
-      # `brew install duracell1989/tap/brewinator-notifier` broken for
-      # everyone, so it has to fail the build rather than pass quietly.
-      - name: Verify the release carries the notifier zip
+      # Deliberately not a check on the API's `assets` array: that array read
+      # empty for v0.12.0 and v0.12.1 while the files downloaded fine, which is
+      # what caused a needless 0.12.1 release, so gating on it would trade a
+      # missing asset for a false alarm. Downloading the asset back and
+      # comparing checksums proves the bytes survived the round trip, which a
+      # name match cannot - a truncated or zero-byte upload still has the right
+      # name, and would fail for users as a sha256 mismatch in the cask.
+      - name: Verify the uploaded zip matches the one that was built
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          names="$(gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets[].name')"
-          echo "$names"
-          case "$names" in
-            *BrewinatorNotify.zip*) ;;
-            *)
-              echo "Release $GITHUB_REF_NAME has no BrewinatorNotify.zip asset."
-              exit 1
-              ;;
-          esac
+          rm -rf verify && mkdir verify
+          gh release download "$GITHUB_REF_NAME" --pattern BrewinatorNotify.zip --dir verify
+          built="$(shasum -a 256 BrewinatorNotify.zip | cut -d" " -f1)"
+          fetched="$(shasum -a 256 verify/BrewinatorNotify.zip | cut -d" " -f1)"
+          echo "built:   $built"
+          echo "fetched: $fetched"
+          if [ "$built" != "$fetched" ]; then
+            echo "The uploaded asset does not match the built zip."
+            exit 1
+          fi
+          rm -rf verify
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "$GITHUB_REF_NAME" --draft=false
+
+      # The URL the cask actually resolves. A draft's asset is not served here
+      # at all, so this can only run after publishing - it is the last gate, not
+      # the one that protects the draft.
+      - name: Verify the published download URL serves the zip
+        run: |
+          url="https://github.com/$GITHUB_REPOSITORY/releases/download/$GITHUB_REF_NAME/BrewinatorNotify.zip"
+          status="$(curl -sL -o /dev/null -w "%{http_code}" "$url")"
+          echo "$url -> $status"
+          [ "$status" = "200" ]

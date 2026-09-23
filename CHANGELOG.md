@@ -18,6 +18,9 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ### Changed
 
+- The release is created as a **draft** and published only after its asset is verified. Passing the zip to `gh release create` as an argument already did that internally - draft, upload, publish - so splitting the upload out in 0.12.1 quietly gave up the atomicity: the tag went public and asset-less for the length of the upload, and a failed upload would strand an empty *published* release that the next attempt could not recreate. Creating only when the release is absent makes every step idempotent, so a job that dies partway can simply be re-run.
+- The gate no longer reads the API's `assets` array. That array read empty for v0.12.0 and v0.12.1 while both files downloaded fine, which is what prompted a needless 0.12.1 in the first place, so gating on it trades a missing asset for a false alarm on a good release. The asset is downloaded back and checksummed against the zip that was built - which a name match cannot do, since a truncated or zero-byte upload keeps the right name and fails for users as a sha256 mismatch in the cask. A final step confirms the published download URL, the one the cask resolves, actually serves the file.
+- The comment in `release.yml` no longer repeats the claim 0.12.1 retracted. It described v0.12.0 as having published twice with no asset, which is not what happened.
 - README's list of bespoke vendor sources is current again; VLC, NSS and the GNU patch sources were all missing.
 
 ## [0.12.1] - 2026-09-23
