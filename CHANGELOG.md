@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [0.12.0] - 2026-09-23
+
+### Added
+
+- Release notes for `vlc`, read from the per-version page on www.videolan.org. The cask names `get.videolan.org` and a marketing homepage, and casks carry no `head do`, so all three URL scans missed and every upgrade reported "No forge repo detected". Adding `code.videolan.org` as a forge host would not have fixed it: the releases API returns `[]` for `videolan/vlc`, so that path could only ever report "No releases published" - the same trade as poppler and the GnuPG mirrors. The in-tree `NEWS` file is no escape either, because it lives on the same host, and that host sits behind an Anubis proof-of-work wall: raw fetches succeed a handful of times and then start returning challenge pages, which is the Savannah problem again and disqualifies it for a source that runs unattended every day. www.videolan.org is not gated and publishes a hand-written block per release.
+- The release block is located by position - the first `<h1>` below the banner, through to the `<h1>` that opens the next section - rather than by its wording. The heading is not stable: 3.0.24 calls it "3.0.24 Highlights", 3.0.23 calls the same block "3.0.22/3.0.23 Fixes", and the 3.0.21 page never updated its heading past "3.0.19/3.0.20 Fixes". Matching "<version> Highlights" would have missed three of those four pages. The heading is emitted verbatim, so a stale upstream one is visible in the archive instead of being silently relabelled.
+- The evergreen "3.0 Highlights" and "3.0 Features" sections, identical on every release page, stop the capture instead of padding every note with the same marketing copy.
+- A non-200 stays transient rather than archiving a stub, since `BrewNotesSync` writes an archive file once and never revisits that version - a page served late by a mirror should cost a retry, not a permanent placeholder.
+
 ## [0.11.0] - 2026-09-17
 
 ### Added
@@ -170,6 +179,7 @@ Acts on a full review of everything released so far. Several of these are user-f
 
 Initial release: a Swift rewrite of the original `brew-notes.zsh`, distributed through `duracell1989/tap`.
 
+[0.12.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.12.0
 [0.11.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.11.0
 [0.10.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.10.0
 [0.9.2]: https://github.com/Duracell1989/brewinator/releases/tag/v0.9.2

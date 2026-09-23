@@ -46,6 +46,8 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
 
     /// %s = exact target version.
     let firefoxNotesURLTemplate: String
+    /// %s = exact target version.
+    let vlcNotesURLTemplate: String
     /// %s = git ref (`release/<major.minor>` or `master`).
     let ffmpegChangelogURLTemplate: String
     /// %s = channel (major.minor).
@@ -169,6 +171,14 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
             DownloadHostForge(downloadPrefix: "download.gnome.org/sources/", forgeHost: "gitlab.gnome.org", owner: "GNOME")
         ],
         firefoxNotesURLTemplate: "https://www.firefox.com/en-US/firefox/%s/releasenotes/",
+        // The cask names get.videolan.org and a marketing homepage, and casks
+        // carry no head URL, so nothing on it points at a forge. Adding
+        // code.videolan.org as a forge host would not have helped: its
+        // releases API returns `[]` for videolan/vlc, and the host is behind an
+        // Anubis proof-of-work wall that turns repeated raw fetches into
+        // challenge pages - see `VLCReleaseNotes`. www.videolan.org publishes a
+        // per-version page instead, and is not gated.
+        vlcNotesURLTemplate: "https://www.videolan.org/vlc/releases/%s.html",
         ffmpegChangelogURLTemplate: "https://raw.githubusercontent.com/FFmpeg/FFmpeg/%s/Changelog",
         dotnetReleasesURLTemplate: "https://builds.dotnet.microsoft.com/dotnet/release-metadata/%s/releases.json",
         dotnetNotableChangesHeading: "### Notable Changes",
