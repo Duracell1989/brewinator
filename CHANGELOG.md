@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [0.12.2] - 2026-09-23
+
+### Fixed
+
+- A 404 from videolan.org is now archived once instead of retried forever. VideoLAN publishes a page per *release*, and its four-component point releases never get one - `3.0.17.3`, `3.0.17.4` and `3.0.11.1` all 404 today while `3.0.16` and `3.0.18` are 200. Treating that as transient, copied from `FirefoxReleaseNotes` where a late-published page is a real possibility, meant a bump to such a version would re-fetch the same 404 on every daily run and never write an archive file - strictly worse than the "No forge repo detected" placeholder it replaced, which at least archived once and stopped. Every other non-200 stays transient.
+- `VLCReleaseNotes` claims casks only. A formula sharing the name would otherwise be sent to a videolan.org URL built from its own version and never reach its real notes, since the first claimant takes the whole result. The test asserting this had named the guarantee without exercising it.
+- An `<h1>` whose text sits on a following line no longer hands the block to the next heading. It used to be skipped as an empty heading, which started capture at the evergreen "3.0 Highlights" marketing section instead - archived as that version's release notes, once and permanently, with no warn line, because a non-empty result is a success.
+- Heading detection is case-insensitive and accepts a tab after the tag name, matching what `HTMLTextReducer.containsOpen` already does, and reads only the `<h1>` element's own text so a sibling on the same line stays out of the heading.
+- A 200 response with an undecodable or empty body no longer reports itself as "HTTP 200" - that line is the only surface a failed fetch gets, and naming the status as the cause hid the real one.
+
+### Changed
+
+- README's list of bespoke vendor sources is current again; VLC, NSS and the GNU patch sources were all missing.
+
 ## [0.12.1] - 2026-09-23
 
 ### Changed
@@ -188,6 +202,7 @@ Acts on a full review of everything released so far. Several of these are user-f
 
 Initial release: a Swift rewrite of the original `brew-notes.zsh`, distributed through `duracell1989/tap`.
 
+[0.12.2]: https://github.com/Duracell1989/brewinator/releases/tag/v0.12.2
 [0.12.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.12.1
 [0.12.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.12.0
 [0.11.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.11.0

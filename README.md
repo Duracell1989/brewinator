@@ -6,7 +6,7 @@ Fetches and archives release notes for outdated Homebrew packages, so you never 
 
 [![CI](https://github.com/Duracell1989/brewinator/actions/workflows/ci.yml/badge.svg)](https://github.com/Duracell1989/brewinator/actions/workflows/ci.yml)
 
-Brewinator checks `brew outdated` against a curated, in-repo database of where release notes actually live for popular Homebrew formulae and casks - GitHub/GitLab/Gitea releases, Sparkle appcasts, JetBrains, and a handful of bespoke vendor sources (Firefox, ffmpeg, .NET SDK, Claude Desktop, Obsidian, Windows App, Android Studio) - then archives each package's notes as one Markdown file. Designed to run unattended once a day via `launchd`.
+Brewinator checks `brew outdated` against a curated, in-repo database of where release notes actually live for popular Homebrew formulae and casks - GitHub/GitLab/Gitea releases, Sparkle appcasts, JetBrains, and a handful of bespoke vendor sources (Firefox, VLC, ffmpeg, .NET SDK, NSS, Claude Desktop, Obsidian, Windows App, Android Studio, and the GNU patch reports behind `bash`/`readline`) - then archives each package's notes as one Markdown file. Designed to run unattended once a day via `launchd`.
 
 ---
 
