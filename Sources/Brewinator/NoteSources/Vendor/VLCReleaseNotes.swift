@@ -40,31 +40,24 @@ struct VLCReleaseNotes: NoteSource {
     }
 
     func fetch(_ package: OutdatedPackageInfo) async -> Result<ReleaseNotes, FetchError> {
-        guard let url = URL(string: database.vlcNotesURLTemplate.replacingOccurrences(of: "%s", with: package.cleanCurrentVersion)) else {
-            return .failure(.transient(reason: "\(package.name): invalid release notes URL"))
-        }
+        let outcome = await VersionedNotesPage.fetch(
+            template: database.vlcNotesURLTemplate,
+            versionSlug: package.cleanCurrentVersion,
+            packageName: package.name,
+            notFound: .cacheableStub("VideoLAN published no release page for this version"),
+            httpFetcher: httpFetcher
+        )
 
-        let data: Data
-        let status: Int
-        do {
-            (data, status) = try await httpFetcher.fetch(url)
-        } catch {
-            return .failure(.transient(reason: "\(package.name): \(error)"))
-        }
-        if status == 404 {
-            return .success(ReleaseNotes(markdown: "_VideoLAN published no release page for this version — \(url.absoluteString)_\n\n"))
-        }
-        guard status == 200 else {
-            return .failure(.transient(reason: "\(package.name): HTTP \(status)"))
-        }
-        // Named separately from the status: an undecodable or empty body is not
-        // an HTTP failure, and reporting it as "HTTP 200" hides the real cause
-        // in the one line a failed fetch ever surfaces.
-        guard let html = String(data: data, encoding: .utf8) else {
-            return .failure(.transient(reason: "\(package.name): release notes page is not valid UTF-8"))
-        }
-        guard !html.isEmpty else {
-            return .failure(.transient(reason: "\(package.name): release notes page was empty"))
+        let html: String
+        let url: URL
+        switch outcome {
+        case .failure(let error):
+            return .failure(error)
+        case .stub(let notes):
+            return .success(notes)
+        case .page(let pageHTML, let pageURL):
+            html = pageHTML
+            url = pageURL
         }
 
         let block = Self.extractReleaseBlock(from: html)
@@ -150,7 +143,7 @@ struct VLCReleaseNotes: NoteSource {
         }
 
         let inner = String(line[contentStart..<close.lowerBound])
-        let stripped = inner.replacingOccurrences(of: "<[^>]*>", with: "", options: .regularExpression)
+        let stripped = HTMLTextReducer.removingTags(inner)
         return stripped.trimmingCharacters(in: .whitespaces)
     }
 }

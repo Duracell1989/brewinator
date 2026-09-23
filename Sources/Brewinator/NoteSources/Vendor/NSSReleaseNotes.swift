@@ -21,20 +21,24 @@ struct NSSReleaseNotes: NoteSource {
     }
 
     func fetch(_ package: OutdatedPackageInfo) async -> Result<ReleaseNotes, FetchError> {
-        let slug = package.cleanCurrentVersion.replacingOccurrences(of: ".", with: "_")
-        guard let url = URL(string: database.nssNotesURLTemplate.replacingOccurrences(of: "%s", with: slug)) else {
-            return .failure(.transient(reason: "\(package.name): invalid release notes URL"))
-        }
+        let outcome = await VersionedNotesPage.fetch(
+            template: database.nssNotesURLTemplate,
+            versionSlug: package.cleanCurrentVersion.replacingOccurrences(of: ".", with: "_"),
+            packageName: package.name,
+            notFound: .transient,
+            httpFetcher: httpFetcher
+        )
 
-        let data: Data
-        let status: Int
-        do {
-            (data, status) = try await httpFetcher.fetch(url)
-        } catch {
-            return .failure(.transient(reason: "\(package.name): \(error)"))
-        }
-        guard status == 200, let html = String(data: data, encoding: .utf8), !html.isEmpty else {
-            return .failure(.transient(reason: "\(package.name): HTTP \(status)"))
+        let html: String
+        let url: URL
+        switch outcome {
+        case .failure(let error):
+            return .failure(error)
+        case .stub(let notes):
+            return .success(notes)
+        case .page(let pageHTML, let pageURL):
+            html = pageHTML
+            url = pageURL
         }
 
         let changes = Self.extractSection(heading: "<h2>Changes in NSS", from: html)

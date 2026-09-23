@@ -87,6 +87,16 @@ enum HTMLTextReducer {
         return lower.contains("<\(tag)>") || lower.contains("<\(tag) ") || lower.contains("<\(tag)\t")
     }
 
+    /// A plain tag strip, with none of `reduce`'s block handling or entity
+    /// decoding - for callers that need the text out of a single element, such
+    /// as a heading line. Kept here rather than copied per vendor source: the
+    /// same one-liner had been written out three times, and `reduce`'s own
+    /// version below had already drifted to `<[^>]+>`, which leaves an empty
+    /// `<>` in place where these callers strip it.
+    static func removingTags(_ text: String) -> String {
+        replace(text, pattern: "<[^>]*>", with: "")
+    }
+
     private static func stripTags(_ line: String) -> String {
         var result = line
         result = replace(result, pattern: "<li>|<li [^>]*>", with: "- ", caseInsensitive: true)
