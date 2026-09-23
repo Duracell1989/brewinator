@@ -8,10 +8,12 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ## [0.12.1] - 2026-09-23
 
-### Fixed
+### Changed
 
-- The release workflow no longer publishes a release without the notifier zip. `gh release create` was handed `BrewinatorNotify.zip` as a positional argument, and for v0.12.0 it printed the release URL, exited 0 and attached nothing - twice, on a re-run of the same job. Notarization had genuinely run both times, so the file was there; the workflow file is byte-identical to the one that attached the zip for v0.11.0 five days earlier, which puts the cause in the runner's `gh` or the API rather than in this repo. The upload is now a separate `gh release upload --clobber` step, and a step after it re-reads the release and fails the build unless the asset is actually listed - `gh` reporting success is not evidence the asset landed. A release missing that zip leaves `brew install duracell1989/tap/brewinator-notifier` broken for everyone, so it must fail loudly instead of quietly.
-- No behaviour change in `brewinator` itself; v0.12.1 exists only to get a tag onto a commit that carries the workflow fix, since a tag-triggered run uses the workflow file at the tagged commit.
+- `BrewinatorNotify.zip` is uploaded in its own `gh release upload --clobber` step, and a step after it re-reads the release and fails the build unless the asset is listed. It used to be a positional argument to `gh release create`, which creates and uploads in one call and reports success either way. A release missing that zip leaves `brew install duracell1989/tap/brewinator-notifier` broken for everyone, so it is worth a step that can say so out loud.
+- No behaviour change in `brewinator` itself.
+
+**Correction.** This version was cut in the belief that v0.12.0 had published with no asset at all. It had not: `v0.12.0/BrewinatorNotify.zip` downloads correctly, as does v0.12.1's, and each tag serves its own distinct file. What misled the release was the GitHub API's `assets` array, which reads empty for both v0.12.0 and v0.12.1 while the download endpoint serves the real file and the runner's own `gh release view` lists it by name - v0.11.0 on the identical call reports its asset fine. The empty listing was the fault, not the release. The upload split above is kept as a guard; it fixes no failure that actually occurred, and v0.12.0 was never broken.
 
 ## [0.12.0] - 2026-09-23
 
