@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [0.12.1] - 2026-09-23
+
+### Fixed
+
+- The release workflow no longer publishes a release without the notifier zip. `gh release create` was handed `BrewinatorNotify.zip` as a positional argument, and for v0.12.0 it printed the release URL, exited 0 and attached nothing - twice, on a re-run of the same job. Notarization had genuinely run both times, so the file was there; the workflow file is byte-identical to the one that attached the zip for v0.11.0 five days earlier, which puts the cause in the runner's `gh` or the API rather than in this repo. The upload is now a separate `gh release upload --clobber` step, and a step after it re-reads the release and fails the build unless the asset is actually listed - `gh` reporting success is not evidence the asset landed. A release missing that zip leaves `brew install duracell1989/tap/brewinator-notifier` broken for everyone, so it must fail loudly instead of quietly.
+- No behaviour change in `brewinator` itself; v0.12.1 exists only to get a tag onto a commit that carries the workflow fix, since a tag-triggered run uses the workflow file at the tagged commit.
+
 ## [0.12.0] - 2026-09-23
 
 ### Added
@@ -179,6 +186,7 @@ Acts on a full review of everything released so far. Several of these are user-f
 
 Initial release: a Swift rewrite of the original `brew-notes.zsh`, distributed through `duracell1989/tap`.
 
+[0.12.1]: https://github.com/Duracell1989/brewinator/releases/tag/v0.12.1
 [0.12.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.12.0
 [0.11.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.11.0
 [0.10.0]: https://github.com/Duracell1989/brewinator/releases/tag/v0.10.0
