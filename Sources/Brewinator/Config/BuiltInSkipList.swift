@@ -6,11 +6,15 @@ enum BuiltInSkipList {
     /// locally - a fix has to ship in a release.
     static let issuesURL = "https://github.com/Duracell1989/brewinator/issues"
 
+    /// - `ca-certificates`: a dated regeneration of Mozilla's certdata.txt by a
+    ///   cron on curl.se, not a release - its homepage lists only date, SHA256
+    ///   and certificate count per bundle (checked 2026-09-25).
     /// - `spotify`: desktop release notes stopped in 2015.
     /// - `discord`: no structured per-version changelog exists (checked 2026-08-04).
     /// - `whatsapp`: vendor publishes nothing per version.
     /// - Microsoft Office casks: "what's new" pages don't map to cask versions.
     static let patterns: [String] = [
+        "ca-certificates",
         "discord",
         "microsoft-excel",
         "microsoft-onenote",

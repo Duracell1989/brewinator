@@ -33,6 +33,7 @@ struct BuiltInSkipListTests {
 
         #expect(config.isSkipped("spotify"))
         #expect(config.isSkipped("discord"))
+        #expect(config.isSkipped("ca-certificates"))
         #expect(config.isSkipped("microsoft-word"))
     }
 
