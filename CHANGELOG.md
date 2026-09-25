@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [0.12.3] - 2026-09-25
+
+### Changed
+
+- `ca-certificates` joins the built-in skip list. It is not a release: curl.se regenerates the PEM bundle from Mozilla's `certdata.txt` on a cron and names the file after the day it ran, which Homebrew takes as the version, so no release object exists behind any bump. Forge resolution failing was a symptom rather than the cause - pointing it at `curl/curl` would surface curl's own releases, and the homepage the formula names carries only a date, SHA256 and certificate count per bundle, with no prose to extract. Diagnosed on the 2026-08-13 -> 2026-09-25 bump, whose two bundles are byte-identical apart from the extraction timestamp and the `certdata.txt` hash in the header comment: same 121 certificates, same bytes. What a reader would actually want from a trust-store bump is which anchors moved, and that is a diff of two bundles rather than a document to fetch - out of scope for a note source.
+
 ## [0.12.2] - 2026-09-23
 
 ### Fixed
