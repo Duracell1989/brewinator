@@ -1,0 +1,100 @@
+{
+  "commits": [
+    {
+      "id": "79cf697ad7f49c458ecff5b7f7a30b374af3a1b3",
+      "short_id": "79cf697a",
+      "title": "gitlab CI: drop the ci-fairy check-mr job",
+      "message": "gitlab CI: drop the ci-fairy check-mr job\n\nThe only thing this checked was the checkbox for allowing maintainers to\nedit the MR. Changed permissions checks now fail this job but luckily\nthe setting it checked has been the default for years anyway so we can\ndrop it.\n\nhttps://gitlab.freedesktop.org/freedesktop/ci-templates/-/issues/81\n\nSigned-off-by: Alan Coopersmith <alan.coopersmith@oracle.com>\nPart-of: <https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/merge_requests/108>\n",
+      "author_name": "Alan Coopersmith",
+      "created_at": "2026-01-11T11:20:41.000-08:00"
+    },
+    {
+      "id": "cc9ce4a0cc3c99488d26b77a4f27192b0663cafa",
+      "short_id": "cc9ce4a0",
+      "title": "Randr: RRGetOutputPrimary: add missing padding to reply",
+      "message": "Randr: RRGetOutputPrimary: add missing padding to reply\n\nThe reply is 28 bytes but is expected to be at least 32 bytes\nso one extra pad item is needed.\npad5 follows the same format as in include/X11/extensions/randrproto.h\nxRRGetOutputPrimaryReply, so the issue is only in the protocol\ndocumentation.\n\nSigned-off-by: dec05eba <dec05eba@protonmail.com>\nPart-of: <https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/merge_requests/107>\n",
+      "author_name": "dec05eba",
+      "created_at": "2026-01-17T10:08:31.000-08:00"
+    },
+    {
+      "id": "2e582f23e85e3ebf793d62fb2e5862ff9d9a2917",
+      "short_id": "2e582f23",
+      "title": "keysyms: Added Unicode annotations for phone numeric keys",
+      "message": "keysyms: Added Unicode annotations for phone numeric keys\n\nAlso update the Python script to handle evdev keys with a Unicode\nannotation.\n\nPart-of: <https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/merge_requests/109>\n",
+      "author_name": "Pierre Le Marre",
+      "created_at": "2026-03-01T09:06:24.000+01:00"
+    },
+    {
+      "id": "a0e67bb76fedb66f8f68d2634f37046e97002363",
+      "short_id": "a0e67bb7",
+      "title": "keysyms: Add keys from kernel 6.18",
+      "message": "keysyms: Add keys from kernel 6.18\n\nPart-of: <https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/merge_requests/109>\n",
+      "author_name": "Pierre Le Marre",
+      "created_at": "2026-03-01T09:07:53.000+01:00"
+    },
+    {
+      "id": "9f7bc644dac33cb13ee5cb73148b89878c2e6c5b",
+      "short_id": "9f7bc644",
+      "title": "keysyms: Promote ISO_Group_Shift to canonical name",
+      "message": "keysyms: Promote ISO_Group_Shift to canonical name\n\nBefore this commit, `Mode_switch` was the canonical name and\n`ISO_Group_Shift` a mere alias.\n\nBut `Mode_switch` is a legacy keysym from the *core* X protocol and\nits name refers to a group mechanism now obsoleted by XKB.\n\nFurthermore, `Mode_switch` does not have variants for latch and\nlock actions, contrary to `ISO_Group_Shift`.\n\nTherefore promote `ISO_Group_Shift` as the canonical name.\n\nSigned-off-by: Pierre Le Marre <de@wismill.eu>\nPart-of: <https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/merge_requests/110>\n",
+      "author_name": "Pierre Le Marre",
+      "created_at": "2026-03-03T12:32:59.000+01:00"
+    },
+    {
+      "id": "a4c2d1a8185f7b4626eca9a19047c6710c55979f",
+      "short_id": "a4c2d1a8",
+      "title": "keysysm: Added SSHARP",
+      "message": "keysysm: Added SSHARP\n\nIn Germany “ẞ” is the official upper case of “ß” when using all-caps.\nTherefore its keysym deserves a proper symbolic name.\n\nSigned-off-by: Pierre Le Marre <de@wismill.eu>\nPart-of: <https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/merge_requests/110>\n",
+      "author_name": "Pierre Le Marre",
+      "created_at": "2026-03-03T12:33:35.000+01:00"
+    },
+    {
+      "id": "2802143b782af17646c6c145fcfdc67307d24662",
+      "short_id": "2802143b",
+      "title": "keysyms: Added dead_apostrophe",
+      "message": "keysyms: Added dead_apostrophe\n\nAimed to substitute `dead_acute` in situations where\n`dead_acute + consonant` is expected to produce `’ + consonant`.\n\nSigned-off-by: Pierre Le Marre <de@wismill.eu>\nPart-of: <https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/merge_requests/110>\n",
+      "author_name": "Pierre Le Marre",
+      "created_at": "2026-03-03T12:43:36.000+01:00"
+    },
+    {
+      "id": "04482cdee458445eab7c6a0b6d4ea64b74387401",
+      "short_id": "04482cde",
+      "title": "keysyms: Added single angle quotation marks",
+      "message": "keysyms: Added single angle quotation marks\n\nSingle angle quotation marks ‹ and › are official or permissible\nsecondary quotes in some languages, thus they deserve having symbolic\nnames.\n\nSee: https://en.wikipedia.org/wiki/Quotation_mark#Summary_table\n\nSigned-off-by: Pierre Le Marre <de@wismill.eu>\nPart-of: <https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/merge_requests/110>\n",
+      "author_name": "Pierre Le Marre",
+      "created_at": "2026-03-03T12:50:00.000+01:00"
+    },
+    {
+      "id": "fcb7e9a1a0b593a44740d83b0babddd331fea830",
+      "short_id": "fcb7e9a1",
+      "title": "keysyms: Add keys from kernel 7.0",
+      "message": "keysyms: Add keys from kernel 7.0\n\nPart-of: <https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/merge_requests/112>\n",
+      "author_name": "Pierre Le Marre",
+      "created_at": "2026-04-17T09:59:22.000+02:00"
+    },
+    {
+      "id": "fd86fbff46eb7ab8e193c12b8a529e90bae31835",
+      "short_id": "fd86fbff",
+      "title": "Ensure text files end with a newline",
+      "message": "Ensure text files end with a newline\n\nPerformed with:\n    git ls-files | xargs gsed -i -e '$a\\'\n\nSigned-off-by: Alan Coopersmith <alan.coopersmith@oracle.com>\nPart-of: <https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/merge_requests/114>\n",
+      "author_name": "Alan Coopersmith",
+      "created_at": "2026-09-12T17:45:18.000-07:00"
+    },
+    {
+      "id": "73b3be87c08afcd5833572e372d43cc2009035db",
+      "short_id": "73b3be87",
+      "title": "COPYING-xextproto: drop stale NCD notice of removed LBX headers",
+      "message": "COPYING-xextproto: drop stale NCD notice of removed LBX headers\n\nThe LBX headers were removed back in 2009 (commit 57d09e4), but this\nnotice was accidentally left behind. No file in the tree carries this\nnotice anymore, so it no longer describes any code we ship.\n\nPart-of: <https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/merge_requests/115>\n",
+      "author_name": "Jasmine Tang",
+      "created_at": "2026-10-01T13:09:12.000-07:00"
+    },
+    {
+      "id": "6d3907b6d5dc4aa7d7ee6ee5d7d8714e7466630b",
+      "short_id": "6d3907b6",
+      "title": "xorgproto 2026.1",
+      "message": "xorgproto 2026.1\n\nSigned-off-by: Alan Coopersmith <alan.coopersmith@oracle.com>\n",
+      "author_name": "Alan Coopersmith",
+      "created_at": "2026-10-03T10:46:08.000-07:00"
+    }
+  ]
+}

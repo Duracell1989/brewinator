@@ -1,10 +1,10 @@
 import Foundation
 
-/// Reconstructs notes from a GitHub commit log for tag-but-no-release-body
-/// upstreams (see `ResolutionDatabase.tagCompareSpecs`). Prefers the compare
-/// API between the installed and current version tags; falls back to the
-/// recent commit list at the current tag (path-scoped when the spec supplies
-/// one) if the installed tag no longer exists.
+/// Reconstructs notes from a GitHub or GitLab commit log for
+/// tag-but-no-release-body upstreams (see `ResolutionDatabase.tagCompareSpecs`).
+/// Prefers the compare API between the installed and current version tags;
+/// falls back to the recent commit list at the current tag (path-scoped when
+/// the spec supplies one) if the installed tag no longer exists.
 struct TagCompare: NoteSource {
     private let httpFetcher: HTTPFetching
     private let database: ResolutionDatabase
@@ -44,14 +44,12 @@ struct TagCompare: NoteSource {
     private func fetchCommitData(spec: TagCompareSpec, package: OutdatedPackageInfo) async -> RawFetchOutcome {
         let baseTag = spec.tagTemplate.replacingOccurrences(of: "%s", with: package.cleanInstalledVersion)
         let headTag = spec.tagTemplate.replacingOccurrences(of: "%s", with: package.cleanCurrentVersion)
-        // Only '@' needs escaping for a GitHub API path segment here.
-        let encodedBaseTag = baseTag.replacingOccurrences(of: "@", with: "%40")
-        let encodedHeadTag = headTag.replacingOccurrences(of: "@", with: "%40")
+        let endpoints = Endpoints(spec: spec, baseTag: baseTag, headTag: headTag)
 
-        let compareLink = "https://github.com/\(spec.repo)/compare/\(encodedBaseTag)...\(encodedHeadTag)"
-        guard let compareURL = URL(string: "https://api.github.com/repos/\(spec.repo)/compare/\(encodedBaseTag)...\(encodedHeadTag)") else {
+        guard let compareURL = URL(string: endpoints.compareAPI) else {
             return .cacheable(Resolver.noForgeDetected)
         }
+        let compareLink = endpoints.compareLink
 
         let compareData: Data
         let compareStatus: Int
@@ -68,12 +66,8 @@ struct TagCompare: NoteSource {
             return .data(compareData, link: compareLink)
         }
 
-        var fallback = "https://api.github.com/repos/\(spec.repo)/commits?sha=\(encodedHeadTag)&per_page=20"
-        if let subpath = spec.subpath, !subpath.isEmpty {
-            fallback += "&path=\(subpath)"
-        }
-        let commitsLink = "https://github.com/\(spec.repo)/commits/\(encodedHeadTag)"
-        guard let commitsURL = URL(string: fallback) else {
+        let commitsLink = endpoints.commitsLink
+        guard let commitsURL = URL(string: endpoints.commitsAPI) else {
             return .cacheable(Resolver.noForgeDetected)
         }
 
@@ -105,10 +99,10 @@ struct TagCompare: NoteSource {
         let messages: [String]
         let total: Int?
         if let compare = try? JSONDecoder().decode(RawCompareResponse.self, from: data) {
-            messages = compare.commits.map(\.commit.message)
+            messages = compare.commits.map(\.message)
             total = compare.totalCommits
         } else if let commits = try? JSONDecoder().decode([RawCommit].self, from: data) {
-            messages = commits.map(\.commit.message)
+            messages = commits.map(\.message)
             total = nil
         } else {
             return .failure(.transient(reason: "\(spec.repo) tag compare: invalid JSON"))
@@ -128,7 +122,7 @@ struct TagCompare: NoteSource {
             let totalSuffix = total.map { " (\($0) in range, whole repo)" } ?? ""
             markdown += "_Showing 40 of \(subjects.count) commits\(totalSuffix)._\n\n"
         }
-        markdown += "[Full diff on GitHub](\(link))\n\n"
+        markdown += "[Full diff on \(spec.gitlabHost ?? "GitHub")](\(link))\n\n"
         return .success(ReleaseNotes(markdown: markdown))
     }
 
@@ -153,11 +147,65 @@ struct TagCompare: NoteSource {
     }
 }
 
-private struct RawCommit: Decodable {
-    let commit: CommitDetail
+/// The URLs for one spec and tag pair. GitHub and GitLab differ in all six:
+/// GitLab nests the project path as a single percent-encoded segment
+/// (`xorg%2Fproto%2Fxorgproto`, since a group can nest), takes the tags as
+/// query items rather than a `base...head` range, and puts its web UI under
+/// `/-/`.
+private struct Endpoints {
+    let compareAPI: String
+    let compareLink: String
+    let commitsAPI: String
+    let commitsLink: String
 
-    struct CommitDetail: Decodable {
+    init(spec: TagCompareSpec, baseTag: String, headTag: String) {
+        let base = Self.encode(baseTag)
+        let head = Self.encode(headTag)
+        let subpath = spec.subpath.flatMap { $0.isEmpty ? nil : $0 }
+
+        if let host = spec.gitlabHost {
+            let project = spec.repo.replacingOccurrences(of: "/", with: "%2F")
+            let api = "https://\(host)/api/v4/projects/\(project)/repository"
+            compareAPI = "\(api)/compare?from=\(base)&to=\(head)"
+            compareLink = "https://\(host)/\(spec.repo)/-/compare/\(base)...\(head)"
+            commitsAPI = "\(api)/commits?ref_name=\(head)&per_page=20" + (subpath.map { "&path=\($0)" } ?? "")
+            commitsLink = "https://\(host)/\(spec.repo)/-/commits/\(head)"
+        } else {
+            let api = "https://api.github.com/repos/\(spec.repo)"
+            compareAPI = "\(api)/compare/\(base)...\(head)"
+            compareLink = "https://github.com/\(spec.repo)/compare/\(base)...\(head)"
+            commitsAPI = "\(api)/commits?sha=\(head)&per_page=20" + (subpath.map { "&path=\($0)" } ?? "")
+            commitsLink = "https://github.com/\(spec.repo)/commits/\(head)"
+        }
+    }
+
+    /// Only '@' needs escaping for a tag in a path or query here.
+    private static func encode(_ tag: String) -> String {
+        tag.replacingOccurrences(of: "@", with: "%40")
+    }
+}
+
+/// A commit in either forge's shape: GitHub nests the message under `commit`,
+/// GitLab puts it at the top level.
+private struct RawCommit: Decodable {
+    let message: String
+
+    private enum CodingKeys: String, CodingKey {
+        case commit
+        case message
+    }
+
+    private struct Detail: Decodable {
         let message: String
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let detail = try container.decodeIfPresent(Detail.self, forKey: .commit) {
+            message = detail.message
+        } else {
+            message = try container.decode(String.self, forKey: .message)
+        }
     }
 }
 

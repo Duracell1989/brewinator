@@ -16,6 +16,28 @@ private func package(current: String = "0.26.0", installed: String = "0.25.0") -
     OutdatedPackageInfo(name: "bat-notes", installedVersion: installed, currentVersion: current, kind: .formula)
 }
 
+private let gitlabCompareURL = URL(
+    string: "https://gitlab.freedesktop.org/api/v4/projects/xorg%2Fproto%2Fxorgproto/repository/compare?from=xorgproto-2025.1&to=xorgproto-2026.1"
+)!
+private let gitlabCommitsURL = URL(
+    string: "https://gitlab.freedesktop.org/api/v4/projects/xorg%2Fproto%2Fxorgproto/repository/commits?ref_name=xorgproto-2026.1&per_page=20"
+)!
+
+private let gitlabDatabase = ResolutionDatabase.testDefaults.with(
+    tagCompareSpecs: [
+        "xorgproto": TagCompareSpec(
+            repo: "xorg/proto/xorgproto",
+            tagTemplate: "xorgproto-%s",
+            subpath: nil,
+            gitlabHost: "gitlab.freedesktop.org"
+        )
+    ]
+)
+
+private func gitlabPackage() -> OutdatedPackageInfo {
+    OutdatedPackageInfo(name: "xorgproto", installedVersion: "2025.1", currentVersion: "2026.1", kind: .formula)
+}
+
 @Suite("TagCompare")
 struct TagCompareTests {
     @Test("canHandle is true only for a name registered in tagCompareSpecs")
@@ -128,5 +150,68 @@ struct TagCompareTests {
         #expect(!notes.markdown.contains("Merge branch"))
         #expect(!notes.markdown.contains("Bump version"))
         #expect(notes.markdown.components(separatedBy: "Fix crash on empty input").count == 2)
+    }
+
+    @Test("GitLab: nested project path is one percent-encoded segment, fixture decodes, link names the host")
+    func gitlabCompareSucceeds() async throws {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: gitlabCompareURL, data: try Fixture.data("gitlab-compare-sample", extension: "json"), statusCode: 200)
+        let source = TagCompare(httpFetcher: fetcher, database: gitlabDatabase)
+
+        let result = await source.fetch(gitlabPackage())
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("- keysyms: Add keys from kernel 7.0"))
+        #expect(notes.markdown.contains("- Randr: RRGetOutputPrimary: add missing padding to reply"))
+        #expect(
+            notes.markdown.contains(
+                "[Full diff on gitlab.freedesktop.org](https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/compare/xorgproto-2025.1...xorgproto-2026.1)"
+            )
+        )
+    }
+
+    @Test("GitLab: a 404 on compare falls back to ref_name commits, which carry the message at the top level")
+    func gitlabFallsBackToCommits() async throws {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: gitlabCompareURL, data: Data(), statusCode: 404)
+        fetcher.respond(to: gitlabCommitsURL, data: try Fixture.data("gitlab-commits-sample", extension: "json"), statusCode: 200)
+        let source = TagCompare(httpFetcher: fetcher, database: gitlabDatabase)
+
+        let result = await source.fetch(gitlabPackage())
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("- "))
+        #expect(
+            notes.markdown.contains(
+                "[Full diff on gitlab.freedesktop.org](https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/commits/xorgproto-2026.1)"
+            )
+        )
+    }
+
+    @Test("GitLab: a 404 on both is a cacheable no-tag-found message")
+    func gitlabBothNotFoundIsCacheable() async {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: gitlabCompareURL, data: Data(), statusCode: 404)
+        fetcher.respond(to: gitlabCommitsURL, data: Data(), statusCode: 404)
+        let source = TagCompare(httpFetcher: fetcher, database: gitlabDatabase)
+
+        let result = await source.fetch(gitlabPackage())
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("No tag found for 2026.1"))
+    }
+
+    @Test("the production database registers xorgproto against gitlab.freedesktop.org")
+    func liveDatabaseRegistersXorgproto() {
+        let spec = ResolutionDatabase.live.tagCompareSpecs["xorgproto"]
+        #expect(spec?.repo == "xorg/proto/xorgproto")
+        #expect(spec?.gitlabHost == "gitlab.freedesktop.org")
+        #expect(spec?.tagTemplate == "xorgproto-%s")
     }
 }
