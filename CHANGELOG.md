@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [Unreleased]
+
+### Added
+
+- `sqlite` resolves through a new `SQLiteReleaseNotes` source instead of reporting "No forge repo detected". Upstream is Fossil, which `ForgeRepoResolver` does not speak, but sqlite.org publishes one hand-written page per version (`releaselog/3_54_0.html`). The `Hashes:` footer (source ID and SHA3 of `sqlite3.c`) is dropped as build provenance. A 404 stays transient, since Homebrew can bump the formula before the page is up.
+
 ## [0.12.3] - 2026-09-25
 
 ### Changed
