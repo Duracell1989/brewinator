@@ -37,6 +37,8 @@ struct SQLiteReleaseNotesTests {
         #expect(notes.markdown.contains("### SQLite Release 3.54.0 On 2026-10-09"))
         #expect(notes.markdown.contains("diskused()"))
         #expect(notes.markdown.contains("CLI prompt strings may contain"))
+        #expect(notes.markdown.contains("Drop support for WindowsXP"))
+        #expect(notes.markdown.contains("About 4% faster"))
         #expect(!notes.markdown.contains("SQLITE_SOURCE_ID"))
         #expect(!notes.markdown.contains("SHA3-256"))
         #expect(!notes.markdown.contains("toggle_div"))

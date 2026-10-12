@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [Unreleased]
+
+### Changed
+
+- `SQLiteReleaseNotes` caps a note at 150 lines instead of the usual 60. A SQLite release log is one flat list with wrapped, nested items, and 60 cut 3.54.0 off before its Windows and performance entries.
+
 ## [0.13.0] - 2026-10-12
 
 ### Added
