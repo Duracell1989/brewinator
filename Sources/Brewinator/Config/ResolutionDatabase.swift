@@ -10,7 +10,7 @@ struct TagCompareSpec: Sendable, Equatable, Codable {
     let tagTemplate: String
     let subpath: String?
     /// The GitLab host serving `repo`. Nil means GitHub.
-    var gitlabHost: String? = nil
+    var gitlabHost: String?
 }
 
 /// A `NEWS`-file source for an upstream that keeps well-structured release
