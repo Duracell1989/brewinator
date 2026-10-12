@@ -93,6 +93,7 @@ let sync = BrewNotesSync(
         FFmpegChangelog(httpFetcher: httpFetcher, database: database),
         DotnetSdkReleaseNotes(httpFetcher: httpFetcher, database: database),
         NSSReleaseNotes(httpFetcher: httpFetcher, database: database),
+        SQLiteReleaseNotes(httpFetcher: httpFetcher, database: database),
         ClaudeDesktopChangelog(httpFetcher: httpFetcher, database: database),
         ObsidianChangelog(httpFetcher: httpFetcher, database: database),
         WindowsAppChangelog(httpFetcher: httpFetcher, database: database),
