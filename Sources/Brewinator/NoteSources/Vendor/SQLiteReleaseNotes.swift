@@ -13,6 +13,10 @@ import Foundation
 /// takes the whole result, so a cask sharing the name would never reach its
 /// real notes.
 struct SQLiteReleaseNotes: NoteSource {
+    /// Well above the usual 60: a SQLite release log is one flat list with
+    /// wrapped, nested items, and 3.54.0 alone runs to roughly 110 lines.
+    private static let maxLines = 150
+
     private let httpFetcher: HTTPFetching
     private let database: ResolutionDatabase
 
@@ -52,7 +56,7 @@ struct SQLiteReleaseNotes: NoteSource {
             return .success(ReleaseNotes(markdown: "_No release notes found — \(url.absoluteString)_\n\n"))
         }
 
-        return .success(ReleaseNotes(markdown: MarkdownSection.body(text, maxLines: 60, link: url.absoluteString, linkLabel: "Full release notes")))
+        return .success(ReleaseNotes(markdown: MarkdownSection.body(text, maxLines: Self.maxLines, link: url.absoluteString, linkLabel: "Full release notes")))
     }
 
     /// From the `<h2>` that titles the release through to the `Hashes:` footer.
