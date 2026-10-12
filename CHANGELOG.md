@@ -11,6 +11,8 @@ The release workflow reads the section matching the tag it is building, and fail
 ### Added
 
 - `sqlite` resolves through a new `SQLiteReleaseNotes` source instead of reporting "No forge repo detected". Upstream is Fossil, which `ForgeRepoResolver` does not speak, but sqlite.org publishes one hand-written page per version (`releaselog/3_54_0.html`). The `Hashes:` footer (source ID and SHA3 of `sqlite3.c`) is dropped as build provenance. A 404 stays transient, since Homebrew can bump the formula before the page is up.
+- `xorgproto` resolves through `TagCompare` instead of reporting "No forge repo detected". The formula names no forge anywhere (tarball on `xorg.freedesktop.org/archive`, homepage `www.x.org`, no head URL), and gitlab.freedesktop.org publishes no release objects, `NEWS` or `ChangeLog` for it; the tags are PGP-signed with only "xorgproto 2026.1" as the message. The commit log between tags is the only prose, and for 2025.1 to 2026.1 it is 11 real changes (keysyms additions, a RandR reply-padding fix, licence cleanup).
+- `TagCompareSpec` takes an optional `gitlabHost`. Nil keeps the GitHub behaviour unchanged. On GitLab the project path may nest groups, so it is sent as one percent-encoded segment (`xorg%2Fproto%2Fxorgproto`), and commit messages are read from the top level of each commit rather than from under `commit`. The "Full diff" link names the host.
 
 ## [0.12.3] - 2026-09-25
 

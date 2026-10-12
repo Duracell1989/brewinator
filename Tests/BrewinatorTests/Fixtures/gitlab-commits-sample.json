@@ -1,0 +1,26 @@
+[
+  {
+    "id": "6d3907b6d5dc4aa7d7ee6ee5d7d8714e7466630b",
+    "short_id": "6d3907b6",
+    "title": "xorgproto 2026.1",
+    "message": "xorgproto 2026.1\n\nSigned-off-by: Alan Coopersmith <alan.coopersmith@oracle.com>\n",
+    "author_name": "Alan Coopersmith",
+    "created_at": "2026-10-03T10:46:08.000-07:00"
+  },
+  {
+    "id": "73b3be87c08afcd5833572e372d43cc2009035db",
+    "short_id": "73b3be87",
+    "title": "COPYING-xextproto: drop stale NCD notice of removed LBX headers",
+    "message": "COPYING-xextproto: drop stale NCD notice of removed LBX headers\n\nThe LBX headers were removed back in 2009 (commit 57d09e4), but this\nnotice was accidentally left behind. No file in the tree carries this\nnotice anymore, so it no longer describes any code we ship.\n\nPart-of: <https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/merge_requests/115>\n",
+    "author_name": "Jasmine Tang",
+    "created_at": "2026-10-01T13:09:12.000-07:00"
+  },
+  {
+    "id": "fd86fbff46eb7ab8e193c12b8a529e90bae31835",
+    "short_id": "fd86fbff",
+    "title": "Ensure text files end with a newline",
+    "message": "Ensure text files end with a newline\n\nPerformed with:\n    git ls-files | xargs gsed -i -e '$a\\'\n\nSigned-off-by: Alan Coopersmith <alan.coopersmith@oracle.com>\nPart-of: <https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/merge_requests/114>\n",
+    "author_name": "Alan Coopersmith",
+    "created_at": "2026-09-12T17:45:18.000-07:00"
+  }
+]

@@ -4,9 +4,13 @@ import Foundation
 /// release bodies — notes are reconstructed from the commit log between two
 /// tags.
 struct TagCompareSpec: Sendable, Equatable, Codable {
+    /// `owner/repo` on GitHub; the full project path on GitLab, which may nest
+    /// groups (`xorg/proto/xorgproto`).
     let repo: String
     let tagTemplate: String
     let subpath: String?
+    /// The GitLab host serving `repo`. Nil means GitHub.
+    var gitlabHost: String?
 }
 
 /// A `NEWS`-file source for an upstream that keeps well-structured release
@@ -83,6 +87,19 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
             "signal": "signalapp/Signal-Desktop"
         ],
         tagCompareSpecs: [
+            // X.Org tags every release but publishes no release object, NEWS or
+            // ChangeLog - the tag annotation is just "xorgproto 2026.1" under a
+            // PGP signature - so the commit log between tags is the only prose.
+            // The formula names no forge at all (tarball on
+            // xorg.freedesktop.org/archive, homepage www.x.org, no head), and a
+            // `downloadHostForges` prefix cannot supply the project path
+            // because it is not a segment of that URL.
+            "xorgproto": TagCompareSpec(
+                repo: "xorg/proto/xorgproto",
+                tagTemplate: "xorgproto-%s",
+                subpath: nil,
+                gitlabHost: "gitlab.freedesktop.org"
+            ),
             // Do not "fix" this back to Proton's own version.json feed: its
             // `ReleaseNotes` array is empty on every release ever published, and
             // `ProtonMail/inbox-desktop` was archived 2025-03 with its source
@@ -91,7 +108,7 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
                 repo: "ProtonMail/WebClients",
                 tagTemplate: "proton-inbox-desktop@%s",
                 subpath: "applications/inbox-desktop"
-            )
+            ),
         ],
         sparkleFeeds: [
             "vivaldi": URL(string: "https://update.vivaldi.com/update/1.0/public/mac/appcast.xml")!
