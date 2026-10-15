@@ -32,6 +32,33 @@ struct NewsHeadingStyleTests {
         #expect(NewsHeadingStyle.poppler.version(of: "Release 0.1.1") == "0.1.1")
     }
 
+    @Test("freetype reads the newer end of the span, ignoring the trailing date")
+    func freetypeHeadings() {
+        #expect(NewsHeadingStyle.freetype.version(of: "CHANGES BETWEEN 2.14.3 and 2.15.0 (2026-Oct-12)") == "2.15.0")
+        #expect(NewsHeadingStyle.freetype.version(of: "CHANGES BETWEEN 2.3.11 and 2.3.12") == "2.3.12")
+        #expect(NewsHeadingStyle.freetype.version(of: "  CHANGES BETWEEN 2.14.3 and 2.15.0") == nil)
+        #expect(NewsHeadingStyle.freetype.version(of: "Release 26.09.0:") == nil)
+        #expect(NewsHeadingStyle.poppler.version(of: "CHANGES BETWEEN 2.14.3 and 2.15.0 (2026-Oct-12)") == nil)
+    }
+
+    @Test("freetype range runs from the target section down to the installed one, exclusive")
+    func freetypeRange() {
+        let changes = """
+            CHANGES BETWEEN 2.14.3 and 2.15.0 (2026-Oct-12)
+
+              I. IMPORTANT CHANGES
+
+              - Support for OFF5.
+
+            CHANGES BETWEEN 2.14.2 and 2.14.3 (2026-Mar-22)
+
+              - Older fix.
+            """
+        let result = NewsRangeExtractor.extract(from: changes, newest: "2.15.0", oldest: "2.14.3", style: .freetype)
+        #expect(result.contains("Support for OFF5"))
+        #expect(!result.contains("Older fix"))
+    }
+
     @Test("no style matches another's headings or ordinary prose")
     func stylesDoNotOverlap() {
         #expect(NewsHeadingStyle.gnome.version(of: "Noteworthy changes in version 2.2.0 (2026-08-31)") == nil)

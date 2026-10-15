@@ -19,6 +19,11 @@ enum NewsHeadingStyle: String, Sendable, Equatable, Codable {
     /// cumulative file.
     case poppler
 
+    /// FreeType's `docs/CHANGES`: "CHANGES BETWEEN 2.14.3 and 2.15.0 (2026-Oct-12)".
+    /// A section is named for the pair of versions it spans, and the version a
+    /// release introduces is the *second* one.
+    case freetype
+
     /// The version a heading line announces, or nil when the line is not a
     /// heading in this style.
     func version(of line: String) -> String? {
@@ -29,6 +34,8 @@ enum NewsHeadingStyle: String, Sendable, Equatable, Codable {
             return Self.gnupgVersion(of: line)
         case .poppler:
             return Self.popplerVersion(of: line)
+        case .freetype:
+            return Self.freetypeVersion(of: line)
         }
     }
 
@@ -70,6 +77,17 @@ enum NewsHeadingStyle: String, Sendable, Equatable, Codable {
             version.removeLast()
         }
         return version.isEmpty ? nil : version
+    }
+
+    /// The token after "and" - the newer end of the span. Column-0 anchored for
+    /// the same reason as poppler: body text mentions "CHANGES BETWEEN" in prose.
+    /// The 2.3.x-era headings run the pair backwards ("2.3.10 and 2.3.9"), which
+    /// makes them wrong here, but nothing that old is ever an upgrade target.
+    private static func freetypeVersion(of line: String) -> String? {
+        guard let rest = suffix(of: line, afterPattern: #"^CHANGES BETWEEN[ \t]+[0-9][0-9.]*[ \t]+and[ \t]+"#) else {
+            return nil
+        }
+        return rest.split(whereSeparator: { $0 == " " || $0 == "\t" }).first.map(String.init)
     }
 
     private static func suffix(of line: String, afterPattern pattern: String) -> String? {

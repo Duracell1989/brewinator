@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 The release workflow reads the section matching the tag it is building, and fails if there isn't one.
 
+## [Unreleased]
+
+### Added
+
+- `freetype` resolves through `NewsFileChangelog` with a new `freetype` heading style instead of reporting "No forge repo detected". The formula downloads from SourceForge and the homepage is freetype.org, so no forge resolves, and the gitlab.freedesktop.org project publishes no release objects. `docs/CHANGES` is the only prose; each section is headed "CHANGES BETWEEN 2.14.3 and 2.15.0", and the version a release introduces is the second one.
+
 ## [0.14.0] - 2026-10-15
 
 ### Added
