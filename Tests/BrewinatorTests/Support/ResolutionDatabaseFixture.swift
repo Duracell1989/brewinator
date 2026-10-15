@@ -40,7 +40,8 @@ extension ResolutionDatabase {
         windowsAppURL: URL(string: "https://example.test/windows-app")!,
         claudeDesktopChangelogURL: URL(string: "https://example.test/claude")!,
         obsidianRepo: "",
-        androidStudioFeedURL: URL(string: "https://example.test/android-studio")!
+        androidStudioFeedURL: URL(string: "https://example.test/android-studio")!,
+        zwiftForumURL: URL(string: "https://example.test/zwift")!
     )
 
     /// Copy with selected fields replaced. Every parameter defaults to the
@@ -68,7 +69,8 @@ extension ResolutionDatabase {
         windowsAppURL: URL? = nil,
         claudeDesktopChangelogURL: URL? = nil,
         obsidianRepo: String? = nil,
-        androidStudioFeedURL: URL? = nil
+        androidStudioFeedURL: URL? = nil,
+        zwiftForumURL: URL? = nil
     ) -> ResolutionDatabase {
         ResolutionDatabase(
             forgeHosts: forgeHosts ?? self.forgeHosts,
@@ -93,7 +95,8 @@ extension ResolutionDatabase {
             windowsAppURL: windowsAppURL ?? self.windowsAppURL,
             claudeDesktopChangelogURL: claudeDesktopChangelogURL ?? self.claudeDesktopChangelogURL,
             obsidianRepo: obsidianRepo ?? self.obsidianRepo,
-            androidStudioFeedURL: androidStudioFeedURL ?? self.androidStudioFeedURL
+            androidStudioFeedURL: androidStudioFeedURL ?? self.androidStudioFeedURL,
+            zwiftForumURL: zwiftForumURL ?? self.zwiftForumURL
         )
     }
 }

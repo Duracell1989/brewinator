@@ -8,6 +8,10 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ## [Unreleased]
 
+### Added
+
+- `zwift` resolves through a new `ZwiftLauncherNotes` source instead of reporting "No forge repo detected". The cask tracks the Launcher, which Zwift announces as a forum post titled "Zwift Launcher for macOS v 1.1.19 [October 2026]". The title carries the month, so the topic is found through the Discourse search endpoint and its first post is the note. A missing topic stays transient, since Homebrew can bump the cask before the post is up.
+
 ### Changed
 
 - `SQLiteReleaseNotes` caps a note at 150 lines instead of the usual 60. A SQLite release log is one flat list with wrapped, nested items, and 60 cut 3.54.0 off before its Windows and performance entries.
