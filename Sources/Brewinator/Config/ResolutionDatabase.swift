@@ -163,6 +163,14 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
             // "No releases published". Same trade as the GnuPG mirrors above.
             // This source runs first, so the NEWS file wins either way.
             "poppler": NewsFileSpec(url: URL(string: "https://gitlab.freedesktop.org/poppler/poppler/-/raw/master/NEWS")!, headingStyle: .poppler),
+            // The formula downloads from SourceForge and the homepage is
+            // freetype.org, so no forge resolves from any URL on it. The
+            // gitlab.freedesktop.org project exists but publishes no release
+            // objects (the API returns `[]`); `docs/CHANGES` is the only prose.
+            "freetype": NewsFileSpec(
+                url: URL(string: "https://gitlab.freedesktop.org/freetype/freetype/-/raw/master/docs/CHANGES")!,
+                headingStyle: .freetype
+            ),
         ],
         gnuPatchProjects: [
             // Chet Ramey ships fixes for both of these as numbered patch files
