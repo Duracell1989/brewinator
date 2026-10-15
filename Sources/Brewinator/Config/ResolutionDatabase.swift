@@ -69,6 +69,8 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
     /// `owner/repo`.
     let obsidianRepo: String
     let androidStudioFeedURL: URL
+    /// Base of the Zwift forum (Discourse); the launcher notes are forum posts.
+    let zwiftForumURL: URL
 
     static let live = ResolutionDatabase(
         forgeHosts: [
@@ -207,6 +209,7 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
         windowsAppURL: URL(string: "https://learn.microsoft.com/en-us/windows-app/whats-new")!,
         claudeDesktopChangelogURL: URL(string: "https://claude.com/docs/cowork/changelog.md")!,
         obsidianRepo: "obsidianmd/obsidian-releases",
-        androidStudioFeedURL: URL(string: "https://androidstudio.googleblog.com/feeds/posts/default?alt=json&max-results=25")!
+        androidStudioFeedURL: URL(string: "https://androidstudio.googleblog.com/feeds/posts/default?alt=json&max-results=25")!,
+        zwiftForumURL: URL(string: "https://forums.zwift.com")!
     )
 }

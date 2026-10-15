@@ -98,6 +98,7 @@ let sync = BrewNotesSync(
         ObsidianChangelog(httpFetcher: httpFetcher, database: database),
         WindowsAppChangelog(httpFetcher: httpFetcher, database: database),
         AndroidStudioBlog(httpFetcher: httpFetcher, database: database),
+        ZwiftLauncherNotes(httpFetcher: httpFetcher, database: database),
         ForgeReleases(httpFetcher: httpFetcher, database: database),
         GitLabReleases(httpFetcher: httpFetcher, database: database),
         AppBundleReleaseNotes(locator: CaskroomAppBundleLocator(), httpFetcher: httpFetcher),

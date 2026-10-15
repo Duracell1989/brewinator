@@ -1,0 +1,9 @@
+{
+  "post_stream": {
+    "posts": [
+      {
+        "cooked": "<p>Hello everyone,</p>\n<p>Zwift Launcher version 1.1.19 for macOS is available for manual download on<a href=\"https://zwift.com/downloads\"> zwift.com/downloads</a>.</p>\n<p>We will automatically update Zwift Launcher to v 1.1.19 with game version 1.124.</p>\n<p><strong>macOS</strong></p>\n<ul>\n<li>Improved stability for macOS versions prior to OS15.</li>\n<li>We also recommend updating to the latest macOS version supported by your machine.</li>\n</ul>\n<p><strong>Windows</strong></p>\n<ul>\n<li>v1.1.19 is a Mac-only release. The latest Launcher version for Windows remains 1.1.18.</li>\n</ul>\n<p>Do you have questions or issues to report? Let us know below.</p>"
+      }
+    ]
+  }
+}
