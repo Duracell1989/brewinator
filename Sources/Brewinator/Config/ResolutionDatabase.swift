@@ -102,6 +102,24 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
                 subpath: nil,
                 gitlabHost: "gitlab.freedesktop.org"
             ),
+            // The X.Org client libraries share xorgproto's situation: tarballs on
+            // xorg.freedesktop.org/archive, no forge on the formula, tags but no
+            // release objects. Their tags keep the upstream capitalisation
+            // (`libX11-1.8.14`, `libXrender-0.9.13`) while the GitLab paths and
+            // the Homebrew names are lowercase, so the template cannot be
+            // derived from the key.
+            "libx11": TagCompareSpec(
+                repo: "xorg/lib/libx11",
+                tagTemplate: "libX11-%s",
+                subpath: nil,
+                gitlabHost: "gitlab.freedesktop.org"
+            ),
+            "libxrender": TagCompareSpec(
+                repo: "xorg/lib/libxrender",
+                tagTemplate: "libXrender-%s",
+                subpath: nil,
+                gitlabHost: "gitlab.freedesktop.org"
+            ),
             // Do not "fix" this back to Proton's own version.json feed: its
             // `ReleaseNotes` array is empty on every release ever published, and
             // `ProtonMail/inbox-desktop` was archived 2025-03 with its source
