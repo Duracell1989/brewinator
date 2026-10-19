@@ -214,4 +214,18 @@ struct TagCompareTests {
         #expect(spec?.gitlabHost == "gitlab.freedesktop.org")
         #expect(spec?.tagTemplate == "xorgproto-%s")
     }
+
+    @Test(
+        "the production database registers the X.Org client libraries with their mixed-case tags",
+        arguments: [
+            ("libx11", "xorg/lib/libx11", "libX11-%s"),
+            ("libxrender", "xorg/lib/libxrender", "libXrender-%s"),
+        ]
+    )
+    func liveDatabaseRegistersXorgLibraries(name: String, repo: String, tagTemplate: String) {
+        let spec = ResolutionDatabase.live.tagCompareSpecs[name]
+        #expect(spec?.repo == repo)
+        #expect(spec?.gitlabHost == "gitlab.freedesktop.org")
+        #expect(spec?.tagTemplate == tagTemplate)
+    }
 }
