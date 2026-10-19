@@ -9,6 +9,9 @@ enum BuiltInSkipList {
     /// - `ca-certificates`: a dated regeneration of Mozilla's certdata.txt by a
     ///   cron on curl.se, not a release - its homepage lists only date, SHA256
     ///   and certificate count per bundle (checked 2026-09-25).
+    /// - `libunistring`: GNU publishes `NEWS` only on Savannah, which 502s
+    ///   scrapers; the GitHub mirror has been frozen at 1.0 since 2022
+    ///   (checked 2026-10-19).
     /// - `spotify`: desktop release notes stopped in 2015.
     /// - `discord`: no structured per-version changelog exists (checked 2026-08-04).
     /// - `whatsapp`: vendor publishes nothing per version.
@@ -16,6 +19,7 @@ enum BuiltInSkipList {
     static let patterns: [String] = [
         "ca-certificates",
         "discord",
+        "libunistring",
         "microsoft-excel",
         "microsoft-onenote",
         "microsoft-outlook",
