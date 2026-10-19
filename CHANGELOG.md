@@ -8,9 +8,16 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-10-19
+
 ### Added
 
 - `freetype` resolves through `NewsFileChangelog` with a new `freetype` heading style instead of reporting "No forge repo detected". The formula downloads from SourceForge and the homepage is freetype.org, so no forge resolves, and the gitlab.freedesktop.org project publishes no release objects. `docs/CHANGES` is the only prose; each section is headed "CHANGES BETWEEN 2.14.3 and 2.15.0", and the version a release introduces is the second one.
+- `libx11` and `libxrender` resolve through `TagCompare` instead of reporting "No forge repo detected". Same situation as `xorgproto`: tarballs on `xorg.freedesktop.org/archive`, no forge on the formula, tags but no release objects. The tags keep upstream's capitalisation (`libX11-1.8.14`, `libXrender-0.9.13`), so each spec carries its own template.
+
+### Changed
+
+- `libunistring` joins the built-in skip list. GNU publishes its `NEWS` only on Savannah, which answers scrapers with a 502, and the GitHub mirror has been frozen at 1.0 since 2022.
 
 ## [0.14.0] - 2026-10-15
 
