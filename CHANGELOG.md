@@ -8,6 +8,10 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ## [Unreleased]
 
+### Added
+
+- `scroll-reverser` resolves through `repoOverrides` to `pilotmoon/Scroll-Reverser` instead of reporting "No forge repo detected". The cask names only pilotmoon.com, so no forge is exposed by any URL, but the GitHub project publishes a release per version.
+
 ## [0.15.0] - 2026-10-19
 
 ### Added
