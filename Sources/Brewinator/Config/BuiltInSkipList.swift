@@ -9,6 +9,9 @@ enum BuiltInSkipList {
     /// - `ca-certificates`: a dated regeneration of Mozilla's certdata.txt by a
     ///   cron on curl.se, not a release - its homepage lists only date, SHA256
     ///   and certificate count per bundle (checked 2026-09-25).
+    /// - `deepl`: the Sparkle appcast items carry no `<description>` or notes
+    ///   link, there is no Mac changelog page (`/changelog` and `/release-notes`
+    ///   404), and the only changelog is for the API (checked 2026-10-22).
     /// - `libunistring`: GNU publishes `NEWS` only on Savannah, which 502s
     ///   scrapers; the GitHub mirror has been frozen at 1.0 since 2022
     ///   (checked 2026-10-19).
@@ -18,6 +21,7 @@ enum BuiltInSkipList {
     /// - Microsoft Office casks: "what's new" pages don't map to cask versions.
     static let patterns: [String] = [
         "ca-certificates",
+        "deepl",
         "discord",
         "libunistring",
         "microsoft-excel",

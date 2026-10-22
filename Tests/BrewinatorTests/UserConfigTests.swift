@@ -8,6 +8,7 @@ struct UserConfigTests {
     func exactMatch() {
         let config = UserConfig(archiveDirectory: "/tmp", skipList: ["discord"], notify: false)
         #expect(config.isSkipped("discord"))
+        #expect(config.isSkipped("deepl"))
         #expect(!config.isSkipped("obsidian"))
     }
 
