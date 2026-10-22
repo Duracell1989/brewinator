@@ -84,9 +84,12 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
         // Only entries that no URL on the formula/cask exposes. `node` and
         // `pango` used to live here; both name their forge in `head do`, so
         // head-URL scanning now resolves them to the same repo. `signal` stays:
-        // casks have no head URL at all.
+        // casks have no head URL at all. `scroll-reverser` is the same case: the
+        // cask homepage and download are both on pilotmoon.com, but the project
+        // publishes release notes as GitHub release bodies.
         repoOverrides: [
-            "signal": "signalapp/Signal-Desktop"
+            "scroll-reverser": "pilotmoon/Scroll-Reverser",
+            "signal": "signalapp/Signal-Desktop",
         ],
         tagCompareSpecs: [
             // X.Org tags every release but publishes no release object, NEWS or
