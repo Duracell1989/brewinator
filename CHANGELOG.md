@@ -8,6 +8,8 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-10-22
+
 ### Changed
 
 - `deepl` joins the built-in skip list. Its Sparkle appcast items carry no notes and no notes link, and the vendor publishes no Mac changelog; the only one on its site covers the API.
