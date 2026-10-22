@@ -8,6 +8,8 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ## [Unreleased]
 
+## [0.16.1] - 2026-10-22
+
 ### Fixed
 
 - `claude` (Claude Desktop) notes work again. The changelog page dropped its `<Update label="vX" description="DATE">` blocks for plain `**vX**` label lines with no date, so `ClaudeDesktopChangelog` matched nothing and archived "No changelog entry found" for 3.1623.0 and 3.1623.1. Both shapes are read now; a bold-label block has no date in its header.
