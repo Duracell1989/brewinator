@@ -8,6 +8,10 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ## [Unreleased]
 
+### Changed
+
+- `deepl` joins the built-in skip list. Its Sparkle appcast items carry no notes and no notes link, and the vendor publishes no Mac changelog; the only one on its site covers the API.
+
 ### Added
 
 - `scroll-reverser` resolves through `repoOverrides` to `pilotmoon/Scroll-Reverser` instead of reporting "No forge repo detected". The cask names only pilotmoon.com, so no forge is exposed by any URL, but the GitHub project publishes a release per version.
