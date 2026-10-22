@@ -53,6 +53,38 @@ struct ClaudeDesktopChangelogTests {
         #expect(notes.markdown.contains("**v1.30096.1** — 2026-08-13"))
     }
 
+    @Test("bold-label format (no <Update> tags): exact v-prefixed label match extracts that block only")
+    func boldLabelFixtureMatchesExactLabel() async throws {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: changelogURL, data: try Fixture.data("claude-desktop-changelog-bold-sample", extension: "md"), statusCode: 200)
+        let source = ClaudeDesktopChangelog(httpFetcher: fetcher, database: testDatabase)
+
+        let result = await source.fetch(package(current: "3.1623.0"))
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("**v3.1623.0**"))
+        #expect(notes.markdown.contains("Added Storage to Settings"))
+        #expect(!notes.markdown.contains("No user-facing changes"))
+        #expect(!notes.markdown.contains("v3.1623.1"))
+        #expect(!notes.markdown.contains("No changelog entry found"))
+    }
+
+    @Test("bold-label format: an unlisted version falls back to the newest block")
+    func boldLabelFallsBackToNewestBlock() async throws {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: changelogURL, data: try Fixture.data("claude-desktop-changelog-bold-sample", extension: "md"), statusCode: 200)
+        let source = ClaudeDesktopChangelog(httpFetcher: fetcher, database: testDatabase)
+
+        let result = await source.fetch(package(current: "3.1623.4"))
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("**v3.1623.1**"))
+    }
+
     @Test("a 500 is transient")
     func serverErrorIsTransient() async {
         var fetcher = FakeHTTPFetcher()

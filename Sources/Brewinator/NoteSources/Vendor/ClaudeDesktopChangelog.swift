@@ -4,7 +4,9 @@ import Foundation
 /// forge, and Squirrel's own `RELEASES.json` `notes` field ships empty. The
 /// real source is the docs changelog, titled "Release notes for Claude
 /// Desktop" but nested under the Cowork docs path, appended with `.md`
-/// (Mintlify) for clean `<Update label="vX" description="DATE">` blocks.
+/// (Mintlify). The page has been published in two shapes: `<Update
+/// label="vX" description="DATE">` blocks, and (since the 3.x releases)
+/// plain `**vX**` label lines with no date. Both are read.
 struct ClaudeDesktopChangelog: NoteSource {
     private let httpFetcher: HTTPFetching
     private let database: ResolutionDatabase
@@ -44,8 +46,9 @@ struct ClaudeDesktopChangelog: NoteSource {
         return .success(ReleaseNotes(markdown: markdown))
     }
 
-    /// Extracts one `<Update label="vX" description="DATE">...</Update>`
-    /// block, prefixed with a `**vX** — DATE` header. `target` empty takes
+    /// Extracts one release block - `<Update label="vX" description="DATE">`
+    /// ... `</Update>`, or a bare `**vX**` line up to the next one - prefixed
+    /// with a `**vX** — DATE` (or just `**vX**`) header. `target` empty takes
     /// the first (newest) block.
     private static func extractUpdateBlock(target: String, from text: String) -> String {
         var capturing = false
@@ -53,12 +56,12 @@ struct ClaudeDesktopChangelog: NoteSource {
         var output: [String] = []
 
         for line in text.components(separatedBy: "\n") {
-            if let (label, description) = updateOpenTag(line) {
+            if let (label, description) = updateOpenTag(line) ?? boldLabel(line) {
                 capturing = false
                 if !done, target.isEmpty || label == target {
                     capturing = true
                     done = true
-                    output.append("**\(label)** — \(description)")
+                    output.append(description.isEmpty ? "**\(label)**" : "**\(label)** — \(description)")
                     output.append("")
                 }
                 continue
@@ -81,6 +84,17 @@ struct ClaudeDesktopChangelog: NoteSource {
         guard line.contains(#"<Update label=""#) else { return nil }
         guard let label = attribute("label", in: line), let description = attribute("description", in: line) else { return nil }
         return (label, description)
+    }
+
+    /// A line that is nothing but a bold version label, e.g. `**v3.1623.1**`,
+    /// or nil. Requiring the `v<digit>` start keeps the `**General**` /
+    /// `**Code**` section headings inside a block from ending it.
+    private static func boldLabel(_ line: String) -> (label: String, description: String)? {
+        let trimmed = line.trimmingCharacters(in: .whitespaces)
+        guard trimmed.hasPrefix("**v"), trimmed.hasSuffix("**"), trimmed.count > 5 else { return nil }
+        let label = String(trimmed.dropFirst(2).dropLast(2))
+        guard label.dropFirst().first?.isNumber == true, !label.contains("*") else { return nil }
+        return (label, "")
     }
 
     private static func attribute(_ name: String, in line: String) -> String? {
