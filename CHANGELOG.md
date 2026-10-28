@@ -10,6 +10,7 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ### Added
 
+- `steam` reads Valve's "Steam Client Update" post for the build instead of reporting "No forge repo detected". The cask version is `6.1,<build timestamp>,<sha1>` and the posts carry no version, so the first post at or after the build time (within three days) is used; Steam BBCode is converted to Markdown.
 - `microsoft-openjdk` and the pinned `microsoft-openjdk@N` casks read their section of Microsoft's OpenJDK release notes page instead of reporting "No forge repo detected". The casks name only an `aka.ms` redirect and the homepage, so no forge resolves; the page has an `OpenJDK <version>` heading per release, respins included.
 
 ## [0.16.1] - 2026-10-22
