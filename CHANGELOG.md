@@ -8,6 +8,8 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-10-28
+
 ### Added
 
 - `steam` reads Valve's "Steam Client Update" post for the build instead of reporting "No forge repo detected". The cask version is `6.1,<build timestamp>,<sha1>` and the posts carry no version, so the first post at or after the build time (within three days) is used; Steam BBCode is converted to Markdown.
