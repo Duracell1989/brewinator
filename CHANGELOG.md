@@ -8,6 +8,10 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ## [Unreleased]
 
+### Added
+
+- `microsoft-openjdk` and the pinned `microsoft-openjdk@N` casks read their section of Microsoft's OpenJDK release notes page instead of reporting "No forge repo detected". The casks name only an `aka.ms` redirect and the homepage, so no forge resolves; the page has an `OpenJDK <version>` heading per release, respins included.
+
 ## [0.16.1] - 2026-10-22
 
 ### Fixed
