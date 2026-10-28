@@ -64,6 +64,8 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
     /// `3_54_0`) — the release log's own filename convention.
     let sqliteNotesURLTemplate: String
     let windowsAppURL: URL
+    /// The Microsoft Build of OpenJDK release notes page, one `<h3>` per version.
+    let microsoftOpenJDKReleaseNotesURL: URL
     /// The `claude` Desktop cask's changelog page.
     let claudeDesktopChangelogURL: URL
     /// `owner/repo`.
@@ -236,6 +238,7 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
         nssNotesURLTemplate: "https://firefox-source-docs.mozilla.org/security/nss/releases/nss_%s.html",
         sqliteNotesURLTemplate: "https://sqlite.org/releaselog/%s.html",
         windowsAppURL: URL(string: "https://learn.microsoft.com/en-us/windows-app/whats-new")!,
+        microsoftOpenJDKReleaseNotesURL: URL(string: "https://learn.microsoft.com/en-us/java/openjdk/release-notes")!,
         claudeDesktopChangelogURL: URL(string: "https://claude.com/docs/cowork/changelog.md")!,
         obsidianRepo: "obsidianmd/obsidian-releases",
         androidStudioFeedURL: URL(string: "https://androidstudio.googleblog.com/feeds/posts/default?alt=json&max-results=25")!,
