@@ -164,6 +164,15 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
             // message instead of 404ing the whole fetch.
             "proton-pass": URL(string: "https://raw.githubusercontent.com/ProtonMail/WebClients/main/applications/pass-desktop/CHANGELOG.md")!,
         ],
+        taggedChangelogURLTemplates: [
+            // rustup tags every release with the bare version but has never
+            // published a GitHub Release, and `main`'s CHANGELOG.md stops at the
+            // last minor (1.29.0) because patch releases are cut elsewhere. The
+            // changelog at the tag carries the curated section, so read it
+            // there; the commit log between tags was mostly dependency-bot and
+            // CI noise, listed oldest first.
+            "rustup": "https://raw.githubusercontent.com/rust-lang/rustup/%s/CHANGELOG.md"
+        ],
         // The whole GnuPG family resolves through here rather than through
         // `repoOverrides`. Their canonical host is git.gnupg.org, whose gitweb
         // is intermittently offline behind a 429 against scrapers; the official
@@ -176,15 +185,6 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
         // so one static URL serves every version, and `NewsRangeExtractor` starting
         // at the target version is what keeps the "(unreleased)" section at the top
         // of the file out of the notes.
-        taggedChangelogURLTemplates: [
-            // rustup tags every release with the bare version but has never
-            // published a GitHub Release, and `main`'s CHANGELOG.md stops at the
-            // last minor (1.29.0) because patch releases are cut elsewhere. The
-            // changelog at the tag carries the curated section, so read it
-            // there; the commit log between tags was mostly dependency-bot and
-            // CI noise, listed oldest first.
-            "rustup": "https://raw.githubusercontent.com/rust-lang/rustup/%s/CHANGELOG.md"
-        ],
         newsFileSources: [
             "gnupg": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/gnupg/master/NEWS")!, headingStyle: .gnupg),
             "gpgme": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/gpgme/master/NEWS")!, headingStyle: .gnupg),
