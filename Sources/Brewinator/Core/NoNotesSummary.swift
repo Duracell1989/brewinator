@@ -11,7 +11,7 @@ enum NoNotesSummary {
 
     /// Nil when no outdated package is skipped, which removes a stale file.
     static func markdown(for packages: [OutdatedPackageInfo], config: UserConfig) -> String? {
-        let skipped = packages.filter { config.isSkipped($0.name) }.sorted { $0.name < $1.name }
+        let skipped = packages.filter { config.isSkipped($0.name) }.sorted { ($0.name, $0.kind.rawValue) < ($1.name, $1.kind.rawValue) }
         guard !skipped.isEmpty else { return nil }
 
         let lines = skipped.map { package in

@@ -64,6 +64,20 @@ struct NoNotesSummaryTests {
         #expect(deepl.lowerBound < whatsapp.lowerBound)
     }
 
+    @Test("a formula and a cask with the same name keep a fixed order")
+    func sameNameOrderIsStable() throws {
+        let markdown = try #require(
+            NoNotesSummary.markdown(
+                for: [package("nspr", "1", "2", kind: .formula), package("nspr", "1", "2", kind: .cask)],
+                config: config(skipList: ["nspr"])
+            )
+        )
+
+        let cask = try #require(markdown.range(of: "- nspr (cask)"))
+        let formula = try #require(markdown.range(of: "- nspr (formula)"))
+        #expect(cask.lowerBound < formula.lowerBound)
+    }
+
     @Test("every built-in entry has a non-empty reason")
     func builtInReasonsAreFilled() {
         for entry in BuiltInSkipList.entries {
