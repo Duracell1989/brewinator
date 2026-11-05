@@ -14,8 +14,8 @@ private let testDatabase = ResolutionDatabase.testDefaults.with(
     taggedChangelogURLTemplates: ["rustup": rustupTemplate]
 )
 
-private func rustupPackage(current: String) -> OutdatedPackageInfo {
-    OutdatedPackageInfo(name: "rustup", installedVersion: "1.29.2", currentVersion: current, kind: .formula)
+private func rustupPackage(installed: String = "1.29.2", current: String) -> OutdatedPackageInfo {
+    OutdatedPackageInfo(name: "rustup", installedVersion: installed, currentVersion: current, kind: .formula)
 }
 
 private func claudeCodePackage(current: String) -> OutdatedPackageInfo {
@@ -178,7 +178,7 @@ struct MarkdownChangelogTests {
         fetcher.respond(to: url, data: try Fixture.data("rustup-changelog-sample", extension: "md"), statusCode: 200)
         let source = MarkdownChangelog(httpFetcher: fetcher, database: testDatabase)
 
-        let result = await source.fetch(rustupPackage(current: "1.29.2"))
+        let result = await source.fetch(rustupPackage(installed: "1.29.1", current: "1.29.2"))
         guard case .success(let notes) = result else {
             Issue.record("expected success, got \(result)")
             return
@@ -228,7 +228,7 @@ struct MarkdownChangelogTests {
         var fetcher = FakeHTTPFetcher()
         let changelog =
             "# Changelog\n\n## [1.29.3] - 2026-11-03\n\n- real entry\n\n\(heading)\n\n- should not leak\n\n"
-            + "## [1.29.1] - 2026-08-13\n\n- older\n"
+            + "## [1.29.2] - 2026-10-20\n\n- older\n"
         fetcher.respond(to: rustupTagURL, string: changelog, statusCode: 200)
         let source = MarkdownChangelog(httpFetcher: fetcher, database: testDatabase)
 
@@ -261,5 +261,63 @@ struct MarkdownChangelogTests {
     func liveDatabaseRegistersRustup() {
         #expect(ResolutionDatabase.live.taggedChangelogURLTemplates["rustup"] == rustupTemplate)
         #expect(ResolutionDatabase.live.tagCompareSpecs["rustup"] == nil)
+    }
+}
+
+@Suite("MarkdownChangelog ranges")
+struct MarkdownChangelogRangeTests {
+    @Test("a tagged changelog covers every release between the installed and target version, so a skipped security fix is not hidden")
+    func taggedChangelogCoversTheWholeRange() async throws {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: rustupTagURL, data: try Fixture.data("rustup-changelog-sample", extension: "md"), statusCode: 200)
+        let source = MarkdownChangelog(httpFetcher: fetcher, database: testDatabase)
+
+        let result = await source.fetch(rustupPackage(installed: "1.29.1", current: "1.29.3"))
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("## [1.29.3] - 2026-11-03"))
+        #expect(notes.markdown.contains("## [1.29.2] - 2026-10-20"))
+        #expect(notes.markdown.contains("rustls-webpki"))
+        #expect(!notes.markdown.contains("## [1.29.1]"))
+    }
+
+    @Test("the installed release itself is not repeated, and an installed version missing from the file does not stop the range")
+    func rangeStopsBeforeTheInstalledVersion() async throws {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: rustupTagURL, data: try Fixture.data("rustup-changelog-sample", extension: "md"), statusCode: 200)
+        let source = MarkdownChangelog(httpFetcher: fetcher, database: testDatabase)
+
+        let adjacent = await source.fetch(rustupPackage(installed: "1.29.2", current: "1.29.3"))
+        guard case .success(let adjacentNotes) = adjacent else {
+            Issue.record("expected success, got \(adjacent)")
+            return
+        }
+        #expect(!adjacentNotes.markdown.contains("## [1.29.2]"))
+
+        let unknown = await source.fetch(rustupPackage(installed: "0.1.0", current: "1.29.3"))
+        guard case .success(let unknownNotes) = unknown else {
+            Issue.record("expected success, got \(unknown)")
+            return
+        }
+        #expect(unknownNotes.markdown.contains("## [1.29.3]"))
+        #expect(unknownNotes.markdown.contains("## [1.29.1]"))
+    }
+
+    @Test("the newest-section fallback of a fixed URL skips an [Unreleased] block")
+    func fallbackSkipsUnreleased() async {
+        var fetcher = FakeHTTPFetcher()
+        let changelog = "# Changelog\n\n## [Unreleased]\n\n- in progress\n\n## [2.0.0] - 2026-11-01\n\n- shipped\n\n## [1.0.0] - 2026-01-01\n\n- old\n"
+        fetcher.respond(to: changelogURL, string: changelog, statusCode: 200)
+        let source = MarkdownChangelog(httpFetcher: fetcher, database: testDatabase)
+
+        let result = await source.fetch(claudeCodePackage(current: "99.0.0"))
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("shipped"))
+        #expect(!notes.markdown.contains("in progress"))
     }
 }

@@ -50,7 +50,13 @@ struct MarkdownChangelog: NoteSource {
             return .failure(.transient(reason: "\(package.name) changelog \(url): HTTP \(status)"))
         }
 
-        var section = Self.extractSection(from: page, target: package.cleanCurrentVersion)
+        // A tagged changelog covers installed..target, so upgrading across
+        // releases does not hide an intermediate one (a security fix, say).
+        var section = Self.extractSection(
+            from: page,
+            target: package.cleanCurrentVersion,
+            until: isTagged ? package.cleanInstalledVersion : nil
+        )
         if section.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isTagged {
             section = Self.extractSection(from: page, target: "")
         }
@@ -62,12 +68,16 @@ struct MarkdownChangelog: NoteSource {
         return .success(ReleaseNotes(markdown: markdown))
     }
 
-    /// Extracts one version section: starts at the heading matching `target`
-    /// (or the first heading if `target` is empty) and stops at the next
-    /// version heading. The heading line itself is included in the output.
-    private static func extractSection(from markdown: String, target: String) -> String {
+    /// Extracts a version section: starts at the heading matching `target` (or
+    /// the first real release if `target` is empty, which skips `[Unreleased]`)
+    /// and stops at the next version heading. The heading line is included.
+    ///
+    /// With `installed`, the extraction continues through every older release
+    /// down to, but excluding, that version - or to the end of the file when it
+    /// is not in there, which the caller's line cap then trims from the old end.
+    private static func extractSection(from markdown: String, target: String, until installed: String? = nil) -> String {
         var capturing = false
-        var done = false
+        var started = false
         var output: [String] = []
 
         for line in markdown.components(separatedBy: "\n") {
@@ -75,14 +85,30 @@ struct MarkdownChangelog: NoteSource {
                 if capturing { output.append(line) }
                 continue
             }
-            capturing = false
-            if !done && (target.isEmpty || version == target) {
+            if started {
+                guard let installed else { break }
+                if isUnreleased(version) {
+                    capturing = false
+                    continue
+                }
+                guard version != installed else { break }
                 capturing = true
-                done = true
+                output.append(line)
+                continue
+            }
+            if version == target || (target.isEmpty && !isUnreleased(version)) {
+                capturing = true
+                started = true
                 output.append(line)
             }
         }
         return output.joined(separator: "\n")
+    }
+
+    /// `[Unreleased]` and prerelease (`1.30.0-beta.1`) blocks are not releases
+    /// anyone installs, so a range steps over them instead of listing them.
+    private static func isUnreleased(_ version: String) -> Bool {
+        version == "Unreleased" || version.contains("-")
     }
 
     /// Compiled once, and checked by the compiler: a `try?` around a runtime
