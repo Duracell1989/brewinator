@@ -16,11 +16,19 @@ struct MarkdownChangelog: NoteSource {
     }
 
     func canHandle(_ package: OutdatedPackageInfo) -> Bool {
-        database.markdownChangelogSources[package.name] != nil
+        database.markdownChangelogSources[package.name] != nil || database.taggedChangelogURLTemplates[package.name] != nil
+    }
+
+    /// A fixed URL wins; otherwise the per-version template, with `%s` replaced
+    /// by the exact target version (the tag name).
+    private func changelogURL(for package: OutdatedPackageInfo) -> URL? {
+        if let fixed = database.markdownChangelogSources[package.name] { return fixed }
+        guard let template = database.taggedChangelogURLTemplates[package.name] else { return nil }
+        return URL(string: template.replacingOccurrences(of: "%s", with: package.cleanCurrentVersion))
     }
 
     func fetch(_ package: OutdatedPackageInfo) async -> Result<ReleaseNotes, FetchError> {
-        guard let url = database.markdownChangelogSources[package.name] else {
+        guard let url = changelogURL(for: package) else {
             return .success(Resolver.noForgeDetected)
         }
 
@@ -76,8 +84,9 @@ struct MarkdownChangelog: NoteSource {
     /// Both shapes in use are covered by one pattern rather than a per-source
     /// style enum like `NewsFileSpec.headingStyle`: the `NEWS` files that enum
     /// serves differ structurally (prose headings), whereas markdown changelog
-    /// headings vary only on depth and one optional word — `## 2.1.231`
-    /// (claude-code) against `### Version 1.40.2` (proton-pass).
+    /// headings vary only on depth, one optional word and Keep a Changelog's
+    /// brackets and date — `## 2.1.231` (claude-code), `### Version 1.40.2`
+    /// (proton-pass) and `## [1.29.3] - 2026-11-03` (rustup).
     ///
     /// Deliberately narrow beyond that: the whole line must be the marker, the
     /// optional word and a dotted version, so neither a bullet mentioning a
@@ -86,10 +95,12 @@ struct MarkdownChangelog: NoteSource {
     /// — add it when a source that needs it turns up, with a test.
     private static func headingVersion(of line: String) -> String? {
         let trimmed = line.trimmingCharacters(in: .whitespaces)
-        guard trimmed.range(of: #"^#{2,3}\s+(?:[Vv]ersion\s+)?\d+(?:\.\d+)+$"#, options: .regularExpression) != nil else {
+        let pattern = #"^#{2,3}\s+(?:[Vv]ersion\s+)?\[?(\d+(?:\.\d+)+)\]?(?:\s+-\s+\d{4}-\d{2}-\d{2})?$"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+        let range = NSRange(trimmed.startIndex..<trimmed.endIndex, in: trimmed)
+        guard let match = regex.firstMatch(in: trimmed, range: range), let versionRange = Range(match.range(at: 1), in: trimmed) else {
             return nil
         }
-        guard let start = trimmed.range(of: #"\d"#, options: .regularExpression) else { return nil }
-        return String(trimmed[start.lowerBound...])
+        return String(trimmed[versionRange])
     }
 }

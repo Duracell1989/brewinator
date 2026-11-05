@@ -10,7 +10,7 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ### Added
 
-- `rustup` reconstructs its notes from the commit log between version tags instead of archiving "No matching release found". The project tags every release but has never published a GitHub Release, and its `CHANGELOG.md` lags the tag.
+- `rustup` reads its curated `CHANGELOG.md` at the release tag instead of archiving "No matching release found". The project tags every release but publishes no GitHub Release, and `main`'s changelog stops at the last minor because patch releases are cut elsewhere, so the section for 1.29.3 only exists at the tag. `MarkdownChangelog` now also reads `## [1.29.3] - 2026-11-03` headings and per-version URL templates (`taggedChangelogURLTemplates`).
 
 ## [0.17.0] - 2026-10-28
 

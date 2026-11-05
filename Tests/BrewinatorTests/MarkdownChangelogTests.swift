@@ -6,9 +6,17 @@ import Testing
 private let changelogURL = URL(string: "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md")!
 private let protonPassURL = URL(string: "https://raw.githubusercontent.com/ProtonMail/WebClients/main/applications/pass-desktop/CHANGELOG.md")!
 
+private let rustupTemplate = "https://raw.githubusercontent.com/rust-lang/rustup/%s/CHANGELOG.md"
+private let rustupTagURL = URL(string: "https://raw.githubusercontent.com/rust-lang/rustup/1.29.3/CHANGELOG.md")!
+
 private let testDatabase = ResolutionDatabase.testDefaults.with(
-    markdownChangelogSources: ["claude-code": changelogURL, "proton-pass": protonPassURL]
+    markdownChangelogSources: ["claude-code": changelogURL, "proton-pass": protonPassURL],
+    taggedChangelogURLTemplates: ["rustup": rustupTemplate]
 )
+
+private func rustupPackage(current: String) -> OutdatedPackageInfo {
+    OutdatedPackageInfo(name: "rustup", installedVersion: "1.29.2", currentVersion: current, kind: .formula)
+}
 
 private func claudeCodePackage(current: String) -> OutdatedPackageInfo {
     OutdatedPackageInfo(name: "claude-code", installedVersion: "2.1.231", currentVersion: current, kind: .formula)
@@ -143,5 +151,43 @@ struct MarkdownChangelogTests {
         #expect(notes.markdown.contains("### Breaking changes"))
         #expect(notes.markdown.contains("Something changed"))
         #expect(!notes.markdown.contains("Older entry"))
+    }
+
+    @Test("a tagged template reads the changelog at the release tag, so a patch release absent from `main` is found")
+    func taggedTemplateReadsChangelogAtTheTag() async throws {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: rustupTagURL, data: try Fixture.data("rustup-changelog-sample", extension: "md"), statusCode: 200)
+        let source = MarkdownChangelog(httpFetcher: fetcher, database: testDatabase)
+
+        #expect(source.canHandle(rustupPackage(current: "1.29.3")))
+        let result = await source.fetch(rustupPackage(current: "1.29.3"))
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("## [1.29.3] - 2026-11-03"))
+        #expect(notes.markdown.contains("Illegal instruction"))
+        #expect(!notes.markdown.contains("rustls-webpki"))
+        #expect(notes.markdown.contains("[Full changelog](\(rustupTagURL.absoluteString))"))
+    }
+
+    @Test("a bracketed `## [X] - date` heading is recognised, and the section before it is not cut short by link definitions")
+    func bracketedDatedHeadingIsRecognised() async throws {
+        var fetcher = FakeHTTPFetcher()
+        fetcher.respond(to: rustupTagURL, data: try Fixture.data("rustup-changelog-sample", extension: "md"), statusCode: 200)
+        let source = MarkdownChangelog(httpFetcher: fetcher, database: testDatabase)
+
+        let result = await source.fetch(rustupPackage(current: "1.29.3"))
+        guard case .success(let notes) = result else {
+            Issue.record("expected success, got \(result)")
+            return
+        }
+        #expect(notes.markdown.contains("[pr#5167]: https://github.com/rust-lang/rustup/pull/5167"))
+    }
+
+    @Test("the production database reads rustup's changelog at the version tag")
+    func liveDatabaseRegistersRustup() {
+        #expect(ResolutionDatabase.live.taggedChangelogURLTemplates["rustup"] == rustupTemplate)
+        #expect(ResolutionDatabase.live.tagCompareSpecs["rustup"] == nil)
     }
 }

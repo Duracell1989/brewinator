@@ -41,6 +41,10 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
     let sparkleFeeds: [String: URL]
     let jetbrainsCodes: [String: String]
     let markdownChangelogSources: [String: URL]
+    /// `CHANGELOG.md` read at the release's own git ref, for projects that cut
+    /// patch releases off a branch so `main`'s changelog lags the tag. `%s` is
+    /// the exact target version, which is also the tag name.
+    let taggedChangelogURLTemplates: [String: String]
     let newsFileSources: [String: NewsFileSpec]
     let gnuPatchProjects: [String: GNUPatchSpec]
     let gitlabStubPattern: String
@@ -127,15 +131,6 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
                 subpath: nil,
                 gitlabHost: "gitlab.freedesktop.org"
             ),
-            // rustup tags every release with the bare version (`1.29.3`) but has
-            // never published a GitHub Release, so `ForgeReleases` finds an empty
-            // list. The upstream CHANGELOG.md lags the tag, so the commit log
-            // between tags is the dependable source.
-            "rustup": TagCompareSpec(
-                repo: "rust-lang/rustup",
-                tagTemplate: "%s",
-                subpath: nil
-            ),
             // Do not "fix" this back to Proton's own version.json feed: its
             // `ReleaseNotes` array is empty on every release ever published, and
             // `ProtonMail/inbox-desktop` was archived 2025-03 with its source
@@ -181,6 +176,15 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
         // so one static URL serves every version, and `NewsRangeExtractor` starting
         // at the target version is what keeps the "(unreleased)" section at the top
         // of the file out of the notes.
+        taggedChangelogURLTemplates: [
+            // rustup tags every release with the bare version but has never
+            // published a GitHub Release, and `main`'s CHANGELOG.md stops at the
+            // last minor (1.29.0) because patch releases are cut elsewhere. The
+            // changelog at the tag carries the curated section, so read it
+            // there; the commit log between tags was mostly dependency-bot and
+            // CI noise, listed oldest first.
+            "rustup": "https://raw.githubusercontent.com/rust-lang/rustup/%s/CHANGELOG.md"
+        ],
         newsFileSources: [
             "gnupg": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/gnupg/master/NEWS")!, headingStyle: .gnupg),
             "gpgme": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/gpg/gpgme/master/NEWS")!, headingStyle: .gnupg),
