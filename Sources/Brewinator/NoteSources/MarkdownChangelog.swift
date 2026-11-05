@@ -1,11 +1,14 @@
 import Foundation
 
 /// Fetches a raw `CHANGELOG.md`-style page and extracts one release's
-/// section, falling back to the newest section when the target version has
-/// no entry. Reusable for any cask/formula whose notes are a plain Markdown
-/// changelog with one version heading per release — `claude-code` and
-/// `proton-pass` are the current consumers via
-/// `ResolutionDatabase.markdownChangelogSources`.
+/// section. Two registrations feed it through `ResolutionDatabase`:
+/// `markdownChangelogSources` (`claude-code`, `proton-pass`) is one fixed page
+/// that falls back to its newest section when the target version has no entry,
+/// because the page always describes the latest release. `taggedChangelogURLTemplates`
+/// (`rustup`) reads the page at the target's own git tag, so a missing section
+/// means that tag's changelog was not updated and is reported as such - the
+/// newest section there would be a *different* release. A fixed URL wins when a
+/// package is registered in both.
 struct MarkdownChangelog: NoteSource {
     private let httpFetcher: HTTPFetching
     private let database: ResolutionDatabase
@@ -16,12 +19,24 @@ struct MarkdownChangelog: NoteSource {
     }
 
     func canHandle(_ package: OutdatedPackageInfo) -> Bool {
-        database.markdownChangelogSources[package.name] != nil
+        database.markdownChangelogSources[package.name] != nil || database.taggedChangelogURLTemplates[package.name] != nil
+    }
+
+    /// A fixed URL wins; otherwise the per-version template, with `%s` replaced
+    /// by the exact target version (the tag name).
+    private func changelogURL(for package: OutdatedPackageInfo) -> URL? {
+        if let fixed = database.markdownChangelogSources[package.name] { return fixed }
+        guard let template = database.taggedChangelogURLTemplates[package.name] else { return nil }
+        return URL(string: template.replacingOccurrences(of: "%s", with: package.cleanCurrentVersion))
     }
 
     func fetch(_ package: OutdatedPackageInfo) async -> Result<ReleaseNotes, FetchError> {
-        guard let url = database.markdownChangelogSources[package.name] else {
+        let isTagged = database.markdownChangelogSources[package.name] == nil
+        guard database.markdownChangelogSources[package.name] != nil || database.taggedChangelogURLTemplates[package.name] != nil else {
             return .success(Resolver.noForgeDetected)
+        }
+        guard let url = changelogURL(for: package) else {
+            return .failure(.transient(reason: "\(package.name) changelog: invalid URL for version \(package.cleanCurrentVersion)"))
         }
 
         let data: Data
@@ -36,7 +51,7 @@ struct MarkdownChangelog: NoteSource {
         }
 
         var section = Self.extractSection(from: page, target: package.cleanCurrentVersion)
-        if section.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        if section.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isTagged {
             section = Self.extractSection(from: page, target: "")
         }
         guard !section.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
@@ -70,26 +85,34 @@ struct MarkdownChangelog: NoteSource {
         return output.joined(separator: "\n")
     }
 
+    /// Compiled once, and checked by the compiler: a `try?` around a runtime
+    /// pattern would turn a typo into every package reporting "no entry".
+    ///
+    /// Two shapes: Keep a Changelog's bracketed `## [1.29.3] - 2026-11-03`
+    /// (the brackets are one group, so `## [1.2.3` is not a heading; anything
+    /// after the closing bracket is allowed, which covers dates and `[YANKED]`;
+    /// prerelease versions and `[Unreleased]` match too, purely so they end the
+    /// section before them), and the bare `## 2.1.231` / `### Version 1.40.2`.
+    ///
+    /// `nonisolated(unsafe)`: `Regex` is not `Sendable`, but this one is immutable and only ever matched.
+    private nonisolated(unsafe) static let headingPattern =
+        #/^#{2,3}\s+(?:[Vv]ersion\s+)?(?:\[(\d+(?:\.\d+)+[0-9A-Za-z.+\-]*|Unreleased)\](?:\s+-\s+.*)?|(\d+(?:\.\d+)+))$/#
+
     /// The version a heading line announces, or nil when the line is not a
     /// version heading.
     ///
-    /// Both shapes in use are covered by one pattern rather than a per-source
-    /// style enum like `NewsFileSpec.headingStyle`: the `NEWS` files that enum
-    /// serves differ structurally (prose headings), whereas markdown changelog
-    /// headings vary only on depth and one optional word — `## 2.1.231`
-    /// (claude-code) against `### Version 1.40.2` (proton-pass).
+    /// One pattern rather than a per-source style enum like
+    /// `NewsFileSpec.headingStyle`: the `NEWS` files that enum serves differ
+    /// structurally (prose headings), whereas markdown changelog headings vary
+    /// only on depth, one optional word, and Keep a Changelog's brackets.
     ///
     /// Deliberately narrow beyond that: the whole line must be the marker, the
     /// optional word and a dotted version, so neither a bullet mentioning a
     /// version nor a non-version subheading (`### Breaking changes`) can be
     /// read as a heading and cut a section short. A `v` prefix is not accepted
-    /// — add it when a source that needs it turns up, with a test.
+    /// - add it when a source that needs it turns up, with a test.
     private static func headingVersion(of line: String) -> String? {
-        let trimmed = line.trimmingCharacters(in: .whitespaces)
-        guard trimmed.range(of: #"^#{2,3}\s+(?:[Vv]ersion\s+)?\d+(?:\.\d+)+$"#, options: .regularExpression) != nil else {
-            return nil
-        }
-        guard let start = trimmed.range(of: #"\d"#, options: .regularExpression) else { return nil }
-        return String(trimmed[start.lowerBound...])
+        guard let match = line.trimmingCharacters(in: .whitespaces).wholeMatch(of: headingPattern) else { return nil }
+        return String(match.output.1 ?? match.output.2 ?? "")
     }
 }

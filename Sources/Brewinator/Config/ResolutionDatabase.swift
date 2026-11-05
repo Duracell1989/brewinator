@@ -41,6 +41,10 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
     let sparkleFeeds: [String: URL]
     let jetbrainsCodes: [String: String]
     let markdownChangelogSources: [String: URL]
+    /// `CHANGELOG.md` read at the release's own git ref, for projects that cut
+    /// patch releases off a branch so `main`'s changelog lags the tag. `%s` is
+    /// the exact target version, which is also the tag name.
+    let taggedChangelogURLTemplates: [String: String]
     let newsFileSources: [String: NewsFileSpec]
     let gnuPatchProjects: [String: GNUPatchSpec]
     let gitlabStubPattern: String
@@ -159,6 +163,15 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
             // Proton merges the entry then falls through to the no-entry
             // message instead of 404ing the whole fetch.
             "proton-pass": URL(string: "https://raw.githubusercontent.com/ProtonMail/WebClients/main/applications/pass-desktop/CHANGELOG.md")!,
+        ],
+        taggedChangelogURLTemplates: [
+            // rustup tags every release with the bare version but has never
+            // published a GitHub Release, and `main`'s CHANGELOG.md stops at the
+            // last minor (1.29.0) because patch releases are cut elsewhere. The
+            // changelog at the tag carries the curated section, so read it
+            // there; the commit log between tags was mostly dependency-bot and
+            // CI noise, listed oldest first.
+            "rustup": "https://raw.githubusercontent.com/rust-lang/rustup/%s/CHANGELOG.md"
         ],
         // The whole GnuPG family resolves through here rather than through
         // `repoOverrides`. Their canonical host is git.gnupg.org, whose gitweb
