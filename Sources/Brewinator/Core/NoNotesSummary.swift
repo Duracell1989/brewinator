@@ -3,8 +3,9 @@
 /// skipped package is indistinguishable from a fetch that silently failed.
 enum NoNotesSummary {
     /// Has no " (<kind>) - " part, so `FileArchiveStore.prune` never treats it
-    /// as a package's note.
-    static let filename = "No release notes available.md"
+    /// as a package's note. The leading underscore sorts it above every package
+    /// note in an alphabetical file listing (Obsidian's explorer, Finder).
+    static let filename = "_Skipped - no release notes.md"
 
     private static let userReason = "on your skip list"
 
@@ -17,7 +18,7 @@ enum NoNotesSummary {
             let reason = BuiltInSkipList.reason(for: package.name) ?? userReason
             return "- \(package.name) (\(package.kind.rawValue)) \(package.installedVersion) → \(package.currentVersion) - \(reason)"
         }
-        return "## Packages without release notes\n\nOutdated but skipped on purpose - there is nothing to read for them.\n\n"
+        return "## Skipped packages - no release notes\n\nOutdated but skipped on purpose - there is nothing to read for them.\n\n"
             + lines.joined(separator: "\n") + "\n"
     }
 }

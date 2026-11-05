@@ -72,7 +72,7 @@ Packages on the built-in list below are skipped by brewinator itself, so `config
 
 Some packages publish no per-version release notes anywhere, so brewinator skips them without you configuring anything - `spotify`, `discord`, `whatsapp`, and the Microsoft Office casks. That list ships in the code rather than in your config file, so it can be corrected in a release instead of being frozen on the day you installed. `brewinator config` prints it.
 
-While any skipped package (built-in or yours) is outdated, the archive holds one extra file, `No release notes available.md`, listing each with its versions and the reason. If a note is missing from the folder, check that file before assuming a fetch failed.
+While any skipped package (built-in or yours) is outdated, the archive holds one extra file, `_Skipped - no release notes.md`, listing each with its versions and the reason. If a note is missing from the folder, check that file before assuming a fetch failed.
 
 If one of them does publish notes somewhere, or a package you care about isn't resolving, please [open an issue or a pull request](https://github.com/Duracell1989/brewinator/issues) - that's the way the curated database grows.
 
