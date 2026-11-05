@@ -216,3 +216,59 @@ struct ArchiveStoreFilenameParsingTests {
         #expect(FileArchiveStore.packageName(fromArchiveFilename: "not-a-valid-archive-name") == nil)
     }
 }
+
+@Suite("FileArchiveStore.writeSummary")
+struct ArchiveStoreWriteSummaryTests {
+    private let summaryName = NoNotesSummary.filename
+
+    @Test("writes the summary under its fixed filename, creating the directory")
+    func writesSummary() throws {
+        let directory = tempDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = FileArchiveStore(directory: directory)
+
+        try store.writeSummary("## Packages without release notes\n")
+
+        let written = try String(contentsOf: directory.appendingPathComponent(summaryName), encoding: .utf8)
+        #expect(written == "## Packages without release notes\n")
+    }
+
+    @Test("replaces the previous summary rather than appending")
+    func replacesSummary() throws {
+        let directory = tempDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = FileArchiveStore(directory: directory)
+        try store.writeSummary("old\n")
+
+        try store.writeSummary("new\n")
+
+        let written = try String(contentsOf: directory.appendingPathComponent(summaryName), encoding: .utf8)
+        #expect(written == "new\n")
+    }
+
+    @Test("nil removes a stale summary, and is a no-op when none exists")
+    func nilRemovesSummary() throws {
+        let directory = tempDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = FileArchiveStore(directory: directory)
+        try store.writeSummary("stale\n")
+
+        try store.writeSummary(nil)
+        try store.writeSummary(nil)
+
+        #expect(!FileManager.default.fileExists(atPath: directory.appendingPathComponent(summaryName).path))
+    }
+
+    @Test("prune leaves the summary alone even when no package is outdated")
+    func pruneKeepsSummary() throws {
+        let directory = tempDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = FileArchiveStore(directory: directory)
+        try store.writeSummary("kept\n")
+
+        let trashed = try store.prune(keeping: [], skippedBy: SkipMatcher(["*"]))
+
+        #expect(trashed.isEmpty)
+        #expect(FileManager.default.fileExists(atPath: directory.appendingPathComponent(summaryName).path))
+    }
+}

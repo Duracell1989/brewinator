@@ -30,6 +30,8 @@ private struct WriteFailingArchiveStore: ArchiveStore {
     func prune(keeping outdatedIdentities: Set<ArchivePackageIdentity>, skippedBy skipped: SkipMatcher) throws -> [URL] {
         try inner.prune(keeping: outdatedIdentities, skippedBy: skipped)
     }
+
+    func writeSummary(_ markdown: String?) throws { try inner.writeSummary(markdown) }
 }
 
 private struct FixtureNotFound: Error {}
@@ -81,7 +83,55 @@ struct BrewNotesSyncTests {
         #expect(Set(result.newItems.map(\.name)) == ["node", "obsidian"])
 
         let remaining = Set(try FileManager.default.contentsOfDirectory(atPath: directory.path))
-        #expect(remaining == ["ffmpeg (formula) - 8.1.2.md", "node (formula) - 23.0.0.md", "obsidian (cask) - 1.1.0.md"])
+        #expect(
+            remaining == [
+                "ffmpeg (formula) - 8.1.2.md", "node (formula) - 23.0.0.md", "obsidian (cask) - 1.1.0.md",
+                NoNotesSummary.filename,
+            ]
+        )
+    }
+
+    @Test("writes one summary file listing the outdated packages that are skipped, so a missing note is not mistaken for a miss")
+    func writesNoNotesSummary() async throws {
+        let directory = tempDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let config = UserConfig(archiveDirectory: directory.path, skipList: ["ffmpeg"], notify: false)
+        let sync = BrewNotesSync(
+            brewClient: FakeBrewClient(result: try loadFixture()),
+            archiveStore: FileArchiveStore(directory: directory),
+            resolver: Resolver(sources: []),
+            config: config
+        )
+
+        let result = try await sync.run()
+
+        let summary = try String(contentsOf: directory.appendingPathComponent(NoNotesSummary.filename), encoding: .utf8)
+        #expect(summary.contains("- discord (formula)"))
+        #expect(summary.contains("- ffmpeg (formula)"))
+        #expect(summary.contains("on your skip list"))
+        #expect(!summary.contains("node"))
+        #expect(!result.newItems.map(\.name).contains("discord"))
+    }
+
+    @Test("removes the summary once nothing outdated is skipped any more")
+    func removesStaleSummary() async throws {
+        let directory = tempDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        try seed(directory, filename: NoNotesSummary.filename)
+
+        let node = OutdatedPackageInfo(name: "node", installedVersion: "22.0.0", currentVersion: "23.0.0", kind: .formula)
+        let sync = BrewNotesSync(
+            brewClient: FakeBrewClient(result: OutdatedResult(formulae: [node], casks: [])),
+            archiveStore: FileArchiveStore(directory: directory),
+            resolver: Resolver(sources: []),
+            config: UserConfig(archiveDirectory: directory.path, skipList: [], notify: false)
+        )
+
+        _ = try await sync.run()
+
+        let remaining = Set(try FileManager.default.contentsOfDirectory(atPath: directory.path))
+        #expect(remaining == ["node (formula) - 23.0.0.md"])
     }
 
     @Test(
@@ -291,6 +341,10 @@ private final class OrderRecordingArchiveStore: ArchiveStore, @unchecked Sendabl
     func prune(keeping outdatedIdentities: Set<ArchivePackageIdentity>, skippedBy skipped: SkipMatcher) throws -> [URL] {
         events.append("prune")
         return []
+    }
+
+    func writeSummary(_ markdown: String?) throws {
+        events.append("writeSummary")
     }
 }
 

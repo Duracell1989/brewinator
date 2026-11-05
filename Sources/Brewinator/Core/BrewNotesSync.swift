@@ -47,6 +47,13 @@ struct BrewNotesSync: Sendable {
         let outdatedIdentities = Set(allPackages.map(\.archiveIdentity))
         let trashed = try archiveStore.prune(keeping: outdatedIdentities, skippedBy: config.skipMatcher)
 
+        // A failed summary write must not cost the notes themselves.
+        do {
+            try archiveStore.writeSummary(NoNotesSummary.markdown(for: allPackages, config: config))
+        } catch {
+            logger.warn("no-notes summary: failed to update - \(error)")
+        }
+
         var newItems: [SyncResult.NewItem] = []
         for package in allPackages {
             guard !config.isSkipped(package.name) else { continue }
