@@ -127,6 +127,15 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
                 subpath: nil,
                 gitlabHost: "gitlab.freedesktop.org"
             ),
+            // rustup tags every release with the bare version (`1.29.3`) but has
+            // never published a GitHub Release, so `ForgeReleases` finds an empty
+            // list. The upstream CHANGELOG.md lags the tag, so the commit log
+            // between tags is the dependable source.
+            "rustup": TagCompareSpec(
+                repo: "rust-lang/rustup",
+                tagTemplate: "%s",
+                subpath: nil
+            ),
             // Do not "fix" this back to Proton's own version.json feed: its
             // `ReleaseNotes` array is empty on every release ever published, and
             // `ProtonMail/inbox-desktop` was archived 2025-03 with its source

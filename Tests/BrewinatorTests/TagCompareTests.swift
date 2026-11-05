@@ -228,4 +228,12 @@ struct TagCompareTests {
         #expect(spec?.gitlabHost == "gitlab.freedesktop.org")
         #expect(spec?.tagTemplate == tagTemplate)
     }
+
+    @Test("the production database registers rustup on GitHub with bare version tags")
+    func liveDatabaseRegistersRustup() {
+        let spec = ResolutionDatabase.live.tagCompareSpecs["rustup"]
+        #expect(spec?.repo == "rust-lang/rustup")
+        #expect(spec?.gitlabHost == nil)
+        #expect(spec?.tagTemplate == "%s")
+    }
 }

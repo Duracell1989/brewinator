@@ -8,6 +8,10 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ## [Unreleased]
 
+### Added
+
+- `rustup` reconstructs its notes from the commit log between version tags instead of archiving "No matching release found". The project tags every release but has never published a GitHub Release, and its `CHANGELOG.md` lags the tag.
+
 ## [0.17.0] - 2026-10-28
 
 ### Added
