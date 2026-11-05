@@ -11,6 +11,7 @@ The release workflow reads the section matching the tag it is building, and fail
 ### Added
 
 - `rustup` reads its curated `CHANGELOG.md` at the release tag instead of archiving "No matching release found". The project tags every release but publishes no GitHub Release, and `main`'s changelog stops at the last minor because patch releases are cut elsewhere, so the section for 1.29.3 only exists at the tag. `MarkdownChangelog` now also reads `## [1.29.3] - 2026-11-03` headings and per-version URL templates (`taggedChangelogURLTemplates`).
+- A single `_Skipped - no release notes.md` file in the archive lists every outdated package that is skipped, with versions and the reason (built-in skip list entries carry their own; yours say "on your skip list"). A skipped package no longer looks like a fetch that silently failed. The file is rewritten when the set changes and moved to the Trash when nothing outdated is skipped.
 
 ## [0.17.0] - 2026-10-28
 

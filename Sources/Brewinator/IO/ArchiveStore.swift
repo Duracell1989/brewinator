@@ -4,6 +4,8 @@ protocol ArchiveStore: Sendable {
     func existingFile(for package: OutdatedPackageInfo) -> Bool
     func write(_ notes: ReleaseNotes, for package: OutdatedPackageInfo) throws
     func prune(keeping outdatedIdentities: Set<ArchivePackageIdentity>, skippedBy skipped: SkipMatcher) throws -> [URL]
+    /// Writes the no-notes summary, or removes it when `markdown` is nil.
+    func writeSummary(_ markdown: String?) throws
 }
 
 final class FileArchiveStore: ArchiveStore {
@@ -58,6 +60,22 @@ final class FileArchiveStore: ArchiveStore {
             trashed.append(file)
         }
         return trashed
+    }
+
+    /// Unchanged content is left alone, so an idle run does not touch the file's
+    /// modification time. Removal goes to the Trash like every other deletion.
+    func writeSummary(_ markdown: String?) throws {
+        let target = directory.appendingPathComponent(NoNotesSummary.filename)
+        let exists = FileManager.default.fileExists(atPath: target.path)
+
+        guard let markdown else {
+            if exists { try FileManager.default.trashItem(at: target, resultingItemURL: nil) }
+            return
+        }
+        if exists, (try? String(contentsOf: target, encoding: .utf8)) == markdown { return }
+
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try markdown.write(to: target, atomically: true, encoding: .utf8)
     }
 
     private func targetURL(for package: OutdatedPackageInfo) -> URL {

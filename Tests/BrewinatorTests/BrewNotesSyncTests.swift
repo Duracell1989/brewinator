@@ -30,11 +30,13 @@ private struct WriteFailingArchiveStore: ArchiveStore {
     func prune(keeping outdatedIdentities: Set<ArchivePackageIdentity>, skippedBy skipped: SkipMatcher) throws -> [URL] {
         try inner.prune(keeping: outdatedIdentities, skippedBy: skipped)
     }
+
+    func writeSummary(_ markdown: String?) throws { try inner.writeSummary(markdown) }
 }
 
-private struct FixtureNotFound: Error {}
+struct FixtureNotFound: Error {}
 
-private func loadFixture() throws -> OutdatedResult {
+func loadFixture() throws -> OutdatedResult {
     guard let url = Bundle.module.url(forResource: "brew-outdated-sample", withExtension: "json", subdirectory: "Fixtures") else {
         throw FixtureNotFound()
     }
@@ -81,7 +83,12 @@ struct BrewNotesSyncTests {
         #expect(Set(result.newItems.map(\.name)) == ["node", "obsidian"])
 
         let remaining = Set(try FileManager.default.contentsOfDirectory(atPath: directory.path))
-        #expect(remaining == ["ffmpeg (formula) - 8.1.2.md", "node (formula) - 23.0.0.md", "obsidian (cask) - 1.1.0.md"])
+        #expect(
+            remaining == [
+                "ffmpeg (formula) - 8.1.2.md", "node (formula) - 23.0.0.md", "obsidian (cask) - 1.1.0.md",
+                NoNotesSummary.filename,
+            ]
+        )
     }
 
     @Test(
@@ -291,6 +298,10 @@ private final class OrderRecordingArchiveStore: ArchiveStore, @unchecked Sendabl
     func prune(keeping outdatedIdentities: Set<ArchivePackageIdentity>, skippedBy skipped: SkipMatcher) throws -> [URL] {
         events.append("prune")
         return []
+    }
+
+    func writeSummary(_ markdown: String?) throws {
+        events.append("writeSummary")
     }
 }
 
