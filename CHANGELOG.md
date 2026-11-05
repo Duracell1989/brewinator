@@ -8,6 +8,8 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ## [Unreleased]
 
+## [0.18.1] - 2026-11-05
+
 ### Fixed
 
 - `rustup` notes now cover every release between the installed and the new version instead of only the newest, so upgrading across several releases no longer hides an intermediate one (1.29.2 was a security release). Tagged changelogs step over `[Unreleased]` and prerelease blocks inside that range.
