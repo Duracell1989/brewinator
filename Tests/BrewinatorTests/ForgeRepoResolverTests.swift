@@ -33,6 +33,18 @@ private func package(_ name: String, stableURL: String? = nil, homepage: String?
 
 @Suite("ForgeRepoResolver")
 struct ForgeRepoResolverTests {
+    @Test("little-cms2 resolves to its GitHub releases although the formula names only SourceForge and littlecms.com")
+    func littleCMS2Override() {
+        let lcms = package(
+            "little-cms2",
+            stableURL: "https://downloads.sourceforge.net/project/lcms/lcms/2.20/lcms2-2.20.tar.gz",
+            homepage: "https://www.littlecms.com/"
+        )
+        let repo = ForgeRepoResolver.resolve(package: lcms, database: .live)
+        #expect(repo?.host == "github.com")
+        #expect(repo?.ownerRepo == "mm2/Little-CMS")
+    }
+
     @Test("override (owner/repo form, github.com assumed) wins even when the stable URL points elsewhere")
     func overrideWins() {
         let repo = ForgeRepoResolver.resolve(package: package("node", stableURL: "https://nodejs.org/dist/v1.tar.xz"), database: testDatabase)
