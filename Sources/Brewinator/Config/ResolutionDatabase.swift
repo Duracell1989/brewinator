@@ -94,8 +94,11 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
         // head-URL scanning now resolves them to the same repo. `signal` stays:
         // casks have no head URL at all. `scroll-reverser` is the same case: the
         // cask homepage and download are both on pilotmoon.com, but the project
-        // publishes release notes as GitHub release bodies.
+        // publishes release notes as GitHub release bodies. `little-cms2` too:
+        // tarball on SourceForge, homepage littlecms.com, no head, while the
+        // notes are GitHub release bodies tagged `lcms2.<version>`.
         repoOverrides: [
+            "little-cms2": "mm2/Little-CMS",
             "scroll-reverser": "pilotmoon/Scroll-Reverser",
             "signal": "signalapp/Signal-Desktop",
         ],

@@ -26,8 +26,9 @@ enum VersionMatcher {
     }
 
     /// Exact `tagName` match, case-insensitive with an optional `v` prefix on
-    /// either side, falling back to the first element (releases list newest
-    /// first).
+    /// either side; then a tag that is the version behind a name prefix
+    /// (`lcms2.20`, `release-1.2`); then the first element (releases list
+    /// newest first).
     static func matchRelease<T: VersionTagged>(in releases: [T], version: String) -> T? {
         let target = version.lowercased().hasPrefix("v") ? String(version.lowercased().dropFirst()) : version.lowercased()
         let exact = releases.first { release in
@@ -35,6 +36,15 @@ enum VersionMatcher {
             let strippedTag = tag.hasPrefix("v") ? String(tag.dropFirst()) : tag
             return strippedTag == target
         }
-        return exact ?? releases.first
+        return exact ?? releases.first { isPrefixed(tag: $0.tagName.lowercased(), version: target) } ?? releases.first
+    }
+
+    /// The character before the version must be a letter, `-` or `_`. A digit
+    /// or `.` there means the tag is a longer version that merely ends in this
+    /// one (`12.20`, `1.2.20` for `2.20`).
+    private static func isPrefixed(tag: String, version: String) -> Bool {
+        guard !version.isEmpty, tag.count > version.count, tag.hasSuffix(version) else { return false }
+        let before = tag[tag.index(tag.endIndex, offsetBy: -version.count - 1)]
+        return before.isLetter || before == "-" || before == "_"
     }
 }

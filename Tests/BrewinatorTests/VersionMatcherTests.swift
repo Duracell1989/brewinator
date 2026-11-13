@@ -71,6 +71,30 @@ struct VersionMatcherMatchReleaseTests {
         #expect(VersionMatcher.matchRelease(in: releases, version: "v1.0.0")?.tagName == "V1.0.0")
     }
 
+    @Test("a tag carrying a name prefix matches its version (lcms2.20)")
+    func namePrefixedTag() {
+        let releases = [FakeRelease(tagName: "lcms2.21rc1"), FakeRelease(tagName: "lcms2.20"), FakeRelease(tagName: "lcms2.19.1")]
+        #expect(VersionMatcher.matchRelease(in: releases, version: "2.20")?.tagName == "lcms2.20")
+    }
+
+    @Test("a tag with a hyphen or underscore before the version matches it")
+    func separatorPrefixedTag() {
+        #expect(VersionMatcher.matchRelease(in: [FakeRelease(tagName: "v9"), FakeRelease(tagName: "release-1.2")], version: "1.2")?.tagName == "release-1.2")
+        #expect(VersionMatcher.matchRelease(in: [FakeRelease(tagName: "v9"), FakeRelease(tagName: "pkg_1.2")], version: "1.2")?.tagName == "pkg_1.2")
+    }
+
+    @Test("an exact tag wins over a prefixed one later in the list")
+    func exactBeatsPrefixed() {
+        let releases = [FakeRelease(tagName: "tool-1.2"), FakeRelease(tagName: "v1.2")]
+        #expect(VersionMatcher.matchRelease(in: releases, version: "1.2")?.tagName == "v1.2")
+    }
+
+    @Test("a longer version that only ends in the target does not match")
+    func suffixOfLongerVersionIsNoMatch() {
+        let releases = [FakeRelease(tagName: "v3.0"), FakeRelease(tagName: "12.20"), FakeRelease(tagName: "1.2.20")]
+        #expect(VersionMatcher.matchRelease(in: releases, version: "2.20")?.tagName == "v3.0")
+    }
+
     @Test("no match falls back to the first (newest) release")
     func fallsBackToFirst() {
         let releases = [FakeRelease(tagName: "v2.0.0"), FakeRelease(tagName: "v1.0.0")]
