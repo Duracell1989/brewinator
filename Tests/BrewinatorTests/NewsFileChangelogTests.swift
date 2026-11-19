@@ -32,6 +32,13 @@ struct NewsFileChangelogTests {
         #expect(!source.canHandle(OutdatedPackageInfo(name: "other", installedVersion: "1", currentVersion: "2", kind: .formula)))
     }
 
+    @Test("the production database reads dav1d's NEWS from the GitHub mirror")
+    func liveDatabaseRegistersDav1d() {
+        let spec = ResolutionDatabase.live.newsFileSources["dav1d"]
+        #expect(spec?.url.absoluteString == "https://raw.githubusercontent.com/videolan/dav1d/master/NEWS")
+        #expect(spec?.headingStyle == .dav1d)
+    }
+
     @Test("the range runs from the current version down to the installed one, exclusive")
     func extractsRange() async throws {
         let source = try loadedSource()

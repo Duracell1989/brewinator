@@ -8,6 +8,10 @@ The release workflow reads the section matching the tag it is building, and fail
 
 ## [Unreleased]
 
+### Added
+
+- `dav1d` reads its in-tree `NEWS` from VideoLAN's GitHub mirror with a new `dav1d` heading style instead of reporting "No forge repo detected". The formula names only code.videolan.org, which sits behind an Anubis wall, and the mirror publishes no release objects; each NEWS section is headed "Changes for 1.5.5 'Sonic':".
+
 ## [0.18.1] - 2026-11-05
 
 ### Fixed
