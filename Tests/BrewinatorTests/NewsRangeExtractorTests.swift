@@ -59,6 +59,36 @@ struct NewsHeadingStyleTests {
         #expect(!result.contains("Older fix"))
     }
 
+    /// Shapes from the real file: a codename that changes per minor, one with
+    /// a parenthesised subtitle, and the 0.2.2 entry that names its rc.
+    @Test("dav1d reads the version as the first token, ignoring the codename")
+    func dav1dHeadings() {
+        #expect(NewsHeadingStyle.dav1d.version(of: "Changes for 1.5.5 'Sonic':") == "1.5.5")
+        #expect(NewsHeadingStyle.dav1d.version(of: "Changes for 1.3.0 'Tundra Peregrine Falcon (Calidus)':") == "1.3.0")
+        #expect(NewsHeadingStyle.dav1d.version(of: "Changes for 0.2.2 (0.3.0-rc) 'Antelope':") == "0.2.2")
+        #expect(NewsHeadingStyle.dav1d.version(of: "compared to 0.5.0:") == nil)
+        #expect(NewsHeadingStyle.dav1d.version(of: " - Changes for 1.5.5 in the CLI") == nil)
+        #expect(NewsHeadingStyle.poppler.version(of: "Changes for 1.5.5 'Sonic':") == nil)
+    }
+
+    @Test("dav1d range runs from the target section down to the installed one, exclusive")
+    func dav1dRange() {
+        let news = """
+            Changes for 1.5.5 'Sonic':
+            --------------------------
+
+             - x86: fix an out-of-bounds read in high bitdepth SGR AVX-512 assembly
+
+            Changes for 1.5.4 'Sonic':
+            --------------------------
+
+             - Older fix.
+            """
+        let result = NewsRangeExtractor.extract(from: news, newest: "1.5.5", oldest: "1.5.4", style: .dav1d)
+        #expect(result.contains("out-of-bounds read"))
+        #expect(!result.contains("Older fix"))
+    }
+
     @Test("no style matches another's headings or ordinary prose")
     func stylesDoNotOverlap() {
         #expect(NewsHeadingStyle.gnome.version(of: "Noteworthy changes in version 2.2.0 (2026-08-31)") == nil)
@@ -68,6 +98,9 @@ struct NewsHeadingStyleTests {
         #expect(NewsHeadingStyle.poppler.version(of: "Noteworthy changes in version 2.2.0 (2026-08-31)") == nil)
         #expect(NewsHeadingStyle.gnupg.version(of: "Release 26.09.0:") == nil)
         #expect(NewsHeadingStyle.gnome.version(of: "Release 26.09.0:") == nil)
+        #expect(NewsHeadingStyle.dav1d.version(of: "Release 26.09.0:") == nil)
+        #expect(NewsHeadingStyle.dav1d.version(of: "Noteworthy changes in version 2.2.0 (2026-08-31)") == nil)
+        #expect(NewsHeadingStyle.gnupg.version(of: "Changes for 1.5.5 'Sonic':") == nil)
     }
 
     /// Every poppler body line is indented, so the column-0 anchor is the whole

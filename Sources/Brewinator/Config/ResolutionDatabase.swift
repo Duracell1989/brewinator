@@ -212,6 +212,13 @@ struct ResolutionDatabase: Sendable, Equatable, Codable {
                 url: URL(string: "https://gitlab.freedesktop.org/freetype/freetype/-/raw/master/docs/CHANGES")!,
                 headingStyle: .freetype
             ),
+            // The formula names only code.videolan.org, which is no supported
+            // forge and sits behind the same Anubis wall as VLC's GitLab, so NEWS,
+            // tags and releases all return a challenge page. VideoLAN's read-only
+            // GitHub mirror is reachable but has one release object (0.1.0, 2018),
+            // so a `repoOverrides` entry would only report "No releases published".
+            // The in-tree NEWS carries a curated section per release.
+            "dav1d": NewsFileSpec(url: URL(string: "https://raw.githubusercontent.com/videolan/dav1d/master/NEWS")!, headingStyle: .dav1d),
         ],
         gnuPatchProjects: [
             // Chet Ramey ships fixes for both of these as numbered patch files

@@ -24,6 +24,11 @@ enum NewsHeadingStyle: String, Sendable, Equatable, Codable {
     /// release introduces is the *second* one.
     case freetype
 
+    /// dav1d: "Changes for 1.5.5 'Sonic':". The quoted codename changes per
+    /// minor and may contain spaces and parentheses; 0.2.2 also names its rc
+    /// ("Changes for 0.2.2 (0.3.0-rc) 'Antelope':").
+    case dav1d
+
     /// The version a heading line announces, or nil when the line is not a
     /// heading in this style.
     func version(of line: String) -> String? {
@@ -36,6 +41,8 @@ enum NewsHeadingStyle: String, Sendable, Equatable, Codable {
             return Self.popplerVersion(of: line)
         case .freetype:
             return Self.freetypeVersion(of: line)
+        case .dav1d:
+            return Self.dav1dVersion(of: line)
         }
     }
 
@@ -85,6 +92,15 @@ enum NewsHeadingStyle: String, Sendable, Equatable, Codable {
     /// makes them wrong here, but nothing that old is ever an upgrade target.
     private static func freetypeVersion(of line: String) -> String? {
         guard let rest = suffix(of: line, afterPattern: #"^CHANGES BETWEEN[ \t]+[0-9][0-9.]*[ \t]+and[ \t]+"#) else {
+            return nil
+        }
+        return rest.split(whereSeparator: { $0 == " " || $0 == "\t" }).first.map(String.init)
+    }
+
+    /// The first token after the prefix; the codename and any "(rc)" after it
+    /// are noise. Column-0 anchored like the others: bullets are indented.
+    private static func dav1dVersion(of line: String) -> String? {
+        guard let rest = suffix(of: line, afterPattern: #"^Changes for[ \t]+"#) else {
             return nil
         }
         return rest.split(whereSeparator: { $0 == " " || $0 == "\t" }).first.map(String.init)
