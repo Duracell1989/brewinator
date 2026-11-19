@@ -11,6 +11,7 @@ The release workflow reads the section matching the tag it is building, and fail
 ### Added
 
 - `dav1d` reads its in-tree `NEWS` from VideoLAN's GitHub mirror with a new `dav1d` heading style instead of reporting "No forge repo detected". The formula names only code.videolan.org, which sits behind an Anubis wall, and the mirror publishes no release objects; each NEWS section is headed "Changes for 1.5.5 'Sonic':".
+- `little-cms2` reads its GitHub release bodies on `mm2/Little-CMS` instead of reporting "No forge repo detected". The formula names only SourceForge and littlecms.com, so a `repoOverrides` entry supplies the repo. Release matching now also accepts a tag that is the version behind a name prefix (`lcms2.20`, `release-1.2`) before falling back to the newest release, so a later rc is no longer shown as the target's notes. Exact tags still win, and `12.20` or `1.2.20` do not match `2.20`.
 
 ## [0.18.1] - 2026-11-05
 
